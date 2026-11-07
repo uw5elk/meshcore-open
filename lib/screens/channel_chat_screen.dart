@@ -56,8 +56,10 @@ import '../widgets/reaction_chips.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
+import '../services/file_transfer_engine.dart'
+    show PreparedFile, prepareFileForSend;
 import '../services/file_transfer_protocol.dart'
-    show fileChunkCount, kFileMaxBytes;
+    show fileChunkCount, kFileMaxBytes, kFileMaxOriginalBytes;
 import '../services/file_transfer_service.dart';
 import '../widgets/file_transfers_sheet.dart';
 import '../widgets/image_send_codec_binding.dart';
@@ -2506,16 +2508,25 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       );
       return;
     }
-    if (bytes.length > kFileMaxBytes) {
+    final PreparedFile prepared;
+    try {
+      prepared = prepareFileForSend(bytes);
+    } on ArgumentError {
       showDismissibleSnackBar(
         context,
-        content: Text(l10n.fileTransfer_tooLarge(kFileMaxBytes ~/ 1024)),
+        content: Text(
+          l10n.fileTransfer_tooLarge(
+            bytes.length > kFileMaxOriginalBytes
+                ? kFileMaxOriginalBytes ~/ 1024
+                : kFileMaxBytes ~/ 1024,
+          ),
+        ),
       );
       return;
     }
 
     final estimate = estimateFileSendTime(
-      size: bytes.length,
+      size: prepared.wire.length,
       spreadingFactor: connector.currentSf,
       bandwidthHz: connector.currentBwHz,
       codingRate: connector.currentCr,
@@ -2524,8 +2535,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       l10n.fileTransfer_confirmBody(
         name,
         bytes.length,
-        fileChunkCount(bytes.length) + 2,
+        fileChunkCount(prepared.wire.length) + 2,
       ),
+      if (prepared.compressed)
+        l10n.fileTransfer_confirmCompressed(bytes.length, prepared.wire.length),
       if (estimate != null)
         l10n.fileTransfer_confirmEstimate(
           math.max(1, (estimate.inSeconds / 60).ceil()),

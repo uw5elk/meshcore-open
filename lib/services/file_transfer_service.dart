@@ -93,7 +93,13 @@ class FileTransferService extends ChangeNotifier {
     required Uint8List data,
     required String name,
     required int channelIndex,
-  }) => _engine.sendFile(data: data, name: name, channelIndex: channelIndex);
+    bool compress = true,
+  }) => _engine.sendFile(
+    data: data,
+    name: name,
+    channelIndex: channelIndex,
+    compress: compress,
+  );
 
   Future<void> cancel(int jobId) => _engine.cancel(jobId);
 

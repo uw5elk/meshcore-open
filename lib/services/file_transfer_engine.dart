@@ -8,6 +8,7 @@ library;
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'file_compression.dart';
 import 'file_transfer_protocol.dart';
 
 /// Sends [blobs] in order as GRP_DATA of type [dataTypeFileTransfer] on
@@ -91,6 +92,56 @@ class FileTransferJob {
   }
 }
 
+/// The bytes that go on the air for one file.
+class PreparedFile {
+  /// Sent verbatim: the zlib stream when [compressed], else the file itself.
+  final Uint8List wire;
+  final bool compressed;
+  final int originalSize;
+
+  const PreparedFile({
+    required this.wire,
+    required this.compressed,
+    required this.originalSize,
+  });
+}
+
+/// Compresses [data] when that makes it smaller. Throws [ArgumentError] for an
+/// empty file, one above [kFileMaxOriginalBytes], or one that still exceeds
+/// [kFileMaxBytes] after compression.
+PreparedFile prepareFileForSend(Uint8List data, {bool compress = true}) {
+  if (data.isEmpty) {
+    throw ArgumentError.value(data.length, 'data', 'file is empty');
+  }
+  if (data.length > kFileMaxOriginalBytes) {
+    throw ArgumentError.value(
+      data.length,
+      'data',
+      'exceeds kFileMaxOriginalBytes ($kFileMaxOriginalBytes)',
+    );
+  }
+  if (compress) {
+    final packed = deflateBytes(data);
+    if (packed != null &&
+        packed.length < data.length &&
+        packed.length <= kFileMaxBytes) {
+      return PreparedFile(
+        wire: packed,
+        compressed: true,
+        originalSize: data.length,
+      );
+    }
+  }
+  if (data.length > kFileMaxBytes) {
+    throw ArgumentError.value(
+      data.length,
+      'data',
+      'exceeds kFileMaxBytes ($kFileMaxBytes) and does not compress below it',
+    );
+  }
+  return PreparedFile(wire: data, compressed: false, originalSize: data.length);
+}
+
 class _OutgoingState {
   final FileSendPlan plan;
   Completer<FileStatus?>? waiter;
@@ -167,22 +218,26 @@ class FileTransferEngine {
   /// (delivered, failed or cancelled); the returned job holds the outcome.
   /// Transfers are serialised: a second call waits for the first.
   ///
-  /// Throws [ArgumentError] for an empty or oversized file, and [StateError]
-  /// when the local sender prefix is not known yet.
+  /// The file is zlib-compressed first when that makes it smaller (unless
+  /// [compress] is false). Throws [ArgumentError] for an empty or oversized
+  /// file, and [StateError] when the local sender prefix is not known yet.
   Future<FileTransferJob> sendFile({
     required Uint8List data,
     required String name,
     required int channelIndex,
+    bool compress = true,
   }) {
     final prefix = selfPrefix;
     if (prefix == null) {
       throw StateError('local sender prefix is not known yet');
     }
+    final prepared = prepareFileForSend(data, compress: compress);
     final plan = FileSendPlan.build(
-      data: data,
+      data: prepared.wire,
       name: name,
       senderPrefix: prefix,
       session: _sessions.next(),
+      compressed: prepared.compressed,
     );
     final job = FileTransferJob(
       id: _nextJobId++,
@@ -389,6 +444,7 @@ class FileTransferEngine {
   }
 
   void _completeIncoming(FileStreamKey key, FileReassemblyResult result) {
+    final wireChunks = fileChunkCount(result.data.length);
     var job = _incomingJobs.remove(key);
     job ??= FileTransferJob(
       id: _nextJobId++,
@@ -400,12 +456,25 @@ class FileTransferEngine {
       startedAt: _clock(),
     );
     if (!_jobs.contains(job)) _addJob(job);
+    var data = result.data;
+    if (result.compressed) {
+      final inflated = inflateBytes(data, maxBytes: kFileMaxOriginalBytes);
+      if (inflated == null || inflated.isEmpty) {
+        job
+          ..name = result.name
+          ..receivedChunks = wireChunks
+          ..totalChunks = wireChunks;
+        _fail(job, 'cannot decompress the file');
+        return;
+      }
+      data = inflated;
+    }
     job
       ..name = result.name
-      ..size = result.data.length
-      ..receivedChunks = fileChunkCount(result.data.length)
-      ..totalChunks = fileChunkCount(result.data.length)
-      ..data = result.data
+      ..size = data.length
+      ..receivedChunks = wireChunks
+      ..totalChunks = wireChunks
+      ..data = data
       ..status = FileJobStatus.received;
     _changed();
     onFileReceived?.call(job);

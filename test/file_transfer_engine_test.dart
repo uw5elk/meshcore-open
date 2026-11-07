@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:meshcore_open/services/file_compression.dart';
 import 'package:meshcore_open/services/file_transfer_engine.dart';
 import 'package:meshcore_open/services/file_transfer_protocol.dart';
 
@@ -295,5 +296,107 @@ void main() {
     expect(engine.jobs.length, 3);
     expect(engine.jobs.first.name, 'f5');
     expect(changes, greaterThan(0));
+  });
+
+  group('compression', () {
+    Uint8List text(int n) => Uint8List.fromList(
+      List<int>.generate(
+        n,
+        (i) => 'meshcore file transfer, line ${i ~/ 40}\n'.codeUnitAt(i % 30),
+      ),
+    );
+
+    test('compressible file is sent smaller and restored exactly', () async {
+      final net = _Net();
+      final data = text(20000);
+      final prepared = prepareFileForSend(data);
+      expect(prepared.compressed, isTrue);
+      expect(prepared.wire.length, lessThan(data.length ~/ 3));
+
+      final job = await net.a.sendFile(
+        data: data,
+        name: 'notes.txt',
+        channelIndex: 1,
+      );
+      expect(job.status, FileJobStatus.delivered);
+      final got = net.receivedByB.single;
+      expect(got.status, FileJobStatus.received);
+      expect(got.data, data);
+      expect(got.size, data.length);
+      // Far fewer packets than the raw 20000 bytes would need.
+      expect(net.blobsFromA, lessThan(fileChunkCount(data.length) ~/ 3));
+    });
+
+    test('incompressible data goes out verbatim', () {
+      final data = _bytes(4000);
+      final prepared = prepareFileForSend(data);
+      expect(prepared.compressed, isFalse);
+      expect(prepared.wire, data);
+    });
+
+    test('compress: false is honoured', () {
+      expect(
+        prepareFileForSend(text(5000), compress: false).compressed,
+        isFalse,
+      );
+    });
+
+    test('limits: raw above 128 KB needs compression, above 512 KB never', () {
+      expect(prepareFileForSend(Uint8List(300 * 1024)).compressed, isTrue);
+      expect(
+        () => prepareFileForSend(Uint8List(300 * 1024), compress: false),
+        throwsArgumentError,
+      );
+      expect(() => prepareFileForSend(_bytes(200 * 1024)), throwsArgumentError);
+      expect(
+        () => prepareFileForSend(Uint8List(kFileMaxOriginalBytes + 1)),
+        throwsArgumentError,
+      );
+    });
+
+    test('a corrupt compressed stream fails the job, not the app', () {
+      final received = <FileTransferJob>[];
+      final b = FileTransferEngine(
+        selfPrefix: 0xBBBB,
+        onFileReceived: received.add,
+        sendBlobs: (blobs, ch, progress) async => true,
+      );
+      final junk = _bytes(500, seed: 9);
+      final plan = FileSendPlan.build(
+        data: junk,
+        name: 'bad.bin',
+        senderPrefix: 0xAAAA,
+        session: 1,
+        compressed: true,
+      );
+      for (final blob in plan.initialBurst) {
+        b.handleBlob(blob, 0);
+      }
+      expect(received, isEmpty);
+      expect(b.jobs.single.status, FileJobStatus.failed);
+    });
+
+    test('a decompression bomb is refused', () {
+      final received = <FileTransferJob>[];
+      final b = FileTransferEngine(
+        selfPrefix: 0xBBBB,
+        onFileReceived: received.add,
+        sendBlobs: (blobs, ch, progress) async => true,
+      );
+      final bomb = deflateBytes(Uint8List(8 * 1024 * 1024))!;
+      expect(bomb.length, lessThan(kFileMaxBytes));
+      final plan = FileSendPlan.build(
+        data: bomb,
+        name: 'bomb.bin',
+        senderPrefix: 0xAAAA,
+        session: 2,
+        compressed: true,
+      );
+      for (final blob in plan.initialBurst) {
+        b.handleBlob(blob, 0);
+      }
+      expect(received, isEmpty);
+      expect(b.jobs.single.status, FileJobStatus.failed);
+    });
   });
 }

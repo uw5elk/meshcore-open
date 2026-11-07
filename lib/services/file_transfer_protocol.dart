@@ -92,6 +92,10 @@ const int kFileStatusMaxMissing = (kFileBlobBytes - kFileStatusFixedBytes) ~/ 2;
 /// impractical, and it bounds receiver memory.
 const int kFileMaxBytes = 128 * 1024;
 
+/// Largest original file; it must still fit [kFileMaxBytes] once compressed,
+/// and a receiver never inflates past this.
+const int kFileMaxOriginalBytes = 512 * 1024;
+
 /// OFFER flag bit0: payload is zlib-compressed; the receiver inflates it.
 const int kFileFlagCompressed = 1;
 

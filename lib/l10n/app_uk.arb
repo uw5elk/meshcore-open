@@ -3576,6 +3576,7 @@
   "fileTransfer_empty": "Поки що немає передач файлів.",
   "fileTransfer_confirmTitle": "Надіслати файл по радіо?",
   "fileTransfer_confirmBody": "Файл «{name}» ({size} байт) буде надіслано як {packets} пакетів усім у цьому каналі. Скористайтеся приватним каналом, спільним лише з отримувачем.",
+  "fileTransfer_confirmCompressed": "Стиснення: {original} байт → {sent} байт в ефірі.",
   "fileTransfer_confirmEstimate": "Орієнтовний час: близько {minutes} хв, довше, якщо пакети доведеться надсилати повторно.",
   "fileTransfer_send": "Надіслати",
   "fileTransfer_tooLarge": "По радіо можна надсилати файли до {limitKb} КБ.",
