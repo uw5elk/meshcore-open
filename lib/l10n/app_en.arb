@@ -4052,6 +4052,50 @@
       }
     }
   },
+  "fileTransfer_photoAction": "Send photo (shrink to size)",
+  "fileTransfer_photoSizeTitle": "Shrink the photo to",
+  "fileTransfer_photoSizeOption": "{kb} KB, about {minutes} min",
+  "@fileTransfer_photoSizeOption": {
+    "placeholders": {
+      "kb": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_photoSizeOptionNoEstimate": "{kb} KB",
+  "@fileTransfer_photoSizeOptionNoEstimate": {
+    "placeholders": {
+      "kb": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_photoShrinking": "Shrinking the photo…",
+  "fileTransfer_photoFailed": "This photo cannot be shrunk to {kb} KB. Choose a larger size.",
+  "@fileTransfer_photoFailed": {
+    "placeholders": {
+      "kb": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_photoDetails": "Result: {width}×{height} px, JPEG quality {quality}.",
+  "@fileTransfer_photoDetails": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      },
+      "quality": {
+        "type": "int"
+      }
+    }
+  },
   "fileTransfer_confirmEstimate": "Estimated time: about {minutes} min, longer if packets must be resent.",
   "@fileTransfer_confirmEstimate": {
     "placeholders": {

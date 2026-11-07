@@ -25,6 +25,7 @@ import '../helpers/message_url_image_helper.dart';
 import '../helpers/path_helper.dart';
 import '../helpers/reaction_helper.dart';
 import '../helpers/snack_bar_builder.dart';
+import '../l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../models/channel.dart';
 import '../models/channel_message.dart';
@@ -61,6 +62,8 @@ import '../services/file_transfer_engine.dart'
 import '../services/file_transfer_protocol.dart'
     show fileChunkCount, kFileMaxBytes, kFileMaxOriginalBytes;
 import '../services/file_transfer_service.dart';
+import '../services/image_shrink.dart';
+import '../services/image_shrink_codec.dart';
 import '../widgets/file_transfers_sheet.dart';
 import '../widgets/image_send_codec_binding.dart';
 import '../widgets/image_send_preview_sheet.dart';
@@ -2435,6 +2438,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             label: context.l10n.fileTransfer_action,
           ),
           ChatComposerAction(
+            id: 'meshcore-photo',
+            icon: Icons.photo_size_select_large,
+            label: context.l10n.fileTransfer_photoAction,
+          ),
+          ChatComposerAction(
             id: 'file-transfers',
             icon: Icons.swap_vert,
             label: context.l10n.fileTransfer_openList,
@@ -2461,6 +2469,8 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             _showImageSendPreview();
           case 'meshcore-file':
             _pickAndSendFile();
+          case 'meshcore-photo':
+            _pickAndSendPhoto();
           case 'file-transfers':
             showFileTransfersSheet(context);
           case 'send-my-location':
@@ -2575,6 +2585,206 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         content: Text(l10n.imageSend_sendFailed('$error')),
       );
     }
+  }
+
+  /// Picks a photo, shrinks it to a byte budget the user chooses, then sends the
+  /// JPEG as a file with the same retransmission and confirmation as any other.
+  Future<void> _pickAndSendPhoto() async {
+    final l10n = context.l10n;
+    final connector = context.read<MeshCoreConnector>();
+    final service = context.read<FileTransferService>();
+    if (!connector.supportsChannelData || connector.imageSenderPrefix == null) {
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.imageSend_deviceUnsupported),
+      );
+      return;
+    }
+
+    final Uint8List bytes;
+    final String name;
+    try {
+      final file = await file_selector.openFile(
+        acceptedTypeGroups: const [
+          file_selector.XTypeGroup(
+            label: 'images',
+            extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'],
+            mimeTypes: ['image/*'],
+            uniformTypeIdentifiers: ['public.image'],
+          ),
+        ],
+      );
+      if (file == null || !mounted) return;
+      bytes = await file.readAsBytes();
+      name = file.name;
+    } on Exception catch (error) {
+      if (!mounted) return;
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.fileTransfer_pickFailed('$error')),
+      );
+      return;
+    }
+    if (!mounted) return;
+    if (bytes.isEmpty) {
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.chat_ipfsSelectedFileEmpty),
+      );
+      return;
+    }
+
+    final budgetKb = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(l10n.fileTransfer_photoSizeTitle),
+        children: [
+          for (final kb in const [5, 10, 20, 40, 80])
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(dialogContext, kb),
+              child: Text(_photoSizeLabel(l10n, connector, kb)),
+            ),
+        ],
+      ),
+    );
+    if (budgetKb == null || !mounted) return;
+    final budget = budgetKb * 1024;
+
+    final Uint8List data;
+    final String sendName;
+    String? details;
+    if (looksLikeJpeg(bytes) && bytes.length <= budget) {
+      // Already small enough: send the photo untouched.
+      data = bytes;
+      sendName = name;
+    } else {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Expanded(child: Text(l10n.fileTransfer_photoShrinking)),
+            ],
+          ),
+        ),
+      ).ignore();
+      ShrinkResult? shrunk;
+      try {
+        shrunk = await shrinkPhotoToBudget(bytes, budgetBytes: budget);
+      } finally {
+        if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      }
+      if (!mounted) return;
+      if (shrunk == null) {
+        showDismissibleSnackBar(
+          context,
+          content: Text(l10n.fileTransfer_photoFailed(budgetKb)),
+        );
+        return;
+      }
+      data = shrunk.bytes;
+      sendName = shrunkPhotoName(name);
+      details = l10n.fileTransfer_photoDetails(
+        shrunk.width,
+        shrunk.height,
+        shrunk.quality,
+      );
+    }
+
+    final estimate = estimateFileSendTime(
+      size: data.length,
+      spreadingFactor: connector.currentSf,
+      bandwidthHz: connector.currentBwHz,
+      codingRate: connector.currentCr,
+    );
+    final body = <String>[
+      l10n.fileTransfer_confirmBody(
+        sendName,
+        data.length,
+        fileChunkCount(data.length) + 2,
+      ),
+      if (details != null) details,
+      if (estimate != null)
+        l10n.fileTransfer_confirmEstimate(
+          math.max(1, (estimate.inSeconds / 60).ceil()),
+        ),
+    ].join('\n\n');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.fileTransfer_confirmTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Image.memory(
+                  data,
+                  height: 160,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(body),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.fileTransfer_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.fileTransfer_send),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      // A JPEG does not deflate further, so skip the compression attempt.
+      service
+          .sendFile(
+            data: data,
+            name: sendName,
+            channelIndex: widget.channel.index,
+            compress: false,
+          )
+          .ignore();
+    } catch (error) {
+      if (!mounted) return;
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.imageSend_sendFailed('$error')),
+      );
+    }
+  }
+
+  String _photoSizeLabel(
+    AppLocalizations l10n,
+    MeshCoreConnector connector,
+    int kb,
+  ) {
+    final estimate = estimateFileSendTime(
+      size: kb * 1024,
+      spreadingFactor: connector.currentSf,
+      bandwidthHz: connector.currentBwHz,
+      codingRate: connector.currentCr,
+    );
+    if (estimate == null) {
+      return l10n.fileTransfer_photoSizeOptionNoEstimate(kb);
+    }
+    return l10n.fileTransfer_photoSizeOption(
+      kb,
+      math.max(1, (estimate.inSeconds / 60).ceil()),
+    );
   }
 
   /// Shares the radio's own position as a map marker on this channel. It is

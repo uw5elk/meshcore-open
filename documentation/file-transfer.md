@@ -19,6 +19,12 @@ A transfer ends as *Delivered and verified* once a receiver reports a complete c
 
 An incoming file shows as a banner on its channel and in the **File transfers** list. When it is complete and verified, tap **Save**: a save dialog on desktop, the share sheet elsewhere. Received files are kept in memory only and are gone after the app restarts.
 
+## Send a photo shrunk to a size
+
+The attach menu also has **Send photo (shrink to size)**. Pick a photo, then a size (5, 10, 20, 40 or 80 KB; each shows a rough time). The app picks the largest picture size and then the highest JPEG quality that still fit, shows the result with a preview, and sends it as a normal `.jpg` file with the usual retransmission and confirmation. The receiver gets an ordinary JPEG to save. A JPEG already under the chosen size is sent untouched. If a photo cannot fit even at the smallest size, choose a larger one.
+
+Decoding uses the engine's native decoder, scaled while decoding. Encoding uses the pure-Dart `image` package. The search itself is in [image_shrink.dart](../lib/services/image_shrink.dart) and is unit tested without Flutter.
+
 ## Compression
 
 The OFFER flag `compressed` (bit 0) marks a zlib stream. The receiver inflates it with a hard cap of `kFileMaxOriginalBytes`, and a stream that is corrupt or expands beyond the cap fails the job. The CRC-32 covers the bytes on the air. Compression needs `dart:io`, so on web files are sent uncompressed and a compressed file cannot be opened.
