@@ -25,7 +25,7 @@ jobs:
       - name: Test
         run: flutter test
         continue-on-error: true
-      - run: flutter build apk --release --no-pub
+      - run: flutter build apk --release --no-pub --target-platform android-arm64
       - uses: actions/upload-artifact@v4
         with:
           name: meshcore-open-apk
