@@ -1,0 +1,32 @@
+name: Android APK
+on:
+  push:
+    branches:
+      - file-transfer
+  workflow_dispatch:
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - name: Analyze
+        run: flutter analyze
+        continue-on-error: true
+      - name: Test
+        run: flutter test
+        continue-on-error: true
+      - run: flutter build apk --release --no-pub
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meshcore-open-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

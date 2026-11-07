@@ -19,6 +19,7 @@
 - Routing hashes are public-key prefixes. Firmware negotiation currently supports 1–3 bytes per hop; packed path metadata must be decoded before counting or reversing hops. Use per-path hash width, not a fixed one-byte stride. See [routing paths](documentation/routing-paths.md).
 - Regions: channel messages retain their send region; incoming regions are resolved from raw transport-flood codes against locally known names. Replies use a known original region by default, with an opt-out chip. See [regions](documentation/regions.md).
 - Images: channel GRP_DATA framing is defined in `lib/services/image_chunk_transport.dart`. Native codec/model requirements are documented in [image messages](documentation/image-messages.md).
+- Files: selective-repeat file transfer over GRP_DATA type `0xF11E` is defined in `lib/services/file_transfer_protocol.dart`; see [file transfer](documentation/file-transfer.md).
 
 ## Build, Test, and Development Commands
 - Commands assume Flutter/Dart on PATH (or use your SDK's absolute path); see [CLAUDE.md](CLAUDE.md) for the full list.

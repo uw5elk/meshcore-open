@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show mergeSort;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +56,10 @@ import '../widgets/reaction_chips.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
+import '../services/file_transfer_protocol.dart'
+    show fileChunkCount, kFileMaxBytes;
+import '../services/file_transfer_service.dart';
+import '../widgets/file_transfers_sheet.dart';
 import '../widgets/image_send_codec_binding.dart';
 import '../widgets/image_send_preview_sheet.dart';
 import '../widgets/message_status_icon.dart';
@@ -2400,6 +2405,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             },
           ),
         if (_imageSendTotal > 0) _buildImageSendProgress(scheme),
+        FileTransferBanner(channelIndex: widget.channel.index),
       ],
       actionsBuilder: () {
         final connector = context.read<MeshCoreConnector>();
@@ -2421,6 +2427,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               icon: Icons.image_outlined,
               label: context.l10n.chat_sendImageLora,
             ),
+          ChatComposerAction(
+            id: 'meshcore-file',
+            icon: Icons.attach_file,
+            label: context.l10n.fileTransfer_action,
+          ),
+          ChatComposerAction(
+            id: 'file-transfers',
+            icon: Icons.swap_vert,
+            label: context.l10n.fileTransfer_openList,
+          ),
           if (hasShareableLocation(
             connector.selfLatitude,
             connector.selfLongitude,
@@ -2441,11 +2457,111 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             _sendImageViaIpfs();
           case 'meshcore-image':
             _showImageSendPreview();
+          case 'meshcore-file':
+            _pickAndSendFile();
+          case 'file-transfers':
+            showFileTransfersSheet(context);
           case 'send-my-location':
             _shareMyLocation(context.read<MeshCoreConnector>());
         }
       },
     );
+  }
+
+  /// Picks a file, shows the packet count and an airtime estimate, and hands it
+  /// to [FileTransferService]. Progress and the outcome appear in the banner
+  /// above the composer and in the file transfers list.
+  Future<void> _pickAndSendFile() async {
+    final l10n = context.l10n;
+    final connector = context.read<MeshCoreConnector>();
+    final service = context.read<FileTransferService>();
+    if (!connector.supportsChannelData || connector.imageSenderPrefix == null) {
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.imageSend_deviceUnsupported),
+      );
+      return;
+    }
+
+    final Uint8List bytes;
+    final String name;
+    try {
+      final file = await file_selector.openFile();
+      if (file == null || !mounted) return;
+      bytes = await file.readAsBytes();
+      name = file.name;
+    } on Exception catch (error) {
+      if (!mounted) return;
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.fileTransfer_pickFailed('$error')),
+      );
+      return;
+    }
+    if (!mounted) return;
+    if (bytes.isEmpty) {
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.chat_ipfsSelectedFileEmpty),
+      );
+      return;
+    }
+    if (bytes.length > kFileMaxBytes) {
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.fileTransfer_tooLarge(kFileMaxBytes ~/ 1024)),
+      );
+      return;
+    }
+
+    final estimate = estimateFileSendTime(
+      size: bytes.length,
+      spreadingFactor: connector.currentSf,
+      bandwidthHz: connector.currentBwHz,
+      codingRate: connector.currentCr,
+    );
+    final body = <String>[
+      l10n.fileTransfer_confirmBody(
+        name,
+        bytes.length,
+        fileChunkCount(bytes.length) + 2,
+      ),
+      if (estimate != null)
+        l10n.fileTransfer_confirmEstimate(
+          math.max(1, (estimate.inSeconds / 60).ceil()),
+        ),
+    ].join('\n\n');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.fileTransfer_confirmTitle),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.fileTransfer_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.fileTransfer_send),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      // Runs for minutes; the job's status carries the outcome.
+      service
+          .sendFile(data: bytes, name: name, channelIndex: widget.channel.index)
+          .ignore();
+    } catch (error) {
+      if (!mounted) return;
+      showDismissibleSnackBar(
+        context,
+        content: Text(l10n.imageSend_sendFailed('$error')),
+      );
+    }
   }
 
   /// Shares the radio's own position as a map marker on this channel. It is

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
 import 'l10n/app_localizations.dart';
+
 import 'package:provider/provider.dart';
 
 import 'review_mode/review_mode_storage.dart';
@@ -15,6 +17,8 @@ import 'connector/meshcore_connector.dart';
 import 'helpers/message_url_image_helper.dart';
 import 'models/image_codec_support.dart';
 import 'screens/scanner_screen.dart';
+import 'services/file_transfer_protocol.dart' show dataTypeFileTransfer;
+import 'services/file_transfer_service.dart';
 import 'services/image_chunk_transport.dart';
 import 'services/image_codec_service.dart';
 import 'services/image_codec_settings_store.dart';
@@ -137,6 +141,21 @@ void main() async {
     senderPrefix: 0,
   );
 
+  // ---- file transfer (selective-repeat over GRP_DATA) -----------------------
+  final fileTransferService = FileTransferService(
+    sendBlobs: (blobs, channelIndex, onProgress) => connector.sendImageChunks(
+      blobs,
+      channelIndex: channelIndex,
+      interChunkDelay: fileSendChunkGap(
+        spreadingFactor: connector.currentSf,
+        bandwidthHz: connector.currentBwHz,
+        codingRate: connector.currentCr,
+      ),
+      onProgress: onProgress,
+      dataType: dataTypeFileTransfer,
+    ),
+  );
+
   // Initialize app logger
   appLogger.initialize(
     appDebugLogService,
@@ -186,6 +205,7 @@ void main() async {
     imageTransport: imageTransport,
     receivedImageStore: receivedImageStore,
     messageFilterService: messageFilterService,
+    fileTransferService: fileTransferService,
     // ImageStreamReassembler.addChunk already forwards every outcome to the
     // store together with the channel index (which ImageChunkOutcome itself
     // does not carry), so onImageChunk would be a second, channel-blind path.
@@ -218,6 +238,7 @@ void main() async {
       imageCodecService: imageCodecService,
       receivedImageStore: receivedImageStore,
       imageReassembler: imageReassembler,
+      fileTransferService: fileTransferService,
       networkMapUploadService: networkMapUploadService,
       chatBackgroundService: chatBackgroundService,
       messageFilterService: messageFilterService,
@@ -365,6 +386,7 @@ class MeshCoreApp extends StatefulWidget {
   final ImageCodecService imageCodecService;
   final ReceivedImageStore receivedImageStore;
   final ImageStreamReassembler imageReassembler;
+  final FileTransferService fileTransferService;
   final NetworkMapUploadService networkMapUploadService;
   final ChatBackgroundService chatBackgroundService;
   final MessageFilterService messageFilterService;
@@ -386,6 +408,7 @@ class MeshCoreApp extends StatefulWidget {
     required this.imageCodecService,
     required this.receivedImageStore,
     required this.imageReassembler,
+    required this.fileTransferService,
     required this.networkMapUploadService,
     required this.chatBackgroundService,
     required this.messageFilterService,
@@ -480,6 +503,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> with WidgetsBindingObserver {
         ChangeNotifierProvider.value(value: widget.timeoutPredictionService),
         ChangeNotifierProvider.value(value: widget.imageCodecService),
         ChangeNotifierProvider.value(value: widget.receivedImageStore),
+        ChangeNotifierProvider.value(value: widget.fileTransferService),
         ChangeNotifierProvider.value(value: widget.networkMapUploadService),
         ChangeNotifierProvider.value(value: widget.chatBackgroundService),
         ChangeNotifierProvider.value(value: widget.messageFilterService),

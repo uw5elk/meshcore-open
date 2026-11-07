@@ -26,6 +26,8 @@ import '../services/ble_debug_log_service.dart';
 import '../services/linux_ble_error_classifier.dart';
 import '../services/linux_ble_pairing_service_stub.dart'
     if (dart.library.io) '../services/linux_ble_pairing_service.dart';
+import '../services/file_transfer_protocol.dart' show dataTypeFileTransfer;
+import '../services/file_transfer_service.dart';
 import '../services/image_chunk_transport.dart'
     show
         ImageChunkOutcome,
@@ -33,6 +35,7 @@ import '../services/image_chunk_transport.dart'
         buildSendChannelDataFrame,
         dataTypeAeicImage,
         outPathUnknown,
+        parseChannelDataFrame,
         respCodeChannelDataRecv,
         senderPrefixFromKey;
 import '../services/image_codec_service.dart';
@@ -341,6 +344,7 @@ class MeshCoreConnector extends ChangeNotifier {
   ReceivedImageStore? _receivedImageStore;
   void Function(ImageChunkOutcome outcome)? _onImageChunk;
   void Function(int senderPrefix)? _onImageSenderPrefix;
+  FileTransferService? _fileTransferService;
   DateTime _lastRadioRxTime = DateTime.fromMillisecondsSinceEpoch(0);
   DateTime _lastContactMsgRxTime = DateTime.fromMillisecondsSinceEpoch(0);
   DateTime _lastChannelMsgRxTime = DateTime.fromMillisecondsSinceEpoch(0);
@@ -2004,6 +2008,7 @@ class MeshCoreConnector extends ChangeNotifier {
     ImageChunkTransport? imageTransport,
     ReceivedImageStore? receivedImageStore,
     MessageFilterService? messageFilterService,
+    FileTransferService? fileTransferService,
     void Function(ImageChunkOutcome outcome)? onImageChunk,
     void Function(int senderPrefix)? onImageSenderPrefix,
   }) {
@@ -2020,6 +2025,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _imageCodecService = imageCodecService;
     _imageTransport = imageTransport;
     _receivedImageStore = receivedImageStore;
+    _fileTransferService = fileTransferService;
     _onImageChunk = onImageChunk;
     _onImageSenderPrefix = onImageSenderPrefix;
     _bleDebugLogService = bleDebugLogService;
@@ -3829,6 +3835,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _selfPublicKey = null;
     // Partially received images belong to the previous session's sender prefix.
     _imageTransport?.reassembler.clear();
+    _fileTransferService?.clear();
     _selfName = null;
     _selfLatitude = null;
     _selfLongitude = null;
@@ -4105,6 +4112,7 @@ class MeshCoreConnector extends ChangeNotifier {
     // starts over. Dropping them also stops `evictExpired` from firing "image
     // incomplete" failures into the store minutes after the radio went away.
     _imageTransport?.reassembler.clear();
+    _fileTransferService?.clear();
 
     if (!skipBleDeviceDisconnect) {
       try {
@@ -5369,6 +5377,7 @@ class MeshCoreConnector extends ChangeNotifier {
     required int channelIndex,
     required Duration interChunkDelay,
     void Function(int sent, int total)? onProgress,
+    int dataType = dataTypeAeicImage,
   }) async {
     if (blobs.isEmpty) return false;
     if (!supportsChannelData) return false;
@@ -5391,7 +5400,7 @@ class MeshCoreConnector extends ChangeNotifier {
         await _sendFrameAndWaitForCommandAck(
           buildSendChannelDataFrame(
             channelIndex: channelIndex,
-            dataType: dataTypeAeicImage,
+            dataType: dataType,
             payload: blobs[i],
             pathLen: outPathUnknown, // 0xFF => flood
           ),
@@ -6148,7 +6157,7 @@ class MeshCoreConnector extends ChangeNotifier {
     for (final frame in frames) {
       if (frame[0] != respCodeChannelDataRecv) {
         _handleIncomingChannelMessage(frame);
-      } else if (_appSettingsService?.settings.imageMessagesEnabled ?? false) {
+      } else {
         _handleIncomingChannelData(frame);
       }
     }
@@ -6208,6 +6217,7 @@ class MeshCoreConnector extends ChangeNotifier {
     // The reassembler reports in-progress streams as failed while the store
     // can still map them to their entries, so drop it first.
     _imageTransport?.reassembler.clearChannel(slot);
+    _fileTransferService?.clearChannel(slot);
     _receivedImageStore?.forgetChannelSlot(slot);
   }
 
@@ -6473,14 +6483,10 @@ class MeshCoreConnector extends ChangeNotifier {
         if (_isSyncingQueuedMessages) {
           _handleQueuedMessageReceived();
         }
-        // Advance the sync state machine ALWAYS (above), but only reassemble
-        // when the feature is actually on. Without this the "disabled" feature
-        // still reassembles, persists and displays received images: the store
-        // keeps them and channel_chat_screen renders every stored entry, so a
-        // user who never enabled image messages would see them appear.
-        if (_appSettingsService?.settings.imageMessagesEnabled ?? false) {
-          _handleIncomingChannelData(frame);
-        }
+        // Advance the sync state machine ALWAYS (above). The handler itself
+        // only reassembles images when image messages are enabled; file
+        // transfer blobs are not gated by that setting.
+        _handleIncomingChannelData(frame);
         break;
       case respCodeSent:
         _handleMessageSent(frame);
@@ -6634,6 +6640,7 @@ class MeshCoreConnector extends ChangeNotifier {
       final prefix = senderPrefixFromKey(_selfPublicKey);
       if (prefix != null) {
         _imageTransport?.senderPrefix = prefix;
+        _fileTransferService?.selfPrefix = prefix;
         _onImageSenderPrefix?.call(prefix);
       }
     } catch (e) {
@@ -7937,6 +7944,19 @@ class MeshCoreConnector extends ChangeNotifier {
   /// not 0xAE1C — or that arrive before an [ImageChunkTransport] is installed —
   /// are ignored without disturbing any other behaviour.
   void _handleIncomingChannelData(Uint8List frame) {
+    final fileService = _fileTransferService;
+    if (fileService != null) {
+      final parsed = parseChannelDataFrame(frame);
+      if (parsed != null && parsed.dataType == dataTypeFileTransfer) {
+        _lastChannelMsgRxTime = DateTime.now();
+        fileService.handleBlob(parsed.payload, parsed.channelIndex);
+        return;
+      }
+    }
+    // Without this gate a user who never enabled image messages would see
+    // received images appear: the store keeps them and channel_chat_screen
+    // renders every stored entry.
+    if (!(_appSettingsService?.settings.imageMessagesEnabled ?? false)) return;
     // Anchor the post-RX backoff for our own next channel send, exactly as
     // _handleIncomingChannelMessage does.
     _lastChannelMsgRxTime = DateTime.now();

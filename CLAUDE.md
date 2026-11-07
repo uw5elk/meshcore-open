@@ -45,6 +45,7 @@ For Linux, use `nix develop`; see [Linux with Nix](README.md#linux-with-nix) for
 | Translation models/inference | `lib/services/translation_service.dart` |
 | Image models/inference and GRP_DATA chunks | `lib/services/image_codec_service.dart`, `lib/services/image_chunk_transport.dart` |
 | Image reassembly and file persistence | `lib/services/received_image_store.dart`, `lib/services/received_image_blob_store_io.dart` |
+| File transfer (GRP_DATA `0xF11E`) | `lib/services/file_transfer_protocol.dart`, `lib/services/file_transfer_engine.dart`, `lib/services/file_transfer_service.dart` |
 | Material themes | `lib/theme/mesh_theme.dart` |
 | Screens and reusable UI | `lib/screens/`, `lib/widgets/` |
 | Localization | `lib/l10n/` (18 locales) |

@@ -4021,5 +4021,111 @@
   "messageFilter_ghostIconTooltip": "Hidden by your message filter",
   "@messageFilter_ghostIconTooltip": {
     "description": "Message filter: Hidden by your message filter"
+  },
+  "fileTransfer_action": "Send file over radio",
+  "fileTransfer_openList": "File transfers",
+  "fileTransfer_title": "File transfers",
+  "fileTransfer_empty": "No file transfers yet.",
+  "fileTransfer_confirmTitle": "Send file over radio?",
+  "fileTransfer_confirmBody": "{name} ({size} bytes) will be sent as {packets} packets to everyone on this channel. Use a private channel shared only with the recipient.",
+  "@fileTransfer_confirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "int"
+      },
+      "packets": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_confirmEstimate": "Estimated time: about {minutes} min, longer if packets must be resent.",
+  "@fileTransfer_confirmEstimate": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_send": "Send",
+  "fileTransfer_tooLarge": "Files up to {limitKb} KB can be sent over radio.",
+  "@fileTransfer_tooLarge": {
+    "placeholders": {
+      "limitKb": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_pickFailed": "The file could not be read: {error}",
+  "@fileTransfer_pickFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransfer_status_sending": "Sending {sent} of {total}",
+  "@fileTransfer_status_sending": {
+    "placeholders": {
+      "sent": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_status_waiting": "Waiting for confirmation (round {round})",
+  "@fileTransfer_status_waiting": {
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_status_receiving": "Receiving {received} of {total}",
+  "@fileTransfer_status_receiving": {
+    "placeholders": {
+      "received": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTransfer_status_receivingUnknown": "Receiving…",
+  "fileTransfer_status_delivered": "Delivered and verified",
+  "fileTransfer_status_received": "Received and verified",
+  "fileTransfer_status_failed": "Failed: {error}",
+  "@fileTransfer_status_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransfer_status_cancelled": "Cancelled",
+  "fileTransfer_save": "Save",
+  "fileTransfer_cancel": "Cancel",
+  "fileTransfer_dismiss": "Dismiss",
+  "fileTransfer_saveFailed": "The file could not be saved.",
+  "fileTransfer_bannerReceived": "File received: {name}",
+  "@fileTransfer_bannerReceived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransfer_bannerActive": "File: {name}",
+  "@fileTransfer_bannerActive": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }
