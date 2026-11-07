@@ -178,6 +178,10 @@ class FileTransferEngine {
   final void Function()? onChanged;
   final void Function(FileTransferJob job)? onFileReceived;
 
+  /// Diagnostic lines (what was sent, what came back, why a STATUS was
+  /// ignored). Optional.
+  final void Function(String message)? log;
+
   final FileReassembler _reassembler;
   final FileSessionAllocator _sessions;
   final DateTime Function() _clock;
@@ -189,6 +193,7 @@ class FileTransferEngine {
   final Map<FileStreamKey, DateTime> _lastReply = <FileStreamKey, DateTime>{};
 
   Future<void> _sendChain = Future<void>.value();
+  int _replySalt = 0;
   int _nextJobId = 1;
 
   FileTransferEngine({
@@ -200,6 +205,7 @@ class FileTransferEngine {
     this.maxJobs = 20,
     this.onChanged,
     this.onFileReceived,
+    this.log,
     FileReassembler? reassembler,
     FileSessionAllocator? sessions,
     DateTime Function()? clock,
@@ -282,6 +288,15 @@ class FileTransferEngine {
         // Armed before sending: a receiver may answer the PROBE while the
         // radio is still draining the rest of the burst.
         state.waiter = waiter;
+        // Retransmissions differ from the first transmission (see
+        // withFileSalt), otherwise nodes that heard the original drop them.
+        if (round > 0) {
+          burst = <Uint8List>[for (final b in burst) withFileSalt(b, round)];
+        }
+        log?.call(
+          'job ${job.id} round $round: sending ${burst.length} blobs on '
+          'channel ${job.channelIndex}',
+        );
         final sent = await sendBlobs(burst, job.channelIndex, (s, t) {
           job
             ..sentBlobs = s
@@ -305,10 +320,15 @@ class FileTransferEngine {
         if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
 
         if (status == null) {
+          log?.call('job ${job.id} round $round: no STATUS within $statusWait');
           // No answer: the PROBE or the STATUS was lost. Probe again.
           burst = <Uint8List>[state.plan.probe];
           continue;
         }
+        log?.call(
+          'job ${job.id} round $round: STATUS complete=${status.complete} '
+          'missing=${status.missing.length} needOffer=${status.needOffer}',
+        );
         burst = state.plan.onStatus(status);
         if (state.plan.isComplete) {
           return _finish(job, FileJobStatus.delivered);
@@ -391,10 +411,17 @@ class FileTransferEngine {
         _updateIncoming(key);
       case FileBlobStatus.completed:
         _completeIncoming(key, outcome.result!);
+        // Tell the sender right away instead of waiting for its probe.
+        final done = outcome.reply;
+        if (done != null) _replyToProbe(key, done);
       case FileBlobStatus.integrityFailed:
         final job = _incomingJobs.remove(key);
         if (job != null) _fail(job, 'file failed its integrity check');
       case FileBlobStatus.probeAnswered:
+        log?.call(
+          'PROBE received on channel $channelIndex from '
+          '${h.senderPrefix.toRadixString(16)} session ${h.session}',
+        );
         _replyToProbe(key, outcome.reply!);
       case FileBlobStatus.ignored:
         if (h.kind == kFileKindCancel) {
@@ -411,8 +438,18 @@ class FileTransferEngine {
 
   void _routeStatus(Uint8List blob, int channelIndex) {
     final status = parseFileStatus(blob);
-    if (status == null) return;
+    if (status == null) {
+      log?.call('STATUS ignored: malformed');
+      return;
+    }
     if (selfPrefix != null && status.replierPrefix == selfPrefix) return;
+    log?.call(
+      'STATUS received on channel $channelIndex: from '
+      '${status.replierPrefix.toRadixString(16)} session ${status.session} '
+      'target ${status.targetPrefix.toRadixString(16)} '
+      'complete=${status.complete}, ours is '
+      '${selfPrefix?.toRadixString(16)} with ${_outgoing.length} job(s)',
+    );
     for (final entry in _outgoing.entries) {
       final state = entry.value;
       final job = _jobs.where((j) => j.id == entry.key).firstOrNull;
@@ -425,6 +462,7 @@ class FileTransferEngine {
       if (waiter != null && !waiter.isCompleted) waiter.complete(status);
       return;
     }
+    log?.call('STATUS matched no outgoing job');
   }
 
   void _updateIncoming(FileStreamKey key) {
@@ -496,18 +534,26 @@ class FileTransferEngine {
   void _replyToProbe(FileStreamKey key, Uint8List reply) {
     final now = _clock();
     final last = _lastReply[key];
-    if (last != null && now.difference(last) < replyInterval) return;
+    if (last != null && now.difference(last) < replyInterval) {
+      log?.call('STATUS reply throttled');
+      return;
+    }
     _lastReply[key] = now;
     if (_lastReply.length > 32) {
       _lastReply.removeWhere((_, t) => now.difference(t) > replyInterval * 6);
     }
+    final salted = withFileSalt(reply, _replySalt++);
+    log?.call('STATUS sent on channel ${key.channelIndex}');
     // Fire and forget: a failed reply is recovered by the sender's next probe.
     unawaited(
-      sendBlobs(
-        <Uint8List>[reply],
-        key.channelIndex,
-        null,
-      ).then((_) {}, onError: (Object _) {}),
+      sendBlobs(<Uint8List>[salted], key.channelIndex, null).then(
+        (ok) {
+          if (!ok) log?.call('STATUS not sent: transport unavailable');
+        },
+        onError: (Object e) {
+          log?.call('STATUS not sent: $e');
+        },
+      ),
     );
   }
 

@@ -458,4 +458,68 @@ void main() {
     expect((await second).status, FileJobStatus.cancelled);
     expect(net.receivedByB.length, 1);
   });
+
+  test('retransmissions are never byte-identical to earlier probes', () async {
+    final probes = <Uint8List>[];
+    final engine = FileTransferEngine(
+      selfPrefix: 0xAAAA,
+      statusWait: const Duration(milliseconds: 5),
+      maxRounds: 6,
+      sendBlobs: (blobs, ch, progress) async {
+        for (final b in blobs) {
+          if ((b[0] & kFileKindMask) == kFileKindProbe) probes.add(b);
+        }
+        return true;
+      },
+    );
+    final job = await engine.sendFile(
+      data: _bytes(300),
+      name: 'x.bin',
+      channelIndex: 0,
+    );
+    expect(job.status, FileJobStatus.failed);
+    expect(probes.length, 7);
+    final distinct = probes.map((p) => p.join(',')).toSet();
+    expect(distinct.length, probes.length);
+  });
+
+  test('receiver confirms on completion without waiting for a probe', () {
+    final sent = <Uint8List>[];
+    final b = FileTransferEngine(
+      selfPrefix: 0xBBBB,
+      replyInterval: Duration.zero,
+      sendBlobs: (blobs, ch, progress) async {
+        sent.addAll(blobs);
+        return true;
+      },
+    );
+    final plan = FileSendPlan.build(
+      data: _bytes(900),
+      name: 'x.bin',
+      senderPrefix: 0xAAAA,
+      session: 9,
+    );
+    // Everything except the trailing probe.
+    for (final blob in plan.initialBurst.where(
+      (x) => (x[0] & kFileKindMask) != kFileKindProbe,
+    )) {
+      b.handleBlob(blob, 0);
+    }
+    expect(sent.length, 1);
+    final status = parseFileStatus(sent.single)!;
+    expect(status.complete, isTrue);
+    expect(status.targetPrefix, 0xAAAA);
+    expect(status.session, 9);
+  });
+
+  test('an early STATUS from a finished receiver ends the wait', () async {
+    final net = _Net(statusWait: const Duration(seconds: 5));
+    final job = await net.a.sendFile(
+      data: _bytes(700),
+      name: 'x.bin',
+      channelIndex: 0,
+    );
+    expect(job.status, FileJobStatus.delivered);
+    expect(job.round, 0);
+  });
 }

@@ -73,11 +73,15 @@ class FileTransferService extends ChangeNotifier {
   /// Called when a complete, verified file has arrived.
   void Function(FileTransferJob job)? onFileReceived;
 
-  FileTransferService({required FileBlobSender sendBlobs}) {
+  FileTransferService({
+    required FileBlobSender sendBlobs,
+    void Function(String message)? log,
+  }) {
     _engine = FileTransferEngine(
       sendBlobs: sendBlobs,
       onChanged: notifyListeners,
       onFileReceived: (job) => onFileReceived?.call(job),
+      log: log,
     );
   }
 

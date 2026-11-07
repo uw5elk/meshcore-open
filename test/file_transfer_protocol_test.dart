@@ -289,7 +289,7 @@ void main() {
     expect(rx.addBlob(Uint8List(0)).status, FileBlobStatus.malformed);
     expect(rx.addBlob(Uint8List(3)).status, FileBlobStatus.malformed);
     expect(
-      rx.addBlob(Uint8List.fromList(<int>[99, 0, 0, 0, 0])).status,
+      rx.addBlob(Uint8List.fromList(<int>[kFileKindMask, 0, 0, 0, 0])).status,
       FileBlobStatus.malformed,
     );
     expect(
@@ -379,4 +379,42 @@ void main() {
     final a = FileSessionAllocator(seed: 254);
     expect(<int>[a.next(), a.next(), a.next()], <int>[254, 255, 0]);
   });
+
+  test('salt changes the bytes but not the meaning', () {
+    final plan = _plan(_bytes(400));
+    for (final blob in <Uint8List>[plan.offer, plan.chunks[0], plan.probe]) {
+      final salted = withFileSalt(blob, 5);
+      expect(salted, isNot(equals(blob)));
+      expect(salted.sublist(1), blob.sublist(1));
+      final a = parseFileHeader(blob)!;
+      final b = parseFileHeader(salted)!;
+      expect(b.kind, a.kind);
+      expect(b.senderPrefix, a.senderPrefix);
+      expect(b.session, a.session);
+    }
+    expect(withFileSalt(plan.probe, 0), plan.probe);
+    expect(withFileSalt(plan.probe, 8), plan.probe);
+  });
+
+  test(
+    'a salted transfer still reassembles and a salted probe is answered',
+    () {
+      final data = _bytes(900);
+      final plan = _plan(data);
+      final rx = FileReassembler(selfPrefix: 0x1111);
+      FileBlobOutcome last = rx.addBlob(withFileSalt(plan.offer, 3));
+      for (final c in plan.chunks) {
+        last = rx.addBlob(withFileSalt(c, 6));
+      }
+      expect(last.status, FileBlobStatus.completed);
+      expect(last.result!.data, data);
+      // Completion carries an unsolicited "got it".
+      final done = parseFileStatus(last.reply!)!;
+      expect(done.complete, isTrue);
+      expect(done.targetPrefix, plan.senderPrefix);
+      final out = rx.addBlob(withFileSalt(plan.probe, 2));
+      expect(out.status, FileBlobStatus.probeAnswered);
+      expect(parseFileStatus(withFileSalt(out.reply!, 4))!.complete, isTrue);
+    },
+  );
 }

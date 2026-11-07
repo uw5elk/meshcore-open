@@ -143,6 +143,8 @@ void main() async {
 
   // ---- file transfer (selective-repeat over GRP_DATA) -----------------------
   final fileTransferService = FileTransferService(
+    log: (message) =>
+        appLogger.info(message, tag: 'FileTransfer', noNotify: true),
     sendBlobs: (blobs, channelIndex, onProgress) => connector.sendImageChunks(
       blobs,
       channelIndex: channelIndex,

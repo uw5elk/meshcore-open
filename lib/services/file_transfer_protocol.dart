@@ -153,6 +153,23 @@ void _putU32(BytesBuilder out, int v) {
     ..addByte(v & 0xFF);
 }
 
+/// Bits of the first byte that carry the blob kind; the top three bits are a
+/// salt (see [withFileSalt]).
+const int kFileKindMask = 0x1F;
+
+/// Copy of [blob] with a different first-byte salt (0..7).
+///
+/// MeshCore nodes drop a packet whose payload they have already seen, so an
+/// identical PROBE, STATUS or retransmitted chunk would be silently discarded
+/// by the first node that heard the original. Changing the salt per
+/// transmission makes each one a new packet. The receiver masks it away.
+Uint8List withFileSalt(Uint8List blob, int salt) {
+  if (blob.isEmpty) return blob;
+  final out = Uint8List.fromList(blob);
+  out[0] = (out[0] & kFileKindMask) | ((salt & 7) << 5);
+  return out;
+}
+
 BytesBuilder _commonHeader(int kind, int senderPrefix, int session) {
   return BytesBuilder()
     ..addByte(kind)
@@ -203,7 +220,7 @@ FileBlobHeader? parseFileHeader(Uint8List blob) {
   if (blob.length < kFileCommonHeaderBytes || blob.length > kFileBlobBytes) {
     return null;
   }
-  final kind = blob[0];
+  final kind = blob[0] & kFileKindMask;
   if (kind < kFileKindOffer || kind > kFileKindCancel) return null;
   return FileBlobHeader(
     kind: kind,
@@ -234,7 +251,7 @@ class FileOffer {
 /// range, or a chunk count that does not match the size).
 FileOffer? parseFileOffer(Uint8List blob) {
   if (blob.length < kFileOfferFixedBytes) return null;
-  if (blob[0] != kFileKindOffer) return null;
+  if ((blob[0] & kFileKindMask) != kFileKindOffer) return null;
   final total = _u16(blob, 4);
   final size = _u32(blob, 6);
   if (size < 1 || size > kFileMaxBytes) return null;
@@ -278,7 +295,7 @@ class FileStatus {
 
 FileStatus? parseFileStatus(Uint8List blob) {
   if (blob.length < kFileStatusFixedBytes) return null;
-  if (blob[0] != kFileKindStatus) return null;
+  if ((blob[0] & kFileKindMask) != kFileKindStatus) return null;
   if ((blob.length - kFileStatusFixedBytes) % 2 != 0) return null;
   final flags = blob[6] & 0xFF;
   final missing = <int>[];
@@ -532,7 +549,8 @@ class FileBlobOutcome {
   final FileBlobStatus status;
   final FileBlobHeader? header;
 
-  /// STATUS blob to transmit, set for [FileBlobStatus.probeAnswered].
+  /// STATUS blob to transmit, set for [FileBlobStatus.probeAnswered] and for
+  /// [FileBlobStatus.completed] (an unsolicited "got it").
   final Uint8List? reply;
   final FileReassemblyResult? result;
 
@@ -831,6 +849,15 @@ class FileReassembler {
     return FileBlobOutcome(
       FileBlobStatus.completed,
       header: header,
+      reply: _buildStatus(
+        replierPrefix: selfPrefix ?? 0,
+        session: header.session,
+        targetPrefix: header.senderPrefix,
+        complete: true,
+        needOffer: false,
+        received: offer.totalChunks,
+        missing: const <int>[],
+      ),
       result: FileReassemblyResult(
         key: entry.key,
         name: offer.name,
