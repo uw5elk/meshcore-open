@@ -30,3 +30,7 @@ jobs:
         with:
           name: meshcore-open-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: APK size report
+        run: |
+          ls -l build/app/outputs/flutter-apk/app-release.apk
+          unzip -lv build/app/outputs/flutter-apk/app-release.apk | sort -k3 -n -r | head -25
