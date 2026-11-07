@@ -63,6 +63,7 @@ class FileTransferBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final received = job.status == FileJobStatus.received;
+    final jobId = job.id;
     return InkWell(
       onTap: () => showFileTransfersSheet(context),
       child: Container(
@@ -74,27 +75,40 @@ class FileTransferBanner extends StatelessWidget {
             bottom: BorderSide(color: scheme.outlineVariant, width: 1),
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              received
-                  ? l10n.fileTransfer_bannerReceived(job.name)
-                  : l10n.fileTransfer_bannerActive(job.name),
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              fileJobStatusText(l10n, job),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            if (job.isActive) ...[
-              const SizedBox(height: 6),
-              LinearProgressIndicator(
-                value: job.fraction == 0 ? null : job.fraction,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    received
+                        ? l10n.fileTransfer_bannerReceived(job.name)
+                        : l10n.fileTransfer_bannerActive(job.name),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    fileJobStatusText(l10n, job),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (job.isActive) ...[
+                    const SizedBox(height: 6),
+                    LinearProgressIndicator(
+                      value: job.fraction == 0 ? null : job.fraction,
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
+            if (job.isActive)
+              IconButton(
+                tooltip: l10n.fileTransfer_cancel,
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.close),
+                onPressed: () => service.cancel(jobId),
+              ),
           ],
         ),
       ),

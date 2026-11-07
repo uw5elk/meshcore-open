@@ -1,0 +1,191 @@
+diff --git a/lib/services/file_transfer_engine.dart b/lib/services/file_transfer_engine.dart
+index ba7f0f2..1c862c5 100644
+--- a/lib/services/file_transfer_engine.dart
++++ b/lib/services/file_transfer_engine.dart
+@@ -142,6 +142,12 @@ PreparedFile prepareFileForSend(Uint8List data, {bool compress = true}) {
+   return PreparedFile(wire: data, compressed: false, originalSize: data.length);
+ }
+ 
++/// Thrown from the progress callback to stop a burst that is still being
++/// transmitted when the user cancels, instead of letting it run to the end.
++class _SendAborted implements Exception {
++  const _SendAborted();
++}
++
+ class _OutgoingState {
+   final FileSendPlan plan;
+   Completer<FileStatus?>? waiter;
+@@ -281,11 +287,13 @@ class FileTransferEngine {
+             ..sentBlobs = s
+             ..totalBlobs = t;
+           _changed();
++          // Called after every blob: the point where a cancel can take effect.
++          if (state.cancelled) throw const _SendAborted();
+         });
++        if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
+         if (!sent) {
+           return _fail(job, 'transport unavailable');
+         }
+-        if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
+ 
+         job.status = FileJobStatus.waitingForStatus;
+         _changed();
+@@ -307,7 +315,10 @@ class FileTransferEngine {
+         }
+       }
+       return _fail(job, 'no confirmation after $maxRounds rounds');
++    } on _SendAborted {
++      return _finish(job, FileJobStatus.cancelled);
+     } on Exception catch (e) {
++      if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
+       return _fail(job, '$e');
+     } finally {
+       _outgoing.remove(job.id);
+@@ -324,6 +335,8 @@ class FileTransferEngine {
+       state.cancelled = true;
+       final waiter = state.waiter;
+       if (waiter != null && !waiter.isCompleted) waiter.complete(null);
++      // Show it at once; the burst in flight stops after its current blob.
++      _finish(job, FileJobStatus.cancelled);
+       final cancelBlob = buildFileCancel(
+         senderPrefix: state.plan.senderPrefix,
+         session: state.plan.session,
+diff --git a/lib/widgets/file_transfers_sheet.dart b/lib/widgets/file_transfers_sheet.dart
+index 1836d5c..23d3e84 100644
+--- a/lib/widgets/file_transfers_sheet.dart
++++ b/lib/widgets/file_transfers_sheet.dart
+@@ -63,6 +63,7 @@ class FileTransferBanner extends StatelessWidget {
+     final scheme = Theme.of(context).colorScheme;
+     final l10n = context.l10n;
+     final received = job.status == FileJobStatus.received;
++    final jobId = job.id;
+     return InkWell(
+       onTap: () => showFileTransfersSheet(context),
+       child: Container(
+@@ -74,27 +75,40 @@ class FileTransferBanner extends StatelessWidget {
+             bottom: BorderSide(color: scheme.outlineVariant, width: 1),
+           ),
+         ),
+-        child: Column(
+-          crossAxisAlignment: CrossAxisAlignment.start,
++        child: Row(
+           children: [
+-            Text(
+-              received
+-                  ? l10n.fileTransfer_bannerReceived(job.name)
+-                  : l10n.fileTransfer_bannerActive(job.name),
+-              style: Theme.of(context).textTheme.bodyMedium,
+-              maxLines: 1,
+-              overflow: TextOverflow.ellipsis,
+-            ),
+-            Text(
+-              fileJobStatusText(l10n, job),
+-              style: Theme.of(context).textTheme.bodySmall,
++            Expanded(
++              child: Column(
++                crossAxisAlignment: CrossAxisAlignment.start,
++                children: [
++                  Text(
++                    received
++                        ? l10n.fileTransfer_bannerReceived(job.name)
++                        : l10n.fileTransfer_bannerActive(job.name),
++                    style: Theme.of(context).textTheme.bodyMedium,
++                    maxLines: 1,
++                    overflow: TextOverflow.ellipsis,
++                  ),
++                  Text(
++                    fileJobStatusText(l10n, job),
++                    style: Theme.of(context).textTheme.bodySmall,
++                  ),
++                  if (job.isActive) ...[
++                    const SizedBox(height: 6),
++                    LinearProgressIndicator(
++                      value: job.fraction == 0 ? null : job.fraction,
++                    ),
++                  ],
++                ],
++              ),
+             ),
+-            if (job.isActive) ...[
+-              const SizedBox(height: 6),
+-              LinearProgressIndicator(
+-                value: job.fraction == 0 ? null : job.fraction,
++            if (job.isActive)
++              IconButton(
++                tooltip: l10n.fileTransfer_cancel,
++                visualDensity: VisualDensity.compact,
++                icon: const Icon(Icons.close),
++                onPressed: () => service.cancel(jobId),
+               ),
+-            ],
+           ],
+         ),
+       ),
+diff --git a/test/file_transfer_engine_test.dart b/test/file_transfer_engine_test.dart
+index b26c67c..beb5d9b 100644
+--- a/test/file_transfer_engine_test.dart
++++ b/test/file_transfer_engine_test.dart
+@@ -399,4 +399,63 @@ void main() {
+       expect(b.jobs.single.status, FileJobStatus.failed);
+     });
+   });
++
++  test('cancel stops a burst that is still being transmitted', () async {
++    final sentIndexes = <int>[];
++    var cancelBlobs = 0;
++    late FileTransferEngine engine;
++    engine = FileTransferEngine(
++      selfPrefix: 0xAAAA,
++      statusWait: const Duration(milliseconds: 30),
++      sendBlobs: (blobs, ch, progress) async {
++        if (blobs.length == 1 && blobs.single[0] == kFileKindCancel) {
++          cancelBlobs++;
++          return true;
++        }
++        for (var i = 0; i < blobs.length; i++) {
++          await Future<void>.delayed(const Duration(milliseconds: 2));
++          sentIndexes.add(i);
++          progress?.call(i + 1, blobs.length);
++        }
++        return true;
++      },
++    );
++    final result = engine.sendFile(
++      data: _bytes(8000),
++      name: 'big.bin',
++      channelIndex: 0,
++    );
++    await Future<void>.delayed(const Duration(milliseconds: 20));
++    final job = engine.jobs.single;
++    expect(job.status, FileJobStatus.sending);
++    await engine.cancel(job.id);
++    // The list shows it cancelled immediately...
++    expect(job.status, FileJobStatus.cancelled);
++    // ...and the burst really stops instead of running to the end.
++    final done = await result;
++    expect(done.status, FileJobStatus.cancelled);
++    expect(sentIndexes.length, lessThan(job.totalBlobs ~/ 2));
++    expect(cancelBlobs, 1);
++    expect(engine.hasActiveJobs, isFalse);
++  });
++
++  test('a queued transfer can be cancelled before it starts', () async {
++    final net = _Net();
++    final first = net.a.sendFile(
++      data: _bytes(2000),
++      name: 'one.bin',
++      channelIndex: 0,
++    );
++    final second = net.a.sendFile(
++      data: _bytes(2000, seed: 3),
++      name: 'two.bin',
++      channelIndex: 0,
++    );
++    final secondJob = net.a.jobs.first;
++    expect(secondJob.name, 'two.bin');
++    await net.a.cancel(secondJob.id);
++    expect((await first).status, FileJobStatus.delivered);
++    expect((await second).status, FileJobStatus.cancelled);
++    expect(net.receivedByB.length, 1);
++  });
+ }

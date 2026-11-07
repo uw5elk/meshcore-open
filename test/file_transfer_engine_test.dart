@@ -399,4 +399,63 @@ void main() {
       expect(b.jobs.single.status, FileJobStatus.failed);
     });
   });
+
+  test('cancel stops a burst that is still being transmitted', () async {
+    final sentIndexes = <int>[];
+    var cancelBlobs = 0;
+    late FileTransferEngine engine;
+    engine = FileTransferEngine(
+      selfPrefix: 0xAAAA,
+      statusWait: const Duration(milliseconds: 30),
+      sendBlobs: (blobs, ch, progress) async {
+        if (blobs.length == 1 && blobs.single[0] == kFileKindCancel) {
+          cancelBlobs++;
+          return true;
+        }
+        for (var i = 0; i < blobs.length; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 2));
+          sentIndexes.add(i);
+          progress?.call(i + 1, blobs.length);
+        }
+        return true;
+      },
+    );
+    final result = engine.sendFile(
+      data: _bytes(8000),
+      name: 'big.bin',
+      channelIndex: 0,
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final job = engine.jobs.single;
+    expect(job.status, FileJobStatus.sending);
+    await engine.cancel(job.id);
+    // The list shows it cancelled immediately...
+    expect(job.status, FileJobStatus.cancelled);
+    // ...and the burst really stops instead of running to the end.
+    final done = await result;
+    expect(done.status, FileJobStatus.cancelled);
+    expect(sentIndexes.length, lessThan(job.totalBlobs ~/ 2));
+    expect(cancelBlobs, 1);
+    expect(engine.hasActiveJobs, isFalse);
+  });
+
+  test('a queued transfer can be cancelled before it starts', () async {
+    final net = _Net();
+    final first = net.a.sendFile(
+      data: _bytes(2000),
+      name: 'one.bin',
+      channelIndex: 0,
+    );
+    final second = net.a.sendFile(
+      data: _bytes(2000, seed: 3),
+      name: 'two.bin',
+      channelIndex: 0,
+    );
+    final secondJob = net.a.jobs.first;
+    expect(secondJob.name, 'two.bin');
+    await net.a.cancel(secondJob.id);
+    expect((await first).status, FileJobStatus.delivered);
+    expect((await second).status, FileJobStatus.cancelled);
+    expect(net.receivedByB.length, 1);
+  });
 }

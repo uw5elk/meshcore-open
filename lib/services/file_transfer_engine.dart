@@ -142,6 +142,12 @@ PreparedFile prepareFileForSend(Uint8List data, {bool compress = true}) {
   return PreparedFile(wire: data, compressed: false, originalSize: data.length);
 }
 
+/// Thrown from the progress callback to stop a burst that is still being
+/// transmitted when the user cancels, instead of letting it run to the end.
+class _SendAborted implements Exception {
+  const _SendAborted();
+}
+
 class _OutgoingState {
   final FileSendPlan plan;
   Completer<FileStatus?>? waiter;
@@ -281,11 +287,13 @@ class FileTransferEngine {
             ..sentBlobs = s
             ..totalBlobs = t;
           _changed();
+          // Called after every blob: the point where a cancel can take effect.
+          if (state.cancelled) throw const _SendAborted();
         });
+        if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
         if (!sent) {
           return _fail(job, 'transport unavailable');
         }
-        if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
 
         job.status = FileJobStatus.waitingForStatus;
         _changed();
@@ -307,7 +315,10 @@ class FileTransferEngine {
         }
       }
       return _fail(job, 'no confirmation after $maxRounds rounds');
+    } on _SendAborted {
+      return _finish(job, FileJobStatus.cancelled);
     } on Exception catch (e) {
+      if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
       return _fail(job, '$e');
     } finally {
       _outgoing.remove(job.id);
@@ -324,6 +335,8 @@ class FileTransferEngine {
       state.cancelled = true;
       final waiter = state.waiter;
       if (waiter != null && !waiter.isCompleted) waiter.complete(null);
+      // Show it at once; the burst in flight stops after its current blob.
+      _finish(job, FileJobStatus.cancelled);
       final cancelBlob = buildFileCancel(
         senderPrefix: state.plan.senderPrefix,
         session: state.plan.session,
