@@ -475,19 +475,6 @@
   "appSettings_language": "Language",
   "appSettings_languageSystem": "System default",
   "appSettings_languageEn": "English",
-  "appSettings_languageFr": "Français",
-  "appSettings_languageEs": "Español",
-  "appSettings_languageDe": "Deutsch",
-  "appSettings_languagePl": "Polski",
-  "appSettings_languageSl": "Slovenščina",
-  "appSettings_languagePt": "Português",
-  "appSettings_languageIt": "Italiano",
-  "appSettings_languageZh": "中文",
-  "appSettings_languageSv": "Svenska",
-  "appSettings_languageNl": "Nederlands",
-  "appSettings_languageSk": "Slovenčina",
-  "appSettings_languageBg": "Български",
-  "appSettings_languageRu": "Русский",
   "appSettings_languageUk": "Українська",
   "repeater_pathHashModeOption0": "1 byte",
   "repeater_pathHashModeOption1": "2 bytes",
@@ -3030,9 +3017,6 @@
   "appSettings_jumpToOldestUnreadSubtitle": "When opening a chat with unread messages, scroll to the first unread instead of the latest.",
   "appSettings_autoFetchRepeaterSettings": "Auto-fetch repeater settings",
   "appSettings_autoFetchRepeaterSettingsSubtitle": "Request every setting when opening a repeater's settings. Each one is a separate request over LoRa, so this is slow and uses airtime. When off, tap Refresh All or refresh individual sections.",
-  "appSettings_languageHu": "Hungarian",
-  "appSettings_languageJa": "Japanese",
-  "appSettings_languageKo": "Korean",
   "radioStats_tooltip": "Radio & mesh stats",
   "radioStats_screenTitle": "Radio stats",
   "radioStats_sectionSignal": "Signal",
@@ -3478,27 +3462,59 @@
     }
   },
   "reviewMode_dialogTitle": "Enter review mode?",
-  "@reviewMode_dialogTitle": {"description": "Title of the review mode confirmation dialog"},
+  "@reviewMode_dialogTitle": {
+    "description": "Title of the review mode confirmation dialog"
+  },
   "reviewMode_dialogBody": "Review mode connects to a simulated radio with sample contacts, channels and messages. No real radio is needed.",
-  "@reviewMode_dialogBody": {"description": "Body of the review mode confirmation dialog"},
+  "@reviewMode_dialogBody": {
+    "description": "Body of the review mode confirmation dialog"
+  },
   "reviewMode_confirm": "Enter",
-  "@reviewMode_confirm": {"description": "Confirm button of the review mode dialog"},
+  "@reviewMode_confirm": {
+    "description": "Confirm button of the review mode dialog"
+  },
   "reviewMode_cancel": "Cancel",
-  "@reviewMode_cancel": {"description": "Cancel button of the review mode dialog"},
+  "@reviewMode_cancel": {
+    "description": "Cancel button of the review mode dialog"
+  },
   "reviewMode_banner": "Review mode — simulated data",
-  "@reviewMode_banner": {"description": "Label of the banner shown while review mode is active"},
+  "@reviewMode_banner": {
+    "description": "Label of the banner shown while review mode is active"
+  },
   "reviewMode_sendTest": "Send test message",
-  "@reviewMode_sendTest": {"description": "Banner action that makes the simulated radio deliver a message"},
+  "@reviewMode_sendTest": {
+    "description": "Banner action that makes the simulated radio deliver a message"
+  },
   "reviewMode_testSent": "A test message will arrive shortly.",
-  "@reviewMode_testSent": {"description": "Snackbar shown after requesting a test message"},
+  "@reviewMode_testSent": {
+    "description": "Snackbar shown after requesting a test message"
+  },
   "reviewMode_exit": "Exit",
-  "@reviewMode_exit": {"description": "Banner action that leaves review mode"},
+  "@reviewMode_exit": {
+    "description": "Banner action that leaves review mode"
+  },
   "reviewMode_connectFailed": "Could not start review mode: {error}",
-  "@reviewMode_connectFailed": {"description": "Snackbar shown when review mode fails to connect", "placeholders": {"error": {"type": "String"}}},
+  "@reviewMode_connectFailed": {
+    "description": "Snackbar shown when review mode fails to connect",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "channels_waitForSync": "Channels are still loading from the radio. Try again when the sync finishes.",
-  "@channels_waitForSync": {"description": "Snackbar when the user tries to add a channel before the channel list has fully synced"},
+  "@channels_waitForSync": {
+    "description": "Snackbar when the user tries to add a channel before the channel list has fully synced"
+  },
   "channels_nameTooLong": "Name is too long (max {maxBytes} bytes).",
-  "@channels_nameTooLong": {"description": "Snackbar when a channel name would not fit on the radio", "placeholders": {"maxBytes": {"type": "int"}}},
+  "@channels_nameTooLong": {
+    "description": "Snackbar when a channel name would not fit on the radio",
+    "placeholders": {
+      "maxBytes": {
+        "type": "int"
+      }
+    }
+  },
   "repeater_valueRequired": "{field}: enter a value",
   "repeater_floodMaxAdvert": "Advert flood max hops",
   "repeater_floodMaxAdvertHelper": "Maximum hops a flooded advert may travel (0-64, default 8)",
@@ -3515,7 +3531,14 @@
   "repeater_extraSf": "Extra spreading factors",
   "repeater_extraSfHelper": "Up to 3 more spreading factors to listen on at the same time, separated by commas (for example 9,10). Leave empty to turn off.",
   "repeater_lr2021Only": "Only for repeaters with an LR2021 radio. Other repeaters don't have this setting and reject it.",
-  "@repeater_valueRequired": {"description": "Save error when a changed repeater setting was left empty", "placeholders": {"field": {"type": "String"}}},
+  "@repeater_valueRequired": {
+    "description": "Save error when a changed repeater setting was left empty",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "losMapDetailTooltip": "Map detail",
   "losUnitsTooltip": "Units",
   "losDistance": "Distance",
@@ -3523,104 +3546,306 @@
   "losBlockedBy": "Blocked by",
   "losObstruction": "Obstruction",
   "losDistanceFromA": "{distance} from A",
-  "@losDistanceFromA": {"description": "Distance of the worst obstruction from point A, e.g. \"1.2 km from A\"", "placeholders": {"distance": {"type": "String"}}},
+  "@losDistanceFromA": {
+    "description": "Distance of the worst obstruction from point A, e.g. \"1.2 km from A\"",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
   "losWorstBadge": "WORST",
-  "@losWorstBadge": {"description": "Badge on the worst obstruction in the list"},
+  "@losWorstBadge": {
+    "description": "Badge on the worst obstruction in the list"
+  },
   "losBlockedAmount": "Blocked {amount}",
-  "@losBlockedAmount": {"description": "How much an obstruction blocks the beam, e.g. \"Blocked 12 m\"", "placeholders": {"amount": {"type": "String"}}},
+  "@losBlockedAmount": {
+    "description": "How much an obstruction blocks the beam, e.g. \"Blocked 12 m\"",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "losFromA": "From A",
   "losFromB": "From B",
   "losElevation": "Elevation",
   "losCenterOnMap": "Center on map",
   "losStatusClear": "Clear",
-  "@losStatusClear": {"description": "Line-of-sight status"},
+  "@losStatusClear": {
+    "description": "Line-of-sight status"
+  },
   "losStatusMarginal": "Marginal",
-  "@losStatusMarginal": {"description": "Line-of-sight status"},
+  "@losStatusMarginal": {
+    "description": "Line-of-sight status"
+  },
   "losStatusBlocked": "Blocked",
-  "@losStatusBlocked": {"description": "Line-of-sight status and legend entry"},
+  "@losStatusBlocked": {
+    "description": "Line-of-sight status and legend entry"
+  },
   "losStatusCheckingShort": "Checking",
-  "@losStatusCheckingShort": {"description": "Line-of-sight status while the check runs"},
+  "@losStatusCheckingShort": {
+    "description": "Line-of-sight status while the check runs"
+  },
   "losStatusNoResult": "No result",
-  "@losStatusNoResult": {"description": "Line-of-sight status when there is no result"},
+  "@losStatusNoResult": {
+    "description": "Line-of-sight status when there is no result"
+  },
   "losSelectedPill": "Selected",
-  "@losSelectedPill": {"description": "Label drawn on the elevation chart at the selected point"},
+  "@losSelectedPill": {
+    "description": "Label drawn on the elevation chart at the selected point"
+  },
   "gif_tapToLoad": "Tap to load GIF",
   "gif_loadFailedRetry": "Can't load GIF\nTap to retry",
   "qr_cameraPermissionDenied": "Camera permission denied.\nPlease enable camera access in settings.",
   "qr_cameraUnsupported": "Camera not supported on this device.",
   "qr_cameraStartFailed": "Failed to start camera.\n{details}",
-  "@qr_cameraStartFailed": {"placeholders": {"details": {"type": "String"}}},
+  "@qr_cameraStartFailed": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
   "imageMessages_downloadFailedWithError": "The image model could not be downloaded: {error}",
-  "@imageMessages_downloadFailedWithError": {"placeholders": {"error": {"type": "String"}}},
+  "@imageMessages_downloadFailedWithError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "map_nodeId": "ID",
   "map_markerHideHint": "Hide: hidden until you leave the map.",
   "map_markerRemoveHint": "Remove: stays hidden until you restore it from the filter menu.",
   "map_markerRemoved": "Marker removed",
   "map_restoreRemovedMarkers": "Restore removed markers",
   "map_restoreRemovedMarkersSubtitle": "{count} removed",
-  "@map_restoreRemovedMarkersSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "@map_restoreRemovedMarkersSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "map_markersRestored": "Restored {count} markers",
-  "@map_markersRestored": {"placeholders": {"count": {"type": "int"}}},
+  "@map_markersRestored": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "map_setLocationConfirmTitle": "Set as your location?",
   "map_setLocationConfirmBody": "Your node will advertise this position:\n{lat}, {lon}",
-  "@map_setLocationConfirmBody": {"placeholders": {"lat": {"type": "String"}, "lon": {"type": "String"}}},
+  "@map_setLocationConfirmBody": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
   "map_setLocationAction": "Set location",
   "map_locationSetSuccess": "Node location updated",
   "map_locationSetFailed": "The device did not confirm the new location. Try again.",
   "map_poiClusterTitle": "{count} markers here",
-  "@map_poiClusterTitle": {"placeholders": {"count": {"type": "int"}}},
+  "@map_poiClusterTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "map_poiClusterSemantics": "{count} shared markers. Tap to list them.",
-  "@map_poiClusterSemantics": {"placeholders": {"count": {"type": "int"}}},
+  "@map_poiClusterSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "map_youWithMarkers": "You and {count} markers",
-  "@map_youWithMarkers": {"placeholders": {"count": {"type": "int"}}},
+  "@map_youWithMarkers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "map_sharedMarkerSemantics": "Shared marker: {label}",
-  "@map_sharedMarkerSemantics": {"placeholders": {"label": {"type": "String"}}},
+  "@map_sharedMarkerSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "map_nodeMarkerSemantics": "{name}, {type}, {status}",
-  "@map_nodeMarkerSemantics": {"placeholders": {"name": {"type": "String"}, "type": {"type": "String"}, "status": {"type": "String"}}},
+  "@map_nodeMarkerSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "map_requestLocation": "Update location",
   "map_locationUpdated": "Location updated",
   "map_locationNotShared": "{name} replied without a location",
-  "@map_locationNotShared": {"placeholders": {"name": {"type": "String"}}},
+  "@map_locationNotShared": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "map_locationRequestFailed": "No reply from {name}",
-  "@map_locationRequestFailed": {"placeholders": {"name": {"type": "String"}}},
+  "@map_locationRequestFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mapCache_zoomLevel": "Zoom {zoom}",
-  "@mapCache_zoomLevel": {"placeholders": {"zoom": {"type": "int"}}},
+  "@mapCache_zoomLevel": {
+    "placeholders": {
+      "zoom": {
+        "type": "int"
+      }
+    }
+  },
   "mapCache_sizeBytes": "{size} B",
-  "@mapCache_sizeBytes": {"placeholders": {"size": {"type": "String"}}},
+  "@mapCache_sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "mapCache_sizeKilobytes": "{size} KB",
-  "@mapCache_sizeKilobytes": {"placeholders": {"size": {"type": "String"}}},
+  "@mapCache_sizeKilobytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "mapCache_sizeMegabytes": "{size} MB",
-  "@mapCache_sizeMegabytes": {"placeholders": {"size": {"type": "String"}}},
+  "@mapCache_sizeMegabytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "mapCache_sizeGigabytes": "{size} GB",
-  "@mapCache_sizeGigabytes": {"placeholders": {"size": {"type": "String"}}},
+  "@mapCache_sizeGigabytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "mapCache_downloadCancelled": "Download cancelled. Cached {count} tiles.",
-  "@mapCache_downloadCancelled": {"placeholders": {"count": {"type": "int"}}},
+  "@mapCache_downloadCancelled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mapCache_tooManyTilesTitle": "Area too large",
   "mapCache_tooManyTiles": "This area needs {count} tiles, more than the limit of {max}. Pick a smaller area or lower the maximum zoom.",
-  "@mapCache_tooManyTiles": {"placeholders": {"count": {"type": "int"}, "max": {"type": "int"}}},
+  "@mapCache_tooManyTiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "chat_clearChatConfirm": "This erases every message in this conversation from this device. It cannot be undone.",
   "channels_clearChatConfirm": "This erases every message in this channel from this device, including received images. It cannot be undone.",
   "channels_timeNow": "now",
   "channels_timeMinutes": "{minutes}m",
-  "@channels_timeMinutes": {"placeholders": {"minutes": {"type": "int"}}},
+  "@channels_timeMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "channels_timeHours": "{hours}h",
-  "@channels_timeHours": {"placeholders": {"hours": {"type": "int"}}},
+  "@channels_timeHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
   "channels_timeDays": "{days}d",
-  "@channels_timeDays": {"placeholders": {"days": {"type": "int"}}},
+  "@channels_timeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "channels_indexChip": "CH {index}",
-  "@channels_indexChip": {"placeholders": {"index": {"type": "int"}}},
+  "@channels_indexChip": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "reaction_unknownSender": "Unknown",
   "pathMap_noSelfGpsFix": "Local node has no GPS fix",
   "pathTrace_sendFailed": "Could not send the path trace: {error}",
-  "@pathTrace_sendFailed": {"placeholders": {"error": {"type": "String"}}},
+  "@pathTrace_sendFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "losErrorNoInternet": "Elevation data needs an internet connection",
   "losResultStale": "Out of date: antenna height changed",
   "losSnrValue": "{snr} dB",
-  "@losSnrValue": {"placeholders": {"snr": {"type": "String"}}},
+  "@losSnrValue": {
+    "placeholders": {
+      "snr": {
+        "type": "String"
+      }
+    }
+  },
   "losFrequencyValue": "{frequency} MHz",
-  "@losFrequencyValue": {"placeholders": {"frequency": {"type": "String"}}},
+  "@losFrequencyValue": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
   "losKFactorValue": "k={kFactor}",
-  "@losKFactorValue": {"placeholders": {"kFactor": {"type": "String"}}},
+  "@losKFactorValue": {
+    "placeholders": {
+      "kFactor": {
+        "type": "String"
+      }
+    }
+  },
   "losEndpointA": "A",
   "losEndpointB": "B",
   "units_km": "km",
@@ -3629,17 +3854,62 @@
   "units_ft": "ft",
   "telemetry_loading": "Loading telemetry…",
   "telemetry_axisValue": "X: {x}, Y: {y}, Z: {z}",
-  "@telemetry_axisValue": {"placeholders": {"x": {"type": "String"}, "y": {"type": "String"}, "z": {"type": "String"}}},
+  "@telemetry_axisValue": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "y": {
+        "type": "String"
+      },
+      "z": {
+        "type": "String"
+      }
+    }
+  },
   "telemetry_colourValue": "R: {red}, G: {green}, B: {blue}",
-  "@telemetry_colourValue": {"placeholders": {"red": {"type": "String"}, "green": {"type": "String"}, "blue": {"type": "String"}}},
+  "@telemetry_colourValue": {
+    "placeholders": {
+      "red": {
+        "type": "String"
+      },
+      "green": {
+        "type": "String"
+      },
+      "blue": {
+        "type": "String"
+      }
+    }
+  },
   "telemetry_altitudeValueFeet": "{feet} ft",
-  "@telemetry_altitudeValueFeet": {"placeholders": {"feet": {"type": "String"}}},
+  "@telemetry_altitudeValueFeet": {
+    "placeholders": {
+      "feet": {
+        "type": "String"
+      }
+    }
+  },
   "telemetry_distanceValueFeet": "{feet} ft",
-  "@telemetry_distanceValueFeet": {"placeholders": {"feet": {"type": "String"}}},
+  "@telemetry_distanceValueFeet": {
+    "placeholders": {
+      "feet": {
+        "type": "String"
+      }
+    }
+  },
   "settings_notConnectedError": "Not connected to a radio. Connect and try again.",
   "settings_requiresConnection": "Connect to a radio to use this",
   "settings_txPowerInvalidRange": "Invalid TX power ({min} to {max} dBm)",
-  "@settings_txPowerInvalidRange": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "@settings_txPowerInvalidRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "settings_contactSettingsSaved": "Contact settings saved",
   "settings_batteryToggleHint": "Tap to switch between percent and voltage",
   "settings_publicKeyCopyHint": "Copy public key",
@@ -3647,11 +3917,29 @@
   "settings_locationCleared": "Location removed",
   "settings_regionFetchDiscovering": "Looking for nearby repeaters…",
   "settings_regionFetchProgress": "Asking repeater {current} of {total}…",
-  "@settings_regionFetchProgress": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "@settings_regionFetchProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "settings_regionFetchNoRepeaters": "No repeaters are known yet. Add a repeater as a contact or wait for one to advertise, then try again.",
   "settings_regionFetchNoneResponded": "No nearby repeaters answered. Move closer to a repeater and try again.",
   "appSettings_sourceSummary": "{label} - {description}",
-  "@appSettings_sourceSummary": {"placeholders": {"label": {"type": "String"}, "description": {"type": "String"}}},
+  "@appSettings_sourceSummary": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
   "appSettings_routingSection": "Routing",
   "appSettings_resetRoutingToDefault": "Reset Routing Algorithm to Default",
   "appSettings_resetRoutingToDefaultSubtitle": "Restore routing algorithm settings to factory defaults",
@@ -3661,11 +3949,44 @@
   "appSettings_hideApiKey": "Hide API key",
   "translation_defaultModelName": "Model",
   "translation_downloadProgressBytes": "{fileName}: {current} MB",
-  "@translation_downloadProgressBytes": {"placeholders": {"fileName": {"type": "String"}, "current": {"type": "String"}}},
+  "@translation_downloadProgressBytes": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
   "translation_downloadProgressTotal": "{fileName}: {current} / {total} MB ({percent}%)",
-  "@translation_downloadProgressTotal": {"placeholders": {"fileName": {"type": "String"}, "current": {"type": "String"}, "total": {"type": "String"}, "percent": {"type": "String"}}},
+  "@translation_downloadProgressTotal": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "translation_downloadedModelDetails": "{size} MB • {source}",
-  "@translation_downloadedModelDetails": {"placeholders": {"size": {"type": "String"}, "source": {"type": "String"}}},
+  "@translation_downloadedModelDetails": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
   "repeater_radioDisconnected": "Radio disconnected",
   "repeater_radioDisconnectedHint": "Reconnect to your radio to send commands, refresh or save changes.",
   "repeater_cliSend": "Send command",
@@ -3680,26 +4001,83 @@
   "repeater_unsavedChangesMessage": "You have changes that haven't been saved to the repeater.",
   "repeater_discardChanges": "Discard",
   "repeater_actionSentNoReply": "{action}: command sent. The repeater does not reply to this command.",
-  "@repeater_actionSentNoReply": {"placeholders": {"action": {"type": "String"}}},
+  "@repeater_actionSentNoReply": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
   "repeater_invalidSettingValue": "{setting}: {value} is not valid",
-  "@repeater_invalidSettingValue": {"placeholders": {"setting": {"type": "String"}, "value": {"type": "String"}}},
+  "@repeater_invalidSettingValue": {
+    "placeholders": {
+      "setting": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "repeater_prvKeyLengthError": "Private key must be exactly {length} hex characters",
-  "@repeater_prvKeyLengthError": {"placeholders": {"length": {"type": "int"}}},
+  "@repeater_prvKeyLengthError": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
   "contacts_advertFailed": "Couldn't send advertisement",
   "contacts_manageGroups": "Manage groups",
   "contacts_keyPrefixSemantics": "Key prefix {prefix}",
-  "@contacts_keyPrefixSemantics": {"placeholders": {"prefix": {"type": "String"}}},
+  "@contacts_keyPrefixSemantics": {
+    "placeholders": {
+      "prefix": {
+        "type": "String"
+      }
+    }
+  },
   "community_shortId": "ID: {id}…",
-  "@community_shortId": {"placeholders": {"id": {"type": "String"}}},
+  "@community_shortId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "tcpSectionTitle": "TCP / IP",
   "tcpConnectedToHeader": "Connected to",
   "usbChooseSerialPort": "Choose serial port",
   "neighbors_durationSeconds": "{seconds}s",
-  "@neighbors_durationSeconds": {"placeholders": {"seconds": {"type": "String"}}},
+  "@neighbors_durationSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "neighbors_durationMinutes": "{minutes}m {seconds}s",
-  "@neighbors_durationMinutes": {"placeholders": {"minutes": {"type": "int"}, "seconds": {"type": "String"}}},
+  "@neighbors_durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "neighbors_durationHours": "{hours}h {minutes}m",
-  "@neighbors_durationHours": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
+  "@neighbors_durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "networkMap_settingsSection": "Network map",
   "networkMap_uploadTitle": "Share what my radio hears",
   "networkMap_uploadExplanation": "When this is on and your radio is connected, the app sends a short summary of the packets your radio hears to the MeshCore Open network map, so everyone can see which repeaters exist and how they link up. It sends each packet's type, route, hops, signal strength and size, plus repeater names and rough locations from their own adverts. It never sends message text, who is talking to whom, channel names, your contacts or your exact position: locations are rounded to about 2 km, and your app gets a new random ID every day.",
@@ -3713,7 +4091,16 @@
   "networkMap_statusWaiting": "On. Waiting for a radio connection.",
   "networkMap_statusNothingSent": "On. Nothing sent yet.",
   "networkMap_statusLastSent": "Last sent {time}. {count} packets today.",
-  "@networkMap_statusLastSent": {"placeholders": {"time": {"type": "String"}, "count": {"type": "int"}}},
+  "@networkMap_statusLastSent": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "networkMap_sourceLocal": "Local",
   "networkMap_sourceOnline": "Online",
   "networkMap_sourceBoth": "Both",

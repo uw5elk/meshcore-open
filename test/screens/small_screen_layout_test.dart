@@ -240,11 +240,12 @@ void main() {
       if (entry.key.startsWith('Repeater') || entry.key == 'Neighbors')
         (entry, true),
   ];
+  for (final lang in const ['en', 'uk'])
   for (final (entry, offline) in variants) {
     for (final (size, scales) in _layouts) {
       for (final scale in scales) {
         final state = offline ? ' (radio offline)' : '';
-        testWidgets('${entry.key}$state fits ${size.width.toInt()}dp at '
+        testWidgets('[$lang] ${entry.key}$state fits ${size.width.toInt()}dp at '
             '${scale}x', (tester) async {
           tester.view.physicalSize = size;
           tester.view.devicePixelRatio = 1.0;
@@ -280,7 +281,7 @@ void main() {
               providers: env.providers,
               child: MaterialApp(
                 theme: MeshTheme.light(),
-                locale: const Locale('en'),
+                locale: Locale(lang),
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,

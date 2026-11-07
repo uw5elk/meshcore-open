@@ -14,23 +14,7 @@ import 'mesh_ui.dart';
 final List<(String?, String Function(AppLocalizations))> appLanguageOptions = [
   (null, (l) => l.appSettings_languageSystem),
   ('en', (l) => l.appSettings_languageEn),
-  ('fr', (l) => l.appSettings_languageFr),
-  ('es', (l) => l.appSettings_languageEs),
-  ('de', (l) => l.appSettings_languageDe),
-  ('pl', (l) => l.appSettings_languagePl),
-  ('sl', (l) => l.appSettings_languageSl),
-  ('pt', (l) => l.appSettings_languagePt),
-  ('it', (l) => l.appSettings_languageIt),
-  ('zh', (l) => l.appSettings_languageZh),
-  ('sv', (l) => l.appSettings_languageSv),
-  ('nl', (l) => l.appSettings_languageNl),
-  ('sk', (l) => l.appSettings_languageSk),
-  ('bg', (l) => l.appSettings_languageBg),
-  ('ru', (l) => l.appSettings_languageRu),
   ('uk', (l) => l.appSettings_languageUk),
-  ('hu', (l) => l.appSettings_languageHu),
-  ('ja', (l) => l.appSettings_languageJa),
-  ('ko', (l) => l.appSettings_languageKo),
 ];
 
 /// Localized label for [languageCode]; unknown codes and null read as
