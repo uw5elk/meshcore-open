@@ -139,8 +139,10 @@ void main() {
 
     test('legacy records still decode real Smaz payloads', () async {
       const plain = 'hello there how are you doing';
-      final encoded = Smaz.encodeIfSmaller(plain);
-      expect(encoded, startsWith('s:'));
+      // Build a real SMAZ payload directly: encodeIfSmaller now prefers the
+      // shorter UaPack/UaZip formats for this sentence.
+      final encoded =
+          's:${base64Encode(Smaz.compressBytes(Uint8List.fromList(utf8.encode(plain))))}';
       await _init({
         'messages_${_device.substring(0, 10)}$_contact': jsonEncode([
           {
