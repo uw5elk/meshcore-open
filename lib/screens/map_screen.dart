@@ -2138,8 +2138,6 @@ class _MapScreenState extends State<MapScreen> with DisconnectNavigationMixin {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          _buildMapSourceSwitch(context, mapSource),
           if (hasQuery)
             _buildSearchResults(context, allContacts, guessedLocations)
           else if (_statsExpanded)

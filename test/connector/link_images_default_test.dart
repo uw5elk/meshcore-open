@@ -30,7 +30,7 @@ void main() {
     expect(await contacts.loadUrlImagesEnabled('c1'), isFalse);
   });
 
-  test('effective value is the per-chat choice, else the default', () async {
+  test('loading images from the internet is disabled in this build', () async {
     final settings = AppSettingsService();
     final connector = MeshCoreConnector();
     addTearDown(connector.dispose);
@@ -41,24 +41,14 @@ void main() {
       pathHistoryService: PathHistoryService(StorageService()),
       appSettingsService: settings,
     );
-    var notified = 0;
-    connector.addListener(() => notified++);
 
     expect(connector.isContactUrlImagesEnabled('c1'), isFalse);
     expect(connector.isChannelUrlImagesEnabled(0), isFalse);
 
     await settings.setShowLinkImagesByDefault(true);
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-    expect(notified, greaterThan(0));
-    expect(connector.isContactUrlImagesEnabled('c1'), isTrue);
-    expect(connector.isChannelUrlImagesEnabled(0), isTrue);
-
-    await connector.setContactUrlImagesEnabled('c2', false);
-    expect(connector.isContactUrlImagesEnabled('c2'), isFalse);
-
-    await settings.setShowLinkImagesByDefault(false);
     await connector.setContactUrlImagesEnabled('c3', true);
     expect(connector.isContactUrlImagesEnabled('c1'), isFalse);
-    expect(connector.isContactUrlImagesEnabled('c3'), isTrue);
+    expect(connector.isContactUrlImagesEnabled('c3'), isFalse);
+    expect(connector.isChannelUrlImagesEnabled(0), isFalse);
   });
 }

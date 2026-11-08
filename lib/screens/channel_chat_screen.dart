@@ -2415,11 +2415,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       actionsBuilder: () {
         final connector = context.read<MeshCoreConnector>();
         return [
-          ChatComposerAction(
-            id: 'gif',
-            icon: Icons.gif_box,
-            label: context.l10n.chat_sendGif,
-          ),
           if (showIpfsAction)
             ChatComposerAction(
               id: 'ipfs-image',

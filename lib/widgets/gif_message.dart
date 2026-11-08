@@ -60,6 +60,11 @@ class _GifMessageState extends State<GifMessage> {
       _isLoading = true;
       _error = null;
     });
+    // Internet access is disabled in this build: show the text fallback.
+    _error = StateError('network images disabled');
+    _isLoading = false;
+    return;
+    // ignore: dead_code
     final provider = NetworkImage(widget.url);
     final stream = provider.resolve(ImageConfiguration.empty);
     _imageStream = stream;

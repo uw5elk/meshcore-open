@@ -1439,12 +1439,13 @@ class MeshCoreConnector extends ChangeNotifier {
       _appSettingsService?.settings.showLinkImagesByDefault ?? false;
 
   bool isChannelUrlImagesEnabled(int channelIndex) {
-    return _channelUrlImagesEnabled[channelIndex] ?? _showLinkImagesByDefault;
+    // Loading images from the internet is disabled in this build.
+    return false;
   }
 
   bool isContactUrlImagesEnabled(String contactKeyHex) {
     _ensureContactUrlImagesSettingLoaded(contactKeyHex);
-    return _contactUrlImagesEnabled[contactKeyHex] ?? _showLinkImagesByDefault;
+    return false;
   }
 
   /// True when the channel has its own (real) region assigned.

@@ -565,11 +565,6 @@ class _ChatScreenState extends State<ChatScreen> {
             .trim()
             .isNotEmpty;
         return [
-          ChatComposerAction(
-            id: 'gif',
-            icon: Icons.gif_box,
-            label: context.l10n.chat_sendGif,
-          ),
           if (showIpfsAction)
             ChatComposerAction(
               id: 'ipfs-image',

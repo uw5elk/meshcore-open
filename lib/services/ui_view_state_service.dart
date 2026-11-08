@@ -44,7 +44,8 @@ class UiViewStateService extends ChangeNotifier {
   ContactTypeFilter get contactsTypeFilter => _contactsTypeFilter;
   String get channelsSearchText => _channelsSearchText;
   ChannelSortOption get channelsSortOption => _channelsSortOption;
-  MapSourceOption get mapSource => _mapSource;
+  // The online network map is disabled: the map always shows local nodes.
+  MapSourceOption get mapSource => MapSourceOption.local;
 
   Future<void> initialize() async {
     final prefs = PrefsManager.instance;

@@ -18,7 +18,6 @@ import '../widgets/cyr2lat_profile_dialog.dart';
 import '../widgets/language_picker_sheet.dart';
 import '../widgets/mesh_nav_tile.dart';
 import '../widgets/mesh_ui.dart';
-import '../widgets/network_map_settings_section.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/translation_settings_section.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -99,13 +98,6 @@ class AppSettingsScreen extends StatelessWidget {
             MeshCard(
               padding: EdgeInsets.zero,
               child: _settingsCard(_buildMapContent),
-            ),
-
-            // NETWORK MAP
-            SectionHeader(context.l10n.networkMap_settingsSection),
-            const MeshCard(
-              padding: EdgeInsets.zero,
-              child: NetworkMapSettingsSection(),
             ),
 
             // TRANSLATION (non-web only)
@@ -779,22 +771,6 @@ class AppSettingsScreen extends StatelessWidget {
           subtitle: Text(context.l10n.appSettings_loadLinkImagesSubtitle),
           value: settingsService.settings.loadLinkImages,
           onChanged: settingsService.setLoadLinkImages,
-        ),
-        const Divider(height: 1, indent: 16),
-        SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
-          secondary: const Icon(Icons.collections_outlined, size: 24),
-          title: Text(context.l10n.appSettings_showLinkImagesByDefault),
-          subtitle: Text(
-            context.l10n.appSettings_showLinkImagesByDefaultSubtitle,
-          ),
-          value: settingsService.settings.showLinkImagesByDefault,
-          onChanged: settingsService.settings.loadLinkImages
-              ? settingsService.setShowLinkImagesByDefault
-              : null,
         ),
         const Divider(height: 1, indent: 16),
         ListTile(
