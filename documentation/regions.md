@@ -1,3 +1,5 @@
+> **Форк UW5ELK:** інтерфейс регіонів у цьому форку вимкнено (див. [README](../README.md)). Документ описує оригінальний застосунок.
+
 # Regions
 
 Regions limit which configured repeaters forward a channel flood. They are routing scopes, not geographic fences or encryption keys. A region does not create a private channel: recipients still need the channel PSK, and forwarding depends on repeater configuration.
