@@ -17,6 +17,7 @@ import 'connector/meshcore_connector.dart';
 import 'helpers/message_url_image_helper.dart';
 import 'models/image_codec_support.dart';
 import 'screens/scanner_screen.dart';
+import 'services/file_job_store_factory.dart';
 import 'services/file_transfer_protocol.dart' show dataTypeFileTransfer;
 import 'services/file_transfer_service.dart';
 import 'services/image_chunk_transport.dart';
@@ -143,6 +144,7 @@ void main() async {
 
   // ---- file transfer (selective-repeat over GRP_DATA) -----------------------
   final fileTransferService = FileTransferService(
+    store: createFileJobStore(),
     log: (message) =>
         appLogger.info(message, tag: 'FileTransfer', noNotify: true),
     sendBlobs: (blobs, channelIndex, onProgress) => connector.sendImageChunks(

@@ -69,6 +69,13 @@ class FileTransferJob {
   Uint8List? data;
   String? error;
 
+  /// Outgoing: the original file, kept so the bubble can show a preview and a
+  /// failed transfer can be retried. Released when the job is dismissed.
+  Uint8List? sourceData;
+
+  /// Outgoing: whether the original send allowed zlib compression.
+  bool sourceCompress = true;
+
   FileTransferJob({
     required this.id,
     required this.outgoing,
@@ -268,7 +275,10 @@ class FileTransferEngine {
       size: data.length,
       status: FileJobStatus.sending,
       startedAt: _clock(),
-    )..totalBlobs = plan.initialBurst.length;
+    )
+      ..totalBlobs = plan.initialBurst.length
+      ..sourceData = data
+      ..sourceCompress = compress;
     _addJob(job);
     final state = _OutgoingState(plan);
     _outgoing[job.id] = state;
@@ -616,6 +626,53 @@ class FileTransferEngine {
       if (job != null) _fail(job, 'channel changed');
     }
     _lastReply.removeWhere((k, _) => k.channelIndex == channelIndex);
+  }
+
+  /// Sends a failed or cancelled outgoing file again as a new transfer and
+  /// drops the old bubble. Returns null when [jobId] is not retryable.
+  Future<FileTransferJob>? retry(int jobId) {
+    final index = _jobs.indexWhere((j) => j.id == jobId);
+    if (index < 0) return null;
+    final old = _jobs[index];
+    final data = old.sourceData;
+    if (!old.outgoing ||
+        old.isActive ||
+        data == null ||
+        (old.status != FileJobStatus.failed &&
+            old.status != FileJobStatus.cancelled)) {
+      return null;
+    }
+    final future = sendFile(
+      data: data,
+      name: old.name,
+      channelIndex: old.channelIndex,
+      compress: old.sourceCompress,
+    );
+    _jobs.remove(old);
+    _changed();
+    return future;
+  }
+
+  /// Replaces every finished job with [restored] (files loaded from storage);
+  /// running transfers are kept. Newest first, like [jobs].
+  void replaceFinishedJobs(List<FileTransferJob> restored) {
+    _jobs.removeWhere((j) => !j.isActive);
+    for (final job in restored) {
+      _jobs.add(
+        FileTransferJob(
+            id: _nextJobId++,
+            outgoing: false,
+            channelIndex: job.channelIndex,
+            name: job.name,
+            size: job.size,
+            status: FileJobStatus.received,
+            startedAt: job.startedAt,
+          )
+          ..data = job.data,
+      );
+    }
+    _jobs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    _changed();
   }
 
   /// Removes a finished job from the list.

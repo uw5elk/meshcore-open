@@ -134,6 +134,50 @@ void main() {
     expect(job.round, lessThan(5));
   });
 
+  test('retry sends a failed file again and replaces its bubble', () async {
+    final engine = FileTransferEngine(
+      selfPrefix: 0xAAAA,
+      sendBlobs: (blobs, ch, progress) async => false,
+    );
+    final first = await engine.sendFile(
+      data: _bytes(10),
+      name: 'x.txt',
+      channelIndex: 2,
+    );
+    expect(first.status, FileJobStatus.failed);
+    expect(first.sourceData, isNotNull);
+    final second = await engine.retry(first.id)!;
+    expect(second.id, isNot(first.id));
+    expect(second.name, 'x.txt');
+    expect(second.channelIndex, 2);
+    expect(engine.jobs, hasLength(1));
+    expect(engine.jobs.single, same(second));
+    expect(engine.retry(9999), isNull);
+  });
+
+  test('restored files replace finished jobs, newest first', () {
+    final engine = FileTransferEngine(
+      selfPrefix: 0xAAAA,
+      sendBlobs: (blobs, ch, progress) async => true,
+    );
+    FileTransferJob stored(String name, int minute) => FileTransferJob(
+      id: 0,
+      outgoing: false,
+      channelIndex: 0,
+      name: name,
+      size: 3,
+      status: FileJobStatus.received,
+      startedAt: DateTime(2026, 1, 1, 10, minute),
+    )..data = Uint8List.fromList(<int>[1, 2, 3]);
+    engine.replaceFinishedJobs(<FileTransferJob>[
+      stored('old', 1),
+      stored('new', 5),
+    ]);
+    expect(engine.jobs.map((j) => j.name), <String>['new', 'old']);
+    expect(engine.jobs.every((j) => j.status == FileJobStatus.received), isTrue);
+    expect(engine.jobs.map((j) => j.id).toSet(), hasLength(2));
+  });
+
   test('cancel stops a transfer that waits for a status', () async {
     final net = _Net(lossAtoB: 1, statusWait: const Duration(seconds: 30));
     final result = net.a.sendFile(

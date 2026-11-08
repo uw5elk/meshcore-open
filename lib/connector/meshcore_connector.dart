@@ -6646,6 +6646,13 @@ class MeshCoreConnector extends ChangeNotifier {
       if (prefix != null) {
         _imageTransport?.senderPrefix = prefix;
         _fileTransferService?.selfPrefix = prefix;
+        final keyHex = selfPublicKeyHex;
+        if (keyHex.length >= 10) {
+          unawaited(
+            _fileTransferService?.attachRadio(keyHex.substring(0, 10)) ??
+                Future<void>.value(),
+          );
+        }
         _onImageSenderPrefix?.call(prefix);
       }
     } catch (e) {

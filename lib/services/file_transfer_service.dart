@@ -1,7 +1,11 @@
 
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 
 import '../utils/lora_airtime.dart';
+import 'file_job_store.dart';
 import 'file_transfer_engine.dart';
 import 'file_transfer_protocol.dart';
 
@@ -72,16 +76,88 @@ class FileTransferService extends ChangeNotifier {
   /// Called when a complete, verified file has arrived.
   void Function(FileTransferJob job)? onFileReceived;
 
+  final FileJobStore _store;
+  final math.Random _random = math.Random();
+
+  /// Radio whose files are shown and stored (first 10 hex chars of its key).
+  String? _radioKey;
+
+  /// Storage key of each received job, by job id.
+  final Map<int, String> _storeKeys = <int, String>{};
+
   FileTransferService({
     required FileBlobSender sendBlobs,
     void Function(String message)? log,
-  }) {
+    FileJobStore? store,
+  }) : _store = store ?? InMemoryFileJobStore() {
     _engine = FileTransferEngine(
       sendBlobs: sendBlobs,
       onChanged: notifyListeners,
-      onFileReceived: (job) => onFileReceived?.call(job),
+      onFileReceived: _handleReceived,
       log: log,
     );
+  }
+
+  void _handleReceived(FileTransferJob job) {
+    final radio = _radioKey;
+    final data = job.data;
+    if (radio != null && data != null) {
+      final key =
+          '${job.startedAt.millisecondsSinceEpoch}-'
+          '${_random.nextInt(1 << 32).toRadixString(16)}';
+      _storeKeys[job.id] = key;
+      unawaited(
+        _store.save(
+          radio,
+          StoredFile(
+            key: key,
+            name: job.name,
+            channelIndex: job.channelIndex,
+            receivedAt: job.startedAt,
+            data: data,
+          ),
+        ),
+      );
+    }
+    onFileReceived?.call(job);
+  }
+
+  /// Switches to the radio [radioKey] and shows its saved files. Files of a
+  /// previously connected radio are dropped from the list (they stay on disk).
+  Future<void> attachRadio(String radioKey) async {
+    if (_radioKey == radioKey) return;
+    _radioKey = radioKey;
+    _storeKeys.clear();
+    final stored = await _store.load(radioKey);
+    if (_radioKey != radioKey) return; // switched again while loading
+    final restored = <FileTransferJob>[];
+    for (final f in stored) {
+      restored.add(
+        FileTransferJob(
+          id: 0,
+          outgoing: false,
+          channelIndex: f.channelIndex,
+          name: f.name,
+          size: f.data.length,
+          status: FileJobStatus.received,
+          startedAt: f.receivedAt,
+        )..data = f.data,
+      );
+    }
+    _engine.replaceFinishedJobs(restored);
+    // Map the new job ids back to their storage keys (same order: the
+    // engine sorts by time, ties keep insertion order).
+    final byTime = <String, StoredFile>{
+      for (final f in stored)
+        '${f.receivedAt.millisecondsSinceEpoch}|${f.name}|${f.channelIndex}': f,
+    };
+    for (final job in _engine.jobs) {
+      if (job.outgoing || job.status != FileJobStatus.received) continue;
+      final f =
+          byTime['${job.startedAt.millisecondsSinceEpoch}|${job.name}|'
+              '${job.channelIndex}'];
+      if (f != null) _storeKeys[job.id] = f.key;
+    }
   }
 
   /// Newest first.
@@ -106,7 +182,15 @@ class FileTransferService extends ChangeNotifier {
 
   Future<void> cancel(int jobId) => _engine.cancel(jobId);
 
-  void dismiss(int jobId) => _engine.dismiss(jobId);
+  /// Sends a failed or cancelled outgoing file again; null when not possible.
+  Future<FileTransferJob>? retry(int jobId) => _engine.retry(jobId);
+
+  void dismiss(int jobId) {
+    final key = _storeKeys.remove(jobId);
+    final radio = _radioKey;
+    if (key != null && radio != null) unawaited(_store.delete(radio, key));
+    _engine.dismiss(jobId);
+  }
 
   void handleBlob(Uint8List blob, int channelIndex) =>
       _engine.handleBlob(blob, channelIndex);

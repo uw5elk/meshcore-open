@@ -1,0 +1,851 @@
+diff --git a/README.md b/README.md
+index 1f9a733..729199d 100644
+--- a/README.md
++++ b/README.md
+@@ -45,7 +45,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 
+ ### Отримання
+ 
+-Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються лише в пам'яті й зникають після перезапуску застосунку.
++Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
+ 
+ ### Фото зі стисненням
+ 
+diff --git a/README.uk.md b/README.uk.md
+index 1f9a733..729199d 100644
+--- a/README.uk.md
++++ b/README.uk.md
+@@ -45,7 +45,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 
+ ### Отримання
+ 
+-Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються лише в пам'яті й зникають після перезапуску застосунку.
++Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
+ 
+ ### Фото зі стисненням
+ 
+diff --git a/documentation/file-transfer.md b/documentation/file-transfer.md
+index 16fb7bc..b66f8fe 100644
+--- a/documentation/file-transfer.md
++++ b/documentation/file-transfer.md
+@@ -17,7 +17,7 @@ A transfer ends as *Delivered and verified* once a receiver reports a complete c
+ 
+ ## Receive a file
+ 
+-An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are kept in memory only and are gone after the app restarts.
++An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are stored in the app's private storage (the 20 newest per radio) and survive restarts; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it larger). A failed or cancelled outgoing file has a **Retry** button that sends it again.
+ 
+ ## Send a photo shrunk to a size
+ 
+diff --git a/lib/connector/meshcore_connector.dart b/lib/connector/meshcore_connector.dart
+index f538167..e9c037a 100644
+--- a/lib/connector/meshcore_connector.dart
++++ b/lib/connector/meshcore_connector.dart
+@@ -6646,6 +6646,13 @@ class MeshCoreConnector extends ChangeNotifier {
+       if (prefix != null) {
+         _imageTransport?.senderPrefix = prefix;
+         _fileTransferService?.selfPrefix = prefix;
++        final keyHex = selfPublicKeyHex;
++        if (keyHex.length >= 10) {
++          unawaited(
++            _fileTransferService?.attachRadio(keyHex.substring(0, 10)) ??
++                Future<void>.value(),
++          );
++        }
+         _onImageSenderPrefix?.call(prefix);
+       }
+     } catch (e) {
+diff --git a/lib/l10n/app_en.arb b/lib/l10n/app_en.arb
+index d8f5046..d2fef65 100644
+--- a/lib/l10n/app_en.arb
++++ b/lib/l10n/app_en.arb
+@@ -4551,6 +4551,7 @@
+   },
+   "fileTransfer_status_cancelled": "Cancelled",
+   "fileTransfer_status_noResponse": "No one answered: there may be no receivers in range.",
++  "fileTransfer_retry": "Retry",
+   "fileTransfer_save": "Save",
+   "fileTransfer_cancel": "Cancel",
+   "fileTransfer_dismiss": "Dismiss",
+diff --git a/lib/l10n/app_uk.arb b/lib/l10n/app_uk.arb
+index 436c893..48ee668 100644
+--- a/lib/l10n/app_uk.arb
++++ b/lib/l10n/app_uk.arb
+@@ -4551,6 +4551,7 @@
+   },
+   "fileTransfer_status_cancelled": "Скасовано",
+   "fileTransfer_status_noResponse": "Ніхто не відповів: поблизу, ймовірно, немає отримувачів.",
++  "fileTransfer_retry": "Повторити",
+   "fileTransfer_save": "Зберегти",
+   "fileTransfer_cancel": "Скасувати",
+   "fileTransfer_dismiss": "Прибрати",
+diff --git a/lib/main.dart b/lib/main.dart
+index 72203c6..54a0d92 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -17,6 +17,7 @@ import 'connector/meshcore_connector.dart';
+ import 'helpers/message_url_image_helper.dart';
+ import 'models/image_codec_support.dart';
+ import 'screens/scanner_screen.dart';
++import 'services/file_job_store_factory.dart';
+ import 'services/file_transfer_protocol.dart' show dataTypeFileTransfer;
+ import 'services/file_transfer_service.dart';
+ import 'services/image_chunk_transport.dart';
+@@ -143,6 +144,7 @@ void main() async {
+ 
+   // ---- file transfer (selective-repeat over GRP_DATA) -----------------------
+   final fileTransferService = FileTransferService(
++    store: createFileJobStore(),
+     log: (message) =>
+         appLogger.info(message, tag: 'FileTransfer', noNotify: true),
+     sendBlobs: (blobs, channelIndex, onProgress) => connector.sendImageChunks(
+diff --git a/lib/screens/channel_chat_screen.dart b/lib/screens/channel_chat_screen.dart
+index 651d718..46f6393 100644
+--- a/lib/screens/channel_chat_screen.dart
++++ b/lib/screens/channel_chat_screen.dart
+@@ -2025,6 +2025,56 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+       ? '$bytes B'
+       : '${(bytes / 1024).toStringAsFixed(1)} KB';
+ 
++  void _retryFile(FileTransferService service, FileTransferJob job) {
++    try {
++      final f = service.retry(job.id);
++      if (f != null) unawaited(f.then((_) {}, onError: (Object _) {}));
++    } catch (e) {
++      showDismissibleSnackBar(context, content: Text(e.toString()));
++    }
++  }
++
++  static bool _isImageName(String name) {
++    final n = name.toLowerCase();
++    return n.endsWith('.jpg') ||
++        n.endsWith('.jpeg') ||
++        n.endsWith('.png') ||
++        n.endsWith('.gif') ||
++        n.endsWith('.webp') ||
++        n.endsWith('.bmp');
++  }
++
++  void _openFilePreview(Uint8List bytes, String name) {
++    showDialog<void>(
++      context: context,
++      builder: (ctx) => Dialog(
++        insetPadding: const EdgeInsets.all(12),
++        child: Stack(
++          children: [
++            InteractiveViewer(
++              child: Image.memory(
++                bytes,
++                fit: BoxFit.contain,
++                errorBuilder: (_, _, _) => const Padding(
++                  padding: EdgeInsets.all(32),
++                  child: Icon(Icons.broken_image_outlined, size: 48),
++                ),
++              ),
++            ),
++            Positioned(
++              top: 0,
++              right: 0,
++              child: IconButton(
++                icon: const Icon(Icons.close),
++                onPressed: () => Navigator.of(ctx).pop(),
++              ),
++            ),
++          ],
++        ),
++      ),
++    );
++  }
++
+   /// A file transfer as a chat bubble: name, size, progress and the delivery
+   /// state (clock while in flight, tick when the receiver confirmed a
+   /// verified copy), with save / cancel / remove actions.
+@@ -2040,6 +2090,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+     final textColor = isOutgoing ? bubbleTheme.meInk : scheme.onSurface;
+     final metaColor = textColor.withValues(alpha: 0.65);
+     final canSave = job.status == FileJobStatus.received && job.data != null;
++    final previewBytes = job.outgoing ? job.sourceData : job.data;
++    final showThumb =
++        previewBytes != null &&
++        previewBytes.isNotEmpty &&
++        _isImageName(job.name) &&
++        (job.outgoing || job.status == FileJobStatus.received);
+     final failed =
+         job.status == FileJobStatus.failed ||
+         job.status == FileJobStatus.cancelled;
+@@ -2081,6 +2137,34 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
++                  if (showThumb) ...[
++                    GestureDetector(
++                      onTap: () => _openFilePreview(previewBytes, job.name),
++                      child: ClipRRect(
++                        borderRadius: BorderRadius.circular(MeshRadii.md),
++                        child: ConstrainedBox(
++                          constraints: const BoxConstraints(
++                            maxHeight: 220,
++                            minHeight: 60,
++                          ),
++                          child: SizedBox(
++                            width: double.infinity,
++                            child: Image.memory(
++                              previewBytes,
++                              cacheWidth: 640,
++                              fit: BoxFit.cover,
++                              gaplessPlayback: true,
++                              errorBuilder: (_, _, _) => const SizedBox(
++                                height: 60,
++                                child: Icon(Icons.broken_image_outlined),
++                              ),
++                            ),
++                          ),
++                        ),
++                      ),
++                    ),
++                    const SizedBox(height: 6),
++                  ],
+                   Row(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+@@ -2141,6 +2225,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+                           onPressed: () => service.cancel(job.id),
+                         )
+                       else ...[
++                        if (job.outgoing && failed && job.sourceData != null)
++                          IconButton(
++                            tooltip: l10n.fileTransfer_retry,
++                            visualDensity: VisualDensity.compact,
++                            icon: const Icon(Icons.refresh, size: 20),
++                            onPressed: () => _retryFile(service, job),
++                          ),
+                         if (canSave)
+                           IconButton(
+                             tooltip: l10n.fileTransfer_save,
+diff --git a/lib/services/file_job_store.dart b/lib/services/file_job_store.dart
+new file mode 100644
+index 0000000..0284c16
+--- /dev/null
++++ b/lib/services/file_job_store.dart
+@@ -0,0 +1,57 @@
++import 'dart:typed_data';
++
++/// One received file as kept on disk.
++class StoredFile {
++  /// Storage key (safe file-name stem), unique per radio.
++  final String key;
++  final String name;
++  final int channelIndex;
++  final DateTime receivedAt;
++  final Uint8List data;
++
++  const StoredFile({
++    required this.key,
++    required this.name,
++    required this.channelIndex,
++    required this.receivedAt,
++    required this.data,
++  });
++}
++
++/// Keeps received files across app restarts, scoped per radio.
++abstract class FileJobStore {
++  /// Newest first, at most [FileJobStore.maxFiles] entries.
++  Future<List<StoredFile>> load(String radioKey);
++
++  /// Returns false when the file could not be stored.
++  Future<bool> save(String radioKey, StoredFile file);
++
++  Future<void> delete(String radioKey, String key);
++
++  /// Files kept per radio; the oldest are dropped first.
++  static const int maxFiles = 20;
++}
++
++/// Nothing survives: web, and the default for tests.
++class InMemoryFileJobStore implements FileJobStore {
++  final Map<String, Map<String, StoredFile>> _files =
++      <String, Map<String, StoredFile>>{};
++
++  @override
++  Future<List<StoredFile>> load(String radioKey) async {
++    final list = (_files[radioKey]?.values.toList() ?? <StoredFile>[])
++      ..sort((a, b) => b.receivedAt.compareTo(a.receivedAt));
++    return list.take(FileJobStore.maxFiles).toList();
++  }
++
++  @override
++  Future<bool> save(String radioKey, StoredFile file) async {
++    _files.putIfAbsent(radioKey, () => <String, StoredFile>{})[file.key] = file;
++    return true;
++  }
++
++  @override
++  Future<void> delete(String radioKey, String key) async {
++    _files[radioKey]?.remove(key);
++  }
++}
+diff --git a/lib/services/file_job_store_factory.dart b/lib/services/file_job_store_factory.dart
+new file mode 100644
+index 0000000..a9f7863
+--- /dev/null
++++ b/lib/services/file_job_store_factory.dart
+@@ -0,0 +1,6 @@
++/// Platform-appropriate [FileJobStore], chosen at compile time (the io
++/// variant imports `dart:io`, which would break the web build).
++library;
++
++export 'file_job_store_factory_stub.dart'
++    if (dart.library.io) 'file_job_store_factory_io.dart';
+diff --git a/lib/services/file_job_store_factory_io.dart b/lib/services/file_job_store_factory_io.dart
+new file mode 100644
+index 0000000..d3c9743
+--- /dev/null
++++ b/lib/services/file_job_store_factory_io.dart
+@@ -0,0 +1,5 @@
++import 'file_job_store.dart';
++import 'file_job_store_io.dart';
++
++/// Received files survive app restarts.
++FileJobStore createFileJobStore() => FileJobStoreIo();
+diff --git a/lib/services/file_job_store_factory_stub.dart b/lib/services/file_job_store_factory_stub.dart
+new file mode 100644
+index 0000000..8754fbc
+--- /dev/null
++++ b/lib/services/file_job_store_factory_stub.dart
+@@ -0,0 +1,4 @@
++import 'file_job_store.dart';
++
++/// Web: files live only for the lifetime of the tab.
++FileJobStore createFileJobStore() => InMemoryFileJobStore();
+diff --git a/lib/services/file_job_store_io.dart b/lib/services/file_job_store_io.dart
+new file mode 100644
+index 0000000..3ad4f54
+--- /dev/null
++++ b/lib/services/file_job_store_io.dart
+@@ -0,0 +1,146 @@
++/// File-backed [FileJobStore] under the application support directory.
++///
++/// ```
++/// <application support>/received_files/<radioKey>/
++///     <key>.bin        the file bytes
++///     <key>.json       {name, channel, ts}; written last, atomically
++/// ```
++///
++/// The name from the sender is only data inside the JSON: every path is built
++/// from validated keys, so a hostile name cannot escape the directory.
++/// A `.bin` without its `.json` (crash mid-save) is swept on [load].
++library;
++
++import 'dart:convert';
++import 'dart:io';
++import 'dart:typed_data';
++
++import 'package:flutter/foundation.dart' show debugPrint;
++import 'package:path_provider/path_provider.dart';
++
++import 'file_job_store.dart';
++
++class FileJobStoreIo implements FileJobStore {
++  static final RegExp _safe = RegExp(r'^[A-Za-z0-9_-]{1,64}$');
++
++  final Future<Directory> Function() _base;
++
++  FileJobStoreIo({Future<Directory> Function()? baseDirectory})
++    : _base = baseDirectory ?? getApplicationSupportDirectory;
++
++  Future<Directory?> _dir(String radioKey, {bool create = false}) async {
++    if (!_safe.hasMatch(radioKey)) return null;
++    final base = await _base();
++    final dir = Directory(
++      '${base.path}${Platform.pathSeparator}received_files'
++      '${Platform.pathSeparator}$radioKey',
++    );
++    if (create && !await dir.exists()) await dir.create(recursive: true);
++    return dir;
++  }
++
++  String _path(Directory dir, String key, String ext) =>
++      '${dir.path}${Platform.pathSeparator}$key$ext';
++
++  @override
++  Future<List<StoredFile>> load(String radioKey) async {
++    try {
++      final dir = await _dir(radioKey);
++      if (dir == null || !await dir.exists()) return <StoredFile>[];
++      final result = <StoredFile>[];
++      await for (final entity in dir.list()) {
++        if (entity is! File || !entity.path.endsWith('.json')) continue;
++        final name = entity.uri.pathSegments.last;
++        final key = name.substring(0, name.length - '.json'.length);
++        if (!_safe.hasMatch(key)) continue;
++        try {
++          final meta = jsonDecode(await entity.readAsString());
++          final bin = File(_path(dir, key, '.bin'));
++          if (meta is! Map || !await bin.exists()) continue;
++          result.add(
++            StoredFile(
++              key: key,
++              name: meta['name'] as String? ?? '',
++              channelIndex: meta['channel'] as int? ?? 0,
++              receivedAt: DateTime.fromMillisecondsSinceEpoch(
++                meta['ts'] as int? ?? 0,
++              ),
++              data: Uint8List.fromList(await bin.readAsBytes()),
++            ),
++          );
++        } catch (_) {
++          // Unreadable record: ignored, swept below.
++        }
++      }
++      result.sort((a, b) => b.receivedAt.compareTo(a.receivedAt));
++      final kept = result.take(FileJobStore.maxFiles).toList();
++      for (final extra in result.skip(FileJobStore.maxFiles)) {
++        await delete(radioKey, extra.key);
++      }
++      await _sweepOrphans(dir, kept.map((f) => f.key).toSet());
++      return kept;
++    } catch (e) {
++      debugPrint('FileJobStore.load failed: $e');
++      return <StoredFile>[];
++    }
++  }
++
++  Future<void> _sweepOrphans(Directory dir, Set<String> keep) async {
++    try {
++      await for (final entity in dir.list()) {
++        if (entity is! File) continue;
++        final name = entity.uri.pathSegments.last;
++        final dot = name.indexOf('.');
++        final stem = dot < 0 ? name : name.substring(0, dot);
++        if (!keep.contains(stem)) await entity.delete();
++      }
++    } catch (_) {}
++  }
++
++  @override
++  Future<bool> save(String radioKey, StoredFile file) async {
++    try {
++      if (!_safe.hasMatch(file.key)) return false;
++      final dir = await _dir(radioKey, create: true);
++      if (dir == null) return false;
++      await File(_path(dir, file.key, '.bin')).writeAsBytes(
++        file.data,
++        flush: true,
++      );
++      final tmp = File(_path(dir, file.key, '.json.tmp'));
++      await tmp.writeAsString(
++        jsonEncode(<String, Object?>{
++          'name': file.name,
++          'channel': file.channelIndex,
++          'ts': file.receivedAt.millisecondsSinceEpoch,
++        }),
++        flush: true,
++      );
++      await tmp.rename(_path(dir, file.key, '.json'));
++      await _prune(radioKey);
++      return true;
++    } catch (e) {
++      debugPrint('FileJobStore.save failed: $e');
++      return false;
++    }
++  }
++
++  Future<void> _prune(String radioKey) async {
++    await load(radioKey); // drops the excess itself
++  }
++
++  @override
++  Future<void> delete(String radioKey, String key) async {
++    try {
++      if (!_safe.hasMatch(key)) return;
++      final dir = await _dir(radioKey);
++      if (dir == null) return;
++      for (final ext in const ['.json', '.bin', '.json.tmp']) {
++        final f = File(_path(dir, key, ext));
++        if (await f.exists()) await f.delete();
++      }
++    } catch (e) {
++      debugPrint('FileJobStore.delete failed: $e');
++    }
++  }
++}
+diff --git a/lib/services/file_transfer_engine.dart b/lib/services/file_transfer_engine.dart
+index c77c182..36e450a 100644
+--- a/lib/services/file_transfer_engine.dart
++++ b/lib/services/file_transfer_engine.dart
+@@ -69,6 +69,13 @@ class FileTransferJob {
+   Uint8List? data;
+   String? error;
+ 
++  /// Outgoing: the original file, kept so the bubble can show a preview and a
++  /// failed transfer can be retried. Released when the job is dismissed.
++  Uint8List? sourceData;
++
++  /// Outgoing: whether the original send allowed zlib compression.
++  bool sourceCompress = true;
++
+   FileTransferJob({
+     required this.id,
+     required this.outgoing,
+@@ -268,7 +275,10 @@ class FileTransferEngine {
+       size: data.length,
+       status: FileJobStatus.sending,
+       startedAt: _clock(),
+-    )..totalBlobs = plan.initialBurst.length;
++    )
++      ..totalBlobs = plan.initialBurst.length
++      ..sourceData = data
++      ..sourceCompress = compress;
+     _addJob(job);
+     final state = _OutgoingState(plan);
+     _outgoing[job.id] = state;
+@@ -618,6 +628,53 @@ class FileTransferEngine {
+     _lastReply.removeWhere((k, _) => k.channelIndex == channelIndex);
+   }
+ 
++  /// Sends a failed or cancelled outgoing file again as a new transfer and
++  /// drops the old bubble. Returns null when [jobId] is not retryable.
++  Future<FileTransferJob>? retry(int jobId) {
++    final index = _jobs.indexWhere((j) => j.id == jobId);
++    if (index < 0) return null;
++    final old = _jobs[index];
++    final data = old.sourceData;
++    if (!old.outgoing ||
++        old.isActive ||
++        data == null ||
++        (old.status != FileJobStatus.failed &&
++            old.status != FileJobStatus.cancelled)) {
++      return null;
++    }
++    final future = sendFile(
++      data: data,
++      name: old.name,
++      channelIndex: old.channelIndex,
++      compress: old.sourceCompress,
++    );
++    _jobs.remove(old);
++    _changed();
++    return future;
++  }
++
++  /// Replaces every finished job with [restored] (files loaded from storage);
++  /// running transfers are kept. Newest first, like [jobs].
++  void replaceFinishedJobs(List<FileTransferJob> restored) {
++    _jobs.removeWhere((j) => !j.isActive);
++    for (final job in restored) {
++      _jobs.add(
++        FileTransferJob(
++            id: _nextJobId++,
++            outgoing: false,
++            channelIndex: job.channelIndex,
++            name: job.name,
++            size: job.size,
++            status: FileJobStatus.received,
++            startedAt: job.startedAt,
++          )
++          ..data = job.data,
++      );
++    }
++    _jobs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
++    _changed();
++  }
++
+   /// Removes a finished job from the list.
+   void dismiss(int jobId) {
+     final before = _jobs.length;
+diff --git a/lib/services/file_transfer_service.dart b/lib/services/file_transfer_service.dart
+index 664535e..570c231 100644
+--- a/lib/services/file_transfer_service.dart
++++ b/lib/services/file_transfer_service.dart
+@@ -1,7 +1,11 @@
+ 
++import 'dart:async';
++import 'dart:math' as math;
++
+ import 'package:flutter/foundation.dart';
+ 
+ import '../utils/lora_airtime.dart';
++import 'file_job_store.dart';
+ import 'file_transfer_engine.dart';
+ import 'file_transfer_protocol.dart';
+ 
+@@ -72,18 +76,90 @@ class FileTransferService extends ChangeNotifier {
+   /// Called when a complete, verified file has arrived.
+   void Function(FileTransferJob job)? onFileReceived;
+ 
++  final FileJobStore _store;
++  final math.Random _random = math.Random();
++
++  /// Radio whose files are shown and stored (first 10 hex chars of its key).
++  String? _radioKey;
++
++  /// Storage key of each received job, by job id.
++  final Map<int, String> _storeKeys = <int, String>{};
++
+   FileTransferService({
+     required FileBlobSender sendBlobs,
+     void Function(String message)? log,
+-  }) {
++    FileJobStore? store,
++  }) : _store = store ?? InMemoryFileJobStore() {
+     _engine = FileTransferEngine(
+       sendBlobs: sendBlobs,
+       onChanged: notifyListeners,
+-      onFileReceived: (job) => onFileReceived?.call(job),
++      onFileReceived: _handleReceived,
+       log: log,
+     );
+   }
+ 
++  void _handleReceived(FileTransferJob job) {
++    final radio = _radioKey;
++    final data = job.data;
++    if (radio != null && data != null) {
++      final key =
++          '${job.startedAt.millisecondsSinceEpoch}-'
++          '${_random.nextInt(1 << 32).toRadixString(16)}';
++      _storeKeys[job.id] = key;
++      unawaited(
++        _store.save(
++          radio,
++          StoredFile(
++            key: key,
++            name: job.name,
++            channelIndex: job.channelIndex,
++            receivedAt: job.startedAt,
++            data: data,
++          ),
++        ),
++      );
++    }
++    onFileReceived?.call(job);
++  }
++
++  /// Switches to the radio [radioKey] and shows its saved files. Files of a
++  /// previously connected radio are dropped from the list (they stay on disk).
++  Future<void> attachRadio(String radioKey) async {
++    if (_radioKey == radioKey) return;
++    _radioKey = radioKey;
++    _storeKeys.clear();
++    final stored = await _store.load(radioKey);
++    if (_radioKey != radioKey) return; // switched again while loading
++    final restored = <FileTransferJob>[];
++    for (final f in stored) {
++      restored.add(
++        FileTransferJob(
++          id: 0,
++          outgoing: false,
++          channelIndex: f.channelIndex,
++          name: f.name,
++          size: f.data.length,
++          status: FileJobStatus.received,
++          startedAt: f.receivedAt,
++        )..data = f.data,
++      );
++    }
++    _engine.replaceFinishedJobs(restored);
++    // Map the new job ids back to their storage keys (same order: the
++    // engine sorts by time, ties keep insertion order).
++    final byTime = <String, StoredFile>{
++      for (final f in stored)
++        '${f.receivedAt.millisecondsSinceEpoch}|${f.name}|${f.channelIndex}': f,
++    };
++    for (final job in _engine.jobs) {
++      if (job.outgoing || job.status != FileJobStatus.received) continue;
++      final f =
++          byTime['${job.startedAt.millisecondsSinceEpoch}|${job.name}|'
++              '${job.channelIndex}'];
++      if (f != null) _storeKeys[job.id] = f.key;
++    }
++  }
++
+   /// Newest first.
+   List<FileTransferJob> get jobs => _engine.jobs;
+ 
+@@ -106,7 +182,15 @@ class FileTransferService extends ChangeNotifier {
+ 
+   Future<void> cancel(int jobId) => _engine.cancel(jobId);
+ 
+-  void dismiss(int jobId) => _engine.dismiss(jobId);
++  /// Sends a failed or cancelled outgoing file again; null when not possible.
++  Future<FileTransferJob>? retry(int jobId) => _engine.retry(jobId);
++
++  void dismiss(int jobId) {
++    final key = _storeKeys.remove(jobId);
++    final radio = _radioKey;
++    if (key != null && radio != null) unawaited(_store.delete(radio, key));
++    _engine.dismiss(jobId);
++  }
+ 
+   void handleBlob(Uint8List blob, int channelIndex) =>
+       _engine.handleBlob(blob, channelIndex);
+diff --git a/test/file_job_store_test.dart b/test/file_job_store_test.dart
+new file mode 100644
+index 0000000..6fa7011
+--- /dev/null
++++ b/test/file_job_store_test.dart
+@@ -0,0 +1,108 @@
++import 'dart:io';
++import 'dart:typed_data';
++
++import 'package:flutter_test/flutter_test.dart';
++import 'package:meshcore_open/services/file_job_store.dart';
++import 'package:meshcore_open/services/file_job_store_io.dart';
++import 'package:meshcore_open/services/file_transfer_engine.dart';
++import 'package:meshcore_open/services/file_transfer_service.dart';
++
++StoredFile _file(String key, int minute, {String name = 'a.txt'}) => StoredFile(
++  key: key,
++  name: name,
++  channelIndex: 1,
++  receivedAt: DateTime(2026, 1, 1, 10, minute),
++  data: Uint8List.fromList(<int>[1, 2, 3, minute]),
++);
++
++void main() {
++  group('FileJobStoreIo', () {
++    late Directory tmp;
++    late FileJobStoreIo store;
++
++    setUp(() {
++      tmp = Directory.systemTemp.createTempSync('file_job_store_test');
++      store = FileJobStoreIo(baseDirectory: () async => tmp);
++    });
++
++    tearDown(() {
++      if (tmp.existsSync()) tmp.deleteSync(recursive: true);
++    });
++
++    test('round-trips files newest first and deletes them', () async {
++      expect(await store.save('abc1234567', _file('k1', 1)), isTrue);
++      expect(await store.save('abc1234567', _file('k2', 2, name: 'b.png')),
++          isTrue);
++      final loaded = await store.load('abc1234567');
++      expect(loaded.map((f) => f.name), <String>['b.png', 'a.txt']);
++      expect(loaded.first.data, <int>[1, 2, 3, 2]);
++      expect(loaded.first.channelIndex, 1);
++
++      await store.delete('abc1234567', 'k2');
++      expect((await store.load('abc1234567')).map((f) => f.key), <String>[
++        'k1',
++      ]);
++    });
++
++    test('radios are isolated from each other', () async {
++      await store.save('radioaaaaa', _file('k1', 1));
++      expect(await store.load('radiobbbbb'), isEmpty);
++    });
++
++    test('keeps only the newest maxFiles', () async {
++      for (var i = 0; i < FileJobStore.maxFiles + 3; i++) {
++        await store.save('abc1234567', _file('k$i', i));
++      }
++      final loaded = await store.load('abc1234567');
++      expect(loaded, hasLength(FileJobStore.maxFiles));
++      expect(loaded.first.key, 'k${FileJobStore.maxFiles + 2}');
++    });
++
++    test('rejects unsafe keys and radio ids', () async {
++      expect(await store.save('abc1234567', _file('../evil', 1)), isFalse);
++      expect(await store.save('../x', _file('k1', 1)), isFalse);
++      expect(await store.load('../x'), isEmpty);
++    });
++
++    test('a hostile file name stays inside the record', () async {
++      await store.save('abc1234567', _file('k1', 1, name: '../../evil.txt'));
++      final loaded = await store.load('abc1234567');
++      expect(loaded.single.name, '../../evil.txt');
++      expect(File('${tmp.path}/evil.txt').existsSync(), isFalse);
++    });
++  });
++
++  group('FileTransferService persistence', () {
++    test('attachRadio restores saved files and dismiss deletes them', () async {
++      final store = InMemoryFileJobStore();
++      await store.save('radio00001', _file('k1', 3));
++      final service = FileTransferService(
++        sendBlobs: (blobs, ch, progress) async => true,
++        store: store,
++      );
++      await service.attachRadio('radio00001');
++      expect(service.jobs, hasLength(1));
++      final job = service.jobs.single;
++      expect(job.status, FileJobStatus.received);
++      expect(job.data, <int>[1, 2, 3, 3]);
++
++      service.dismiss(job.id);
++      await Future<void>.delayed(Duration.zero);
++      expect(service.jobs, isEmpty);
++      expect(await store.load('radio00001'), isEmpty);
++    });
++
++    test('switching radio swaps the visible files', () async {
++      final store = InMemoryFileJobStore();
++      await store.save('radio00001', _file('k1', 1));
++      await store.save('radio00002', _file('k2', 2, name: 'other.txt'));
++      final service = FileTransferService(
++        sendBlobs: (blobs, ch, progress) async => true,
++        store: store,
++      );
++      await service.attachRadio('radio00001');
++      await service.attachRadio('radio00002');
++      expect(service.jobs.map((j) => j.name), <String>['other.txt']);
++    });
++  });
++}
+diff --git a/test/file_transfer_engine_test.dart b/test/file_transfer_engine_test.dart
+index 12846a2..d22ad53 100644
+--- a/test/file_transfer_engine_test.dart
++++ b/test/file_transfer_engine_test.dart
+@@ -134,6 +134,50 @@ void main() {
+     expect(job.round, lessThan(5));
+   });
+ 
++  test('retry sends a failed file again and replaces its bubble', () async {
++    final engine = FileTransferEngine(
++      selfPrefix: 0xAAAA,
++      sendBlobs: (blobs, ch, progress) async => false,
++    );
++    final first = await engine.sendFile(
++      data: _bytes(10),
++      name: 'x.txt',
++      channelIndex: 2,
++    );
++    expect(first.status, FileJobStatus.failed);
++    expect(first.sourceData, isNotNull);
++    final second = await engine.retry(first.id)!;
++    expect(second.id, isNot(first.id));
++    expect(second.name, 'x.txt');
++    expect(second.channelIndex, 2);
++    expect(engine.jobs, hasLength(1));
++    expect(engine.jobs.single, same(second));
++    expect(engine.retry(9999), isNull);
++  });
++
++  test('restored files replace finished jobs, newest first', () {
++    final engine = FileTransferEngine(
++      selfPrefix: 0xAAAA,
++      sendBlobs: (blobs, ch, progress) async => true,
++    );
++    FileTransferJob stored(String name, int minute) => FileTransferJob(
++      id: 0,
++      outgoing: false,
++      channelIndex: 0,
++      name: name,
++      size: 3,
++      status: FileJobStatus.received,
++      startedAt: DateTime(2026, 1, 1, 10, minute),
++    )..data = Uint8List.fromList(<int>[1, 2, 3]);
++    engine.replaceFinishedJobs(<FileTransferJob>[
++      stored('old', 1),
++      stored('new', 5),
++    ]);
++    expect(engine.jobs.map((j) => j.name), <String>['new', 'old']);
++    expect(engine.jobs.every((j) => j.status == FileJobStatus.received), isTrue);
++    expect(engine.jobs.map((j) => j.id).toSet(), hasLength(2));
++  });
++
+   test('cancel stops a transfer that waits for a status', () async {
+     final net = _Net(lossAtoB: 1, statusWait: const Duration(seconds: 30));
+     final result = net.a.sendFile(

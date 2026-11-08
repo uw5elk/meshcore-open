@@ -2025,6 +2025,56 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       ? '$bytes B'
       : '${(bytes / 1024).toStringAsFixed(1)} KB';
 
+  void _retryFile(FileTransferService service, FileTransferJob job) {
+    try {
+      final f = service.retry(job.id);
+      if (f != null) unawaited(f.then((_) {}, onError: (Object _) {}));
+    } catch (e) {
+      showDismissibleSnackBar(context, content: Text(e.toString()));
+    }
+  }
+
+  static bool _isImageName(String name) {
+    final n = name.toLowerCase();
+    return n.endsWith('.jpg') ||
+        n.endsWith('.jpeg') ||
+        n.endsWith('.png') ||
+        n.endsWith('.gif') ||
+        n.endsWith('.webp') ||
+        n.endsWith('.bmp');
+  }
+
+  void _openFilePreview(Uint8List bytes, String name) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              child: Image.memory(
+                bytes,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => const Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// A file transfer as a chat bubble: name, size, progress and the delivery
   /// state (clock while in flight, tick when the receiver confirmed a
   /// verified copy), with save / cancel / remove actions.
@@ -2040,6 +2090,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final textColor = isOutgoing ? bubbleTheme.meInk : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.65);
     final canSave = job.status == FileJobStatus.received && job.data != null;
+    final previewBytes = job.outgoing ? job.sourceData : job.data;
+    final showThumb =
+        previewBytes != null &&
+        previewBytes.isNotEmpty &&
+        _isImageName(job.name) &&
+        (job.outgoing || job.status == FileJobStatus.received);
     final failed =
         job.status == FileJobStatus.failed ||
         job.status == FileJobStatus.cancelled;
@@ -2081,6 +2137,34 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (showThumb) ...[
+                    GestureDetector(
+                      onTap: () => _openFilePreview(previewBytes, job.name),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(MeshRadii.md),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 220,
+                            minHeight: 60,
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Image.memory(
+                              previewBytes,
+                              cacheWidth: 640,
+                              fit: BoxFit.cover,
+                              gaplessPlayback: true,
+                              errorBuilder: (_, _, _) => const SizedBox(
+                                height: 60,
+                                child: Icon(Icons.broken_image_outlined),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -2141,6 +2225,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           onPressed: () => service.cancel(job.id),
                         )
                       else ...[
+                        if (job.outgoing && failed && job.sourceData != null)
+                          IconButton(
+                            tooltip: l10n.fileTransfer_retry,
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.refresh, size: 20),
+                            onPressed: () => _retryFile(service, job),
+                          ),
                         if (canSave)
                           IconButton(
                             tooltip: l10n.fileTransfer_save,

@@ -4551,6 +4551,7 @@
   },
   "fileTransfer_status_cancelled": "Скасовано",
   "fileTransfer_status_noResponse": "Ніхто не відповів: поблизу, ймовірно, немає отримувачів.",
+  "fileTransfer_retry": "Повторити",
   "fileTransfer_save": "Зберегти",
   "fileTransfer_cancel": "Скасувати",
   "fileTransfer_dismiss": "Прибрати",
