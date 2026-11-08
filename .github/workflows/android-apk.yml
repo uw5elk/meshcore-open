@@ -19,6 +19,14 @@ jobs:
         with:
           flutter-version-file: pubspec.yaml
           cache: true
+      - name: Restore Gradle cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ github.run_id }}
+          restore-keys: gradle-
       - name: Fetch Gradle (with mirrors)
         run: |
           V=8.14
@@ -32,13 +40,20 @@ jobs:
             if curl -fL --retry 3 --retry-delay 5 --connect-timeout 20 -o "$F" "$url" && unzip -tq "$F" >/dev/null; then
               echo "OK: $url"
               sed -i "s#^distributionUrl=.*#distributionUrl=file\\:$F#" android/gradle/wrapper/gradle-wrapper.properties
-              cat android/gradle/wrapper/gradle-wrapper.properties
               exit 0
             fi
             rm -f "$F"
           done
           echo "All Gradle sources failed"
           exit 1
+      - name: Gradle network tuning
+        run: |
+          cat >> android/gradle.properties <<'EOP'
+          systemProp.org.gradle.internal.http.connectionTimeout=120000
+          systemProp.org.gradle.internal.http.socketTimeout=120000
+          systemProp.org.gradle.internal.repository.max.tentatives=8
+          systemProp.org.gradle.internal.repository.initial.backoff=2000
+          EOP
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Analyze
@@ -47,7 +62,22 @@ jobs:
       - name: Test
         run: flutter test
         continue-on-error: true
-      - run: flutter build apk --release --no-pub --target-platform android-arm64
+      - name: Build APK (retry)
+        run: |
+          for i in 1 2 3 4; do
+            flutter build apk --release --no-pub --target-platform android-arm64 && exit 0
+            echo "Build failed, retry $i"
+            sleep 60
+          done
+          exit 1
+      - name: Save Gradle cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ github.run_id }}
       - uses: actions/upload-artifact@v4
         with:
           name: meshcore-open-apk
