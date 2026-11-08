@@ -1,5 +1,7 @@
 # MeshCore Open
 
+> Українська документація форку: [README.uk.md](README.uk.md)
+
 Open-source Flutter client for MeshCore LoRa mesh networking devices.
 
 ## Overview
