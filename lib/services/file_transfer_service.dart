@@ -68,6 +68,41 @@ Duration? estimateFileSendTime({
   return perPacket * packets;
 }
 
+/// How long a sender waits for the first answer while nobody has replied yet:
+/// a receiver answers right after the PROBE, so the reply needs roughly three
+/// packet airtimes (hops and a busy channel) plus the reply spacing. Clamped
+/// to 10..45 s; 30 s while the radio parameters are unknown.
+Duration fileSilentWait({
+  required int? spreadingFactor,
+  required int? bandwidthHz,
+  required int? codingRate,
+}) {
+  final sf = spreadingFactor;
+  final bw = bandwidthHz;
+  final cr = codingRate;
+  if (sf == null || bw == null || cr == null) {
+    return const Duration(seconds: 30);
+  }
+  final normalizedCr = normalizeCodingRate(cr);
+  if (!areLoRaParamsValid(
+    spreadingFactor: sf,
+    bandwidthHz: bw,
+    codingRate: normalizedCr,
+  )) {
+    return const Duration(seconds: 30);
+  }
+  final airtime = loraTimeOnAir(
+    payloadBytes: kFileBlobBytes,
+    spreadingFactor: sf,
+    bandwidthHz: bw,
+    codingRate: normalizedCr,
+  );
+  final wait = airtime * 3 + const Duration(seconds: 10);
+  if (wait < const Duration(seconds: 10)) return const Duration(seconds: 10);
+  if (wait > const Duration(seconds: 45)) return const Duration(seconds: 45);
+  return wait;
+}
+
 /// UI-facing wrapper around [FileTransferEngine]: files sent and received as
 /// channel GRP_DATA. The connector feeds it inbound blobs and lifecycle events.
 class FileTransferService extends ChangeNotifier {
@@ -89,9 +124,11 @@ class FileTransferService extends ChangeNotifier {
     required FileBlobSender sendBlobs,
     void Function(String message)? log,
     FileJobStore? store,
+    Duration Function()? silentWait,
   }) : _store = store ?? InMemoryFileJobStore() {
     _engine = FileTransferEngine(
       sendBlobs: sendBlobs,
+      silentWait: silentWait,
       onChanged: notifyListeners,
       onFileReceived: _handleReceived,
       log: log,

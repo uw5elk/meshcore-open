@@ -178,6 +178,46 @@ void main() {
     expect(engine.jobs.map((j) => j.id).toSet(), hasLength(2));
   });
 
+  test('silent wait, not the long wait, ends a transfer nobody hears', () async {
+    final engine = FileTransferEngine(
+      selfPrefix: 0xAAAA,
+      statusWait: const Duration(seconds: 30),
+      silentWait: () => const Duration(milliseconds: 20),
+      sendBlobs: (blobs, ch, progress) async => true,
+    );
+    final job = await engine
+        .sendFile(data: _bytes(500), name: 'x', channelIndex: 0)
+        .timeout(const Duration(seconds: 5));
+    expect(job.status, FileJobStatus.failed);
+    expect(job.error, kFileErrorNoResponse);
+    // Default maxSilentRounds: the first burst and one more probe.
+    expect(job.round, 1);
+  });
+
+  test('a partly received file expires when the sender goes quiet', () async {
+    final plan = FileSendPlan.build(
+      data: _bytes(2000),
+      name: 'x.bin',
+      senderPrefix: 0xAAAA,
+      session: 1,
+      compressed: false,
+    );
+    final engine = FileTransferEngine(
+      selfPrefix: 0xBBBB,
+      incomingIdleTimeout: const Duration(milliseconds: 30),
+      sendBlobs: (blobs, ch, progress) async => true,
+    );
+    engine.handleBlob(plan.offer, 0);
+    engine.handleBlob(plan.chunks.first, 0);
+    expect(engine.jobs.single.status, FileJobStatus.receiving);
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    // Any later blob triggers the sweep (a timer does it in the app).
+    engine.handleBlob(Uint8List(3), 0);
+    expect(engine.jobs.single.status, FileJobStatus.failed);
+    expect(engine.jobs.single.error, kFileErrorExpired);
+    engine.clear();
+  });
+
   test('cancel stops a transfer that waits for a status', () async {
     final net = _Net(lossAtoB: 1, statusWait: const Duration(seconds: 30));
     final result = net.a.sendFile(

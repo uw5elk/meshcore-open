@@ -4527,6 +4527,7 @@
       }
     }
   },
+  "fileTransfer_status_sentAwaiting": "Надіслано, підтвердження ще немає",
   "fileTransfer_status_receiving": "Отримання {received} з {total}",
   "@fileTransfer_status_receiving": {
     "placeholders": {

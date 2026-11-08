@@ -15,6 +15,8 @@ MeshCore Open can send a file over the radio to everyone on a channel. The file 
 
 A transfer ends as *Delivered and verified* once a receiver reports a complete copy, or as *Failed* after 12 rounds without confirmation.
 
+While no receiver has answered, the sender waits only about three packet airtimes plus 10 s for a reply (clamped to 10-45 s, 30 s when the radio settings are unknown), probes once more and then stops with *No one answered* (a single tick shows *Sent, no confirmation yet* meanwhile). The long 90 s wait is used only after a receiver has answered but the file is still incomplete. On the receiving side a partly received file with no new packet for 5 minutes is closed as failed.
+
 ## Receive a file
 
 An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are stored in the app's private storage (the 20 newest per radio) and survive restarts; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it larger). A failed or cancelled outgoing file has a **Retry** button that sends it again.

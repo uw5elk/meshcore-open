@@ -1,0 +1,383 @@
+diff --git a/README.md b/README.md
+index 729199d..c2c359e 100644
+--- a/README.md
++++ b/README.md
+@@ -39,7 +39,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 1. Відкрийте чат каналу → меню вкладень → **Надіслати файл по радіо**.
+ 2. Виберіть файл. Якщо стиснення зменшує розмір (текст, журнали, CSV), файл стискається zlib автоматично; JPEG, ZIP і подібні йдуть без змін.
+ 3. У вікні підтвердження видно розмір до та після стиснення, кількість пакетів і приблизний час.
+-4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», подвійна галочка — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо після першої відправки та кількох перевірок ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів».
++4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 10 до 45 с, два очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
+ 
+ Передача завершується як *Доставлено, перевірено*, коли одержувач підтвердив повну копію, або як *Помилка* після 12 раундів без підтвердження.
+ 
+diff --git a/README.uk.md b/README.uk.md
+index 729199d..c2c359e 100644
+--- a/README.uk.md
++++ b/README.uk.md
+@@ -39,7 +39,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 1. Відкрийте чат каналу → меню вкладень → **Надіслати файл по радіо**.
+ 2. Виберіть файл. Якщо стиснення зменшує розмір (текст, журнали, CSV), файл стискається zlib автоматично; JPEG, ZIP і подібні йдуть без змін.
+ 3. У вікні підтвердження видно розмір до та після стиснення, кількість пакетів і приблизний час.
+-4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», подвійна галочка — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо після першої відправки та кількох перевірок ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів».
++4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 10 до 45 с, два очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
+ 
+ Передача завершується як *Доставлено, перевірено*, коли одержувач підтвердив повну копію, або як *Помилка* після 12 раундів без підтвердження.
+ 
+diff --git a/documentation/file-transfer.md b/documentation/file-transfer.md
+index b66f8fe..98e6cbe 100644
+--- a/documentation/file-transfer.md
++++ b/documentation/file-transfer.md
+@@ -15,6 +15,8 @@ MeshCore Open can send a file over the radio to everyone on a channel. The file
+ 
+ A transfer ends as *Delivered and verified* once a receiver reports a complete copy, or as *Failed* after 12 rounds without confirmation.
+ 
++While no receiver has answered, the sender waits only about three packet airtimes plus 10 s for a reply (clamped to 10-45 s, 30 s when the radio settings are unknown), probes once more and then stops with *No one answered* (a single tick shows *Sent, no confirmation yet* meanwhile). The long 90 s wait is used only after a receiver has answered but the file is still incomplete. On the receiving side a partly received file with no new packet for 5 minutes is closed as failed.
++
+ ## Receive a file
+ 
+ An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are stored in the app's private storage (the 20 newest per radio) and survive restarts; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it larger). A failed or cancelled outgoing file has a **Retry** button that sends it again.
+diff --git a/lib/l10n/app_en.arb b/lib/l10n/app_en.arb
+index d2fef65..01002dd 100644
+--- a/lib/l10n/app_en.arb
++++ b/lib/l10n/app_en.arb
+@@ -4527,6 +4527,7 @@
+       }
+     }
+   },
++  "fileTransfer_status_sentAwaiting": "Sent, no confirmation yet",
+   "fileTransfer_status_receiving": "Receiving {received} of {total}",
+   "@fileTransfer_status_receiving": {
+     "placeholders": {
+diff --git a/lib/l10n/app_uk.arb b/lib/l10n/app_uk.arb
+index 48ee668..03f71d9 100644
+--- a/lib/l10n/app_uk.arb
++++ b/lib/l10n/app_uk.arb
+@@ -4527,6 +4527,7 @@
+       }
+     }
+   },
++  "fileTransfer_status_sentAwaiting": "Надіслано, підтвердження ще немає",
+   "fileTransfer_status_receiving": "Отримання {received} з {total}",
+   "@fileTransfer_status_receiving": {
+     "placeholders": {
+diff --git a/lib/main.dart b/lib/main.dart
+index 54a0d92..46564e0 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -145,6 +145,11 @@ void main() async {
+   // ---- file transfer (selective-repeat over GRP_DATA) -----------------------
+   final fileTransferService = FileTransferService(
+     store: createFileJobStore(),
++    silentWait: () => fileSilentWait(
++      spreadingFactor: connector.currentSf,
++      bandwidthHz: connector.currentBwHz,
++      codingRate: connector.currentCr,
++    ),
+     log: (message) =>
+         appLogger.info(message, tag: 'FileTransfer', noNotify: true),
+     sendBlobs: (blobs, channelIndex, onProgress) => connector.sendImageChunks(
+diff --git a/lib/screens/channel_chat_screen.dart b/lib/screens/channel_chat_screen.dart
+index 46f6393..d90db44 100644
+--- a/lib/screens/channel_chat_screen.dart
++++ b/lib/screens/channel_chat_screen.dart
+@@ -2100,7 +2100,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+         job.status == FileJobStatus.failed ||
+         job.status == FileJobStatus.cancelled;
+     final IconData stateIcon;
+-    if (job.isActive) {
++    if (job.status == FileJobStatus.waitingForStatus) {
++      stateIcon = Icons.check;
++    } else if (job.isActive) {
+       stateIcon = Icons.access_time;
+     } else if (failed) {
+       stateIcon = Icons.error_outline;
+diff --git a/lib/services/file_transfer_engine.dart b/lib/services/file_transfer_engine.dart
+index 36e450a..f651aa2 100644
+--- a/lib/services/file_transfer_engine.dart
++++ b/lib/services/file_transfer_engine.dart
+@@ -23,6 +23,9 @@ typedef FileBlobSender =
+ /// [FileTransferJob.error] of a send that nobody ever answered.
+ const String kFileErrorNoResponse = 'no response';
+ 
++/// [FileTransferJob.error] of a partly received file whose sender went quiet.
++const String kFileErrorExpired = 'transfer expired';
++
+ enum FileJobStatus {
+   /// Outgoing: transmitting a burst of blobs.
+   sending,
+@@ -184,6 +187,14 @@ class FileTransferEngine {
+   /// wastes airtime. Once any STATUS has arrived, [maxRounds] applies instead.
+   final int maxSilentRounds;
+ 
++  /// Wait for the first answers while no receiver has been heard yet; null
++  /// means [statusWait]. A receiver replies within seconds, so a long wait
++  /// for silence only delays the verdict.
++  final Duration Function()? silentWait;
++
++  /// A partly received file with no new packet for this long is given up.
++  final Duration incomingIdleTimeout;
++
+   /// Minimum spacing of STATUS replies to probes of one incoming stream.
+   final Duration replyInterval;
+ 
+@@ -216,7 +227,9 @@ class FileTransferEngine {
+     int? selfPrefix,
+     this.statusWait = const Duration(seconds: 90),
+     this.maxRounds = 12,
+-    this.maxSilentRounds = 4,
++    this.maxSilentRounds = 2,
++    this.silentWait,
++    this.incomingIdleTimeout = const Duration(minutes: 5),
+     this.replyInterval = const Duration(seconds: 5),
+     this.maxJobs = 20,
+     this.onChanged,
+@@ -225,7 +238,9 @@ class FileTransferEngine {
+     FileReassembler? reassembler,
+     FileSessionAllocator? sessions,
+     DateTime Function()? clock,
+-  }) : _reassembler = reassembler ?? FileReassembler(selfPrefix: selfPrefix),
++  }) : _reassembler =
++           reassembler ??
++           FileReassembler(selfPrefix: selfPrefix, ttl: incomingIdleTimeout),
+        _sessions = sessions ?? FileSessionAllocator(),
+        _clock = clock ?? DateTime.now {
+     if (reassembler != null && selfPrefix != null) {
+@@ -333,15 +348,18 @@ class FileTransferEngine {
+ 
+         job.status = FileJobStatus.waitingForStatus;
+         _changed();
++        final wait = heardStatus
++            ? statusWait
++            : (silentWait?.call() ?? statusWait);
+         final status = await waiter.future.timeout(
+-          statusWait,
++          wait,
+           onTimeout: () => null,
+         );
+         state.waiter = null;
+         if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
+ 
+         if (status == null) {
+-          log?.call('job ${job.id} round $round: no STATUS within $statusWait');
++          log?.call('job ${job.id} round $round: no STATUS within $wait');
+           silentRounds++;
+           if (!heardStatus && silentRounds >= maxSilentRounds) {
+             return _fail(job, kFileErrorNoResponse);
+@@ -508,6 +526,7 @@ class FileTransferEngine {
+       );
+       _incomingJobs[key] = job;
+       _addJob(job);
++      _startSweepTimer();
+     }
+     if (offer != null) {
+       job
+@@ -584,6 +603,20 @@ class FileTransferEngine {
+   }
+ 
+   /// Marks incoming jobs whose partial state the reassembler already dropped.
++  Timer? _sweepTimer;
++
++  void _startSweepTimer() {
++    _sweepTimer ??= Timer.periodic(const Duration(seconds: 20), (_) {
++      _sweepExpired();
++      if (_incomingJobs.isEmpty) _stopSweepTimer();
++    });
++  }
++
++  void _stopSweepTimer() {
++    _sweepTimer?.cancel();
++    _sweepTimer = null;
++  }
++
+   void _sweepExpired() {
+     _reassembler.evictExpired();
+     final alive = _reassembler.pendingKeys.toSet();
+@@ -591,7 +624,7 @@ class FileTransferEngine {
+     for (final key in gone) {
+       final job = _incomingJobs.remove(key);
+       if (job != null && job.status == FileJobStatus.receiving) {
+-        _fail(job, 'transfer expired');
++        _fail(job, kFileErrorExpired);
+       }
+     }
+   }
+@@ -602,6 +635,7 @@ class FileTransferEngine {
+ 
+   /// Disconnect or new session: drop partial files, fail running transfers.
+   void clear() {
++    _stopSweepTimer();
+     _reassembler.clear();
+     _incomingJobs.clear();
+     _lastReply.clear();
+diff --git a/lib/services/file_transfer_service.dart b/lib/services/file_transfer_service.dart
+index 570c231..1fec276 100644
+--- a/lib/services/file_transfer_service.dart
++++ b/lib/services/file_transfer_service.dart
+@@ -68,6 +68,41 @@ Duration? estimateFileSendTime({
+   return perPacket * packets;
+ }
+ 
++/// How long a sender waits for the first answer while nobody has replied yet:
++/// a receiver answers right after the PROBE, so the reply needs roughly three
++/// packet airtimes (hops and a busy channel) plus the reply spacing. Clamped
++/// to 10..45 s; 30 s while the radio parameters are unknown.
++Duration fileSilentWait({
++  required int? spreadingFactor,
++  required int? bandwidthHz,
++  required int? codingRate,
++}) {
++  final sf = spreadingFactor;
++  final bw = bandwidthHz;
++  final cr = codingRate;
++  if (sf == null || bw == null || cr == null) {
++    return const Duration(seconds: 30);
++  }
++  final normalizedCr = normalizeCodingRate(cr);
++  if (!areLoRaParamsValid(
++    spreadingFactor: sf,
++    bandwidthHz: bw,
++    codingRate: normalizedCr,
++  )) {
++    return const Duration(seconds: 30);
++  }
++  final airtime = loraTimeOnAir(
++    payloadBytes: kFileBlobBytes,
++    spreadingFactor: sf,
++    bandwidthHz: bw,
++    codingRate: normalizedCr,
++  );
++  final wait = airtime * 3 + const Duration(seconds: 10);
++  if (wait < const Duration(seconds: 10)) return const Duration(seconds: 10);
++  if (wait > const Duration(seconds: 45)) return const Duration(seconds: 45);
++  return wait;
++}
++
+ /// UI-facing wrapper around [FileTransferEngine]: files sent and received as
+ /// channel GRP_DATA. The connector feeds it inbound blobs and lifecycle events.
+ class FileTransferService extends ChangeNotifier {
+@@ -89,9 +124,11 @@ class FileTransferService extends ChangeNotifier {
+     required FileBlobSender sendBlobs,
+     void Function(String message)? log,
+     FileJobStore? store,
++    Duration Function()? silentWait,
+   }) : _store = store ?? InMemoryFileJobStore() {
+     _engine = FileTransferEngine(
+       sendBlobs: sendBlobs,
++      silentWait: silentWait,
+       onChanged: notifyListeners,
+       onFileReceived: _handleReceived,
+       log: log,
+diff --git a/lib/widgets/file_transfers_sheet.dart b/lib/widgets/file_transfers_sheet.dart
+index ce073ed..f27bd38 100644
+--- a/lib/widgets/file_transfers_sheet.dart
++++ b/lib/widgets/file_transfers_sheet.dart
+@@ -14,7 +14,9 @@ String fileJobStatusText(AppLocalizations l10n, FileTransferJob job) {
+     case FileJobStatus.sending:
+       return l10n.fileTransfer_status_sending(job.sentBlobs, job.totalBlobs);
+     case FileJobStatus.waitingForStatus:
+-      return l10n.fileTransfer_status_waiting(job.round + 1);
++      return job.round == 0
++          ? l10n.fileTransfer_status_sentAwaiting
++          : l10n.fileTransfer_status_waiting(job.round + 1);
+     case FileJobStatus.receiving:
+       final total = job.totalChunks;
+       return total == null
+diff --git a/test/file_job_store_test.dart b/test/file_job_store_test.dart
+index 6fa7011..0053297 100644
+--- a/test/file_job_store_test.dart
++++ b/test/file_job_store_test.dart
+@@ -16,6 +16,7 @@ StoredFile _file(String key, int minute, {String name = 'a.txt'}) => StoredFile(
+ );
+ 
+ void main() {
++  silentWaitTests();
+   group('FileJobStoreIo', () {
+     late Directory tmp;
+     late FileJobStoreIo store;
+@@ -106,3 +107,34 @@ void main() {
+     });
+   });
+ }
++
++void silentWaitTests() {
++  group('fileSilentWait', () {
++    test('unknown radio parameters give 30 s', () {
++      expect(
++        fileSilentWait(
++          spreadingFactor: null,
++          bandwidthHz: null,
++          codingRate: null,
++        ),
++        const Duration(seconds: 30),
++      );
++    });
++
++    test('fast settings are clamped to 10 s, slow ones wait longer', () {
++      final fast = fileSilentWait(
++        spreadingFactor: 7,
++        bandwidthHz: 250000,
++        codingRate: 1,
++      );
++      final slow = fileSilentWait(
++        spreadingFactor: 12,
++        bandwidthHz: 125000,
++        codingRate: 1,
++      );
++      expect(fast, const Duration(seconds: 10));
++      expect(slow, greaterThan(fast));
++      expect(slow, lessThanOrEqualTo(const Duration(seconds: 45)));
++    });
++  });
++}
+diff --git a/test/file_transfer_engine_test.dart b/test/file_transfer_engine_test.dart
+index d22ad53..c8f54aa 100644
+--- a/test/file_transfer_engine_test.dart
++++ b/test/file_transfer_engine_test.dart
+@@ -178,6 +178,46 @@ void main() {
+     expect(engine.jobs.map((j) => j.id).toSet(), hasLength(2));
+   });
+ 
++  test('silent wait, not the long wait, ends a transfer nobody hears', () async {
++    final engine = FileTransferEngine(
++      selfPrefix: 0xAAAA,
++      statusWait: const Duration(seconds: 30),
++      silentWait: () => const Duration(milliseconds: 20),
++      sendBlobs: (blobs, ch, progress) async => true,
++    );
++    final job = await engine
++        .sendFile(data: _bytes(500), name: 'x', channelIndex: 0)
++        .timeout(const Duration(seconds: 5));
++    expect(job.status, FileJobStatus.failed);
++    expect(job.error, kFileErrorNoResponse);
++    // Default maxSilentRounds: the first burst and one more probe.
++    expect(job.round, 1);
++  });
++
++  test('a partly received file expires when the sender goes quiet', () async {
++    final plan = FileSendPlan.build(
++      data: _bytes(2000),
++      name: 'x.bin',
++      senderPrefix: 0xAAAA,
++      session: 1,
++      compressed: false,
++    );
++    final engine = FileTransferEngine(
++      selfPrefix: 0xBBBB,
++      incomingIdleTimeout: const Duration(milliseconds: 30),
++      sendBlobs: (blobs, ch, progress) async => true,
++    );
++    engine.handleBlob(plan.offer, 0);
++    engine.handleBlob(plan.chunks.first, 0);
++    expect(engine.jobs.single.status, FileJobStatus.receiving);
++    await Future<void>.delayed(const Duration(milliseconds: 80));
++    // Any later blob triggers the sweep (a timer does it in the app).
++    engine.handleBlob(Uint8List(3), 0);
++    expect(engine.jobs.single.status, FileJobStatus.failed);
++    expect(engine.jobs.single.error, kFileErrorExpired);
++    engine.clear();
++  });
++
+   test('cancel stops a transfer that waits for a status', () async {
+     final net = _Net(lossAtoB: 1, statusWait: const Duration(seconds: 30));
+     final result = net.a.sendFile(

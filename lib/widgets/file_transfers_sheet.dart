@@ -14,7 +14,9 @@ String fileJobStatusText(AppLocalizations l10n, FileTransferJob job) {
     case FileJobStatus.sending:
       return l10n.fileTransfer_status_sending(job.sentBlobs, job.totalBlobs);
     case FileJobStatus.waitingForStatus:
-      return l10n.fileTransfer_status_waiting(job.round + 1);
+      return job.round == 0
+          ? l10n.fileTransfer_status_sentAwaiting
+          : l10n.fileTransfer_status_waiting(job.round + 1);
     case FileJobStatus.receiving:
       final total = job.totalChunks;
       return total == null

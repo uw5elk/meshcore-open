@@ -16,6 +16,7 @@ StoredFile _file(String key, int minute, {String name = 'a.txt'}) => StoredFile(
 );
 
 void main() {
+  silentWaitTests();
   group('FileJobStoreIo', () {
     late Directory tmp;
     late FileJobStoreIo store;
@@ -103,6 +104,37 @@ void main() {
       await service.attachRadio('radio00001');
       await service.attachRadio('radio00002');
       expect(service.jobs.map((j) => j.name), <String>['other.txt']);
+    });
+  });
+}
+
+void silentWaitTests() {
+  group('fileSilentWait', () {
+    test('unknown radio parameters give 30 s', () {
+      expect(
+        fileSilentWait(
+          spreadingFactor: null,
+          bandwidthHz: null,
+          codingRate: null,
+        ),
+        const Duration(seconds: 30),
+      );
+    });
+
+    test('fast settings are clamped to 10 s, slow ones wait longer', () {
+      final fast = fileSilentWait(
+        spreadingFactor: 7,
+        bandwidthHz: 250000,
+        codingRate: 1,
+      );
+      final slow = fileSilentWait(
+        spreadingFactor: 12,
+        bandwidthHz: 125000,
+        codingRate: 1,
+      );
+      expect(fast, const Duration(seconds: 10));
+      expect(slow, greaterThan(fast));
+      expect(slow, lessThanOrEqualTo(const Duration(seconds: 45)));
     });
   });
 }

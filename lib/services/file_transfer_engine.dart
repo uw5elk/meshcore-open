@@ -23,6 +23,9 @@ typedef FileBlobSender =
 /// [FileTransferJob.error] of a send that nobody ever answered.
 const String kFileErrorNoResponse = 'no response';
 
+/// [FileTransferJob.error] of a partly received file whose sender went quiet.
+const String kFileErrorExpired = 'transfer expired';
+
 enum FileJobStatus {
   /// Outgoing: transmitting a burst of blobs.
   sending,
@@ -184,6 +187,14 @@ class FileTransferEngine {
   /// wastes airtime. Once any STATUS has arrived, [maxRounds] applies instead.
   final int maxSilentRounds;
 
+  /// Wait for the first answers while no receiver has been heard yet; null
+  /// means [statusWait]. A receiver replies within seconds, so a long wait
+  /// for silence only delays the verdict.
+  final Duration Function()? silentWait;
+
+  /// A partly received file with no new packet for this long is given up.
+  final Duration incomingIdleTimeout;
+
   /// Minimum spacing of STATUS replies to probes of one incoming stream.
   final Duration replyInterval;
 
@@ -216,7 +227,9 @@ class FileTransferEngine {
     int? selfPrefix,
     this.statusWait = const Duration(seconds: 90),
     this.maxRounds = 12,
-    this.maxSilentRounds = 4,
+    this.maxSilentRounds = 2,
+    this.silentWait,
+    this.incomingIdleTimeout = const Duration(minutes: 5),
     this.replyInterval = const Duration(seconds: 5),
     this.maxJobs = 20,
     this.onChanged,
@@ -225,7 +238,9 @@ class FileTransferEngine {
     FileReassembler? reassembler,
     FileSessionAllocator? sessions,
     DateTime Function()? clock,
-  }) : _reassembler = reassembler ?? FileReassembler(selfPrefix: selfPrefix),
+  }) : _reassembler =
+           reassembler ??
+           FileReassembler(selfPrefix: selfPrefix, ttl: incomingIdleTimeout),
        _sessions = sessions ?? FileSessionAllocator(),
        _clock = clock ?? DateTime.now {
     if (reassembler != null && selfPrefix != null) {
@@ -333,15 +348,18 @@ class FileTransferEngine {
 
         job.status = FileJobStatus.waitingForStatus;
         _changed();
+        final wait = heardStatus
+            ? statusWait
+            : (silentWait?.call() ?? statusWait);
         final status = await waiter.future.timeout(
-          statusWait,
+          wait,
           onTimeout: () => null,
         );
         state.waiter = null;
         if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
 
         if (status == null) {
-          log?.call('job ${job.id} round $round: no STATUS within $statusWait');
+          log?.call('job ${job.id} round $round: no STATUS within $wait');
           silentRounds++;
           if (!heardStatus && silentRounds >= maxSilentRounds) {
             return _fail(job, kFileErrorNoResponse);
@@ -508,6 +526,7 @@ class FileTransferEngine {
       );
       _incomingJobs[key] = job;
       _addJob(job);
+      _startSweepTimer();
     }
     if (offer != null) {
       job
@@ -584,6 +603,20 @@ class FileTransferEngine {
   }
 
   /// Marks incoming jobs whose partial state the reassembler already dropped.
+  Timer? _sweepTimer;
+
+  void _startSweepTimer() {
+    _sweepTimer ??= Timer.periodic(const Duration(seconds: 20), (_) {
+      _sweepExpired();
+      if (_incomingJobs.isEmpty) _stopSweepTimer();
+    });
+  }
+
+  void _stopSweepTimer() {
+    _sweepTimer?.cancel();
+    _sweepTimer = null;
+  }
+
   void _sweepExpired() {
     _reassembler.evictExpired();
     final alive = _reassembler.pendingKeys.toSet();
@@ -591,7 +624,7 @@ class FileTransferEngine {
     for (final key in gone) {
       final job = _incomingJobs.remove(key);
       if (job != null && job.status == FileJobStatus.receiving) {
-        _fail(job, 'transfer expired');
+        _fail(job, kFileErrorExpired);
       }
     }
   }
@@ -602,6 +635,7 @@ class FileTransferEngine {
 
   /// Disconnect or new session: drop partial files, fail running transfers.
   void clear() {
+    _stopSweepTimer();
     _reassembler.clear();
     _incomingJobs.clear();
     _lastReply.clear();

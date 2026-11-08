@@ -4527,6 +4527,7 @@
       }
     }
   },
+  "fileTransfer_status_sentAwaiting": "Sent, no confirmation yet",
   "fileTransfer_status_receiving": "Receiving {received} of {total}",
   "@fileTransfer_status_receiving": {
     "placeholders": {

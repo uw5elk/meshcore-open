@@ -2100,7 +2100,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         job.status == FileJobStatus.failed ||
         job.status == FileJobStatus.cancelled;
     final IconData stateIcon;
-    if (job.isActive) {
+    if (job.status == FileJobStatus.waitingForStatus) {
+      stateIcon = Icons.check;
+    } else if (job.isActive) {
       stateIcon = Icons.access_time;
     } else if (failed) {
       stateIcon = Icons.error_outline;
