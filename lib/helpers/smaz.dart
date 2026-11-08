@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'ua_pack.dart';
+import 'ua_zip.dart';
+
 class Smaz {
   static const int _verbatimSingle = 254;
   static const int _verbatimRun = 255;
@@ -270,15 +273,35 @@ class Smaz {
   });
 
   static String encodeIfSmaller(String text) {
-    if (text.isEmpty || text.startsWith('s:')) return text;
+    if (text.isEmpty ||
+        text.startsWith('s:') ||
+        text.startsWith('u:') ||
+        text.startsWith('z:')) {
+      return text;
+    }
     final originalBytes = Uint8List.fromList(utf8.encode(text));
     final compressed = compressBytes(originalBytes);
     final encoded = base64Encode(compressed);
+    var best = text;
+    var bestLen = originalBytes.length;
     final candidate = 's:$encoded';
-    if (utf8.encode(candidate).length < originalBytes.length) {
-      return candidate;
+    final candidateLen = utf8.encode(candidate).length;
+    if (candidateLen < bestLen) {
+      best = candidate;
+      bestLen = candidateLen;
     }
-    return text;
+    // Cyrillic text barely compresses with the English SMAZ dictionary.
+    final ua = UaPack.encodeIfSmaller(text);
+    if (ua != null && utf8.encode(ua).length < bestLen) {
+      best = ua;
+      bestLen = utf8.encode(ua).length;
+    }
+    // Word-level codec: by far the best for Ukrainian / English chat text.
+    final zip = UaZip.encodeIfSmaller(text);
+    if (zip != null && utf8.encode(zip).length < bestLen) {
+      best = zip;
+    }
+    return best;
   }
 
   /// Decodes text produced by [encodeIfSmaller]. Returns null when [text] is
@@ -290,6 +313,10 @@ class Smaz {
   /// result yields the same bytes, and the encoded form is shorter than the
   /// decoded text. Very short ambiguous inputs can still match.
   static String? tryDecodePrefixed(String text) {
+    final zip = UaZip.tryDecodePrefixed(text);
+    if (zip != null) return zip;
+    final ua = UaPack.tryDecodePrefixed(text);
+    if (ua != null) return ua;
     final trimmedLeft = text.trimLeft();
     if (!trimmedLeft.startsWith('s:') || trimmedLeft.length <= 2) return null;
     final encoded = trimmedLeft.substring(2);
