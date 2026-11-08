@@ -25,22 +25,20 @@ jobs:
           key: gradle-dist-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
       - run: flutter pub get
       - run: flutter gen-l10n
-      - name: Download Gradle (retry)
-        working-directory: android
-        run: |
-          for i in 1 2 3 4 5; do
-            ./gradlew --version && exit 0
-            echo "Gradle download failed, retry $i"
-            sleep 40
-          done
-          exit 1
       - name: Analyze
         run: flutter analyze
         continue-on-error: true
       - name: Test
         run: flutter test
         continue-on-error: true
-      - run: flutter build apk --release --no-pub --target-platform android-arm64
+      - name: Build APK (retry)
+        run: |
+          for i in 1 2 3 4 5; do
+            flutter build apk --release --no-pub --target-platform android-arm64 && exit 0
+            echo "Build failed, retry $i"
+            sleep 45
+          done
+          exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: meshcore-open-apk
