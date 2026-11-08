@@ -45,10 +45,10 @@ void main() {
         holidayAnimationFor('happy thanksgiving y’all'),
         HolidayAnimation.thanksgiving,
       );
-      expect(holidayAnimationFor('FELIZ NAVIDAD'), HolidayAnimation.christmas);
-      expect(holidayAnimationFor('С НОВЫМ ГОДОМ!'), HolidayAnimation.newYear);
-      expect(holidayAnimationFor('みんな、メリークリスマス！'), HolidayAnimation.christmas);
-      expect(holidayAnimationFor('祝大家新年快乐'), HolidayAnimation.newYear);
+      expect(holidayAnimationFor('З РІЗДВОМ!'), HolidayAnimation.christmas);
+      expect(holidayAnimationFor('З НОВИМ РОКОМ!'), HolidayAnimation.newYear);
+      expect(holidayAnimationFor('Усіх з Днем подяки'), HolidayAnimation.thanksgiving);
+      expect(holidayAnimationFor('З Гелловіном, друзі'), HolidayAnimation.halloween);
     });
 
     test('ordinary messages and near misses do not trigger', () {
