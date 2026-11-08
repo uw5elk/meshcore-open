@@ -11,13 +11,13 @@ MeshCore Open can send a file over the radio to everyone on a channel. The file 
 
 1. Open a channel chat and choose **Send file over radio** from the composer actions.
 2. Pick a file (up to 512 KB, and at most 128 KB on the air). The file is zlib-compressed first when that makes it smaller, so text, logs and CSV shrink a lot while JPEG, ZIP and similar stay as they are. The dialog shows the original and compressed size, the packet count and, once the radio settings are known, a rough time estimate that excludes resends.
-3. Progress appears in the banner above the composer. **File transfers** lists every transfer and lets you cancel a running one.
+3. The file appears in the chat as a bubble (name, size, progress, status: a clock while in flight, a double tick once the receiver confirmed a verified copy). **File transfers** lists every transfer and lets you cancel a running one.
 
 A transfer ends as *Delivered and verified* once a receiver reports a complete copy, or as *Failed* after 12 rounds without confirmation.
 
 ## Receive a file
 
-An incoming file shows as a banner on its channel and in the **File transfers** list. When it is complete and verified, tap **Save**: a save dialog on desktop, the share sheet elsewhere. Received files are kept in memory only and are gone after the app restarts.
+An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are kept in memory only and are gone after the app restarts.
 
 ## Send a photo shrunk to a size
 

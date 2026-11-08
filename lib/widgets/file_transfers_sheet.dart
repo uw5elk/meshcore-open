@@ -31,6 +31,29 @@ String fileJobStatusText(AppLocalizations l10n, FileTransferJob job) {
   }
 }
 
+/// Saves or shares a received file; shows a snack bar when that fails.
+Future<void> saveFileJobToDevice(
+  BuildContext context,
+  FileTransferJob job,
+) async {
+  final data = job.data;
+  if (data == null) return;
+  final box = context.findRenderObject() as RenderBox?;
+  final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+  final l10n = context.l10n;
+  final ok = await saveReceivedFile(
+    data,
+    job.name,
+    sharePositionOrigin: origin,
+  );
+  if (!ok && context.mounted) {
+    showDismissibleSnackBar(
+      context,
+      content: Text(l10n.fileTransfer_saveFailed),
+    );
+  }
+}
+
 /// Opens the list of file transfers.
 Future<void> showFileTransfersSheet(BuildContext context) {
   return showModalBottomSheet<void>(

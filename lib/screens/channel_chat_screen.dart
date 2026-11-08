@@ -58,7 +58,7 @@ import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
 import '../services/file_transfer_engine.dart'
-    show PreparedFile, prepareFileForSend;
+    show FileJobStatus, FileTransferJob, PreparedFile, prepareFileForSend;
 import '../services/file_transfer_protocol.dart'
     show fileChunkCount, kFileMaxBytes, kFileMaxOriginalBytes;
 import '../services/file_transfer_service.dart';
@@ -587,7 +587,21 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                     final hidesMessages = layout.length < messages.length;
                     if (hidesMessages) _scheduleHiddenHistoryBackfill();
 
-                    if (layout.length == 0) {
+                    // File transfers on this channel are shown as bubbles in the
+                    // transcript, ordered by when they started.
+                    FileTransferService? fileService;
+                    try {
+                      fileService = context.watch<FileTransferService>();
+                    } on ProviderNotFoundException {
+                      fileService = null;
+                    }
+                    final fileJobs = <FileTransferJob>[
+                      if (fileService != null)
+                        for (final j in fileService.jobs)
+                          if (j.channelIndex == widget.channel.index) j,
+                    ];
+
+                    if (layout.length == 0 && fileJobs.isEmpty) {
                       final canLoadOlder =
                           hidesMessages && !_olderHistoryExhausted;
                       return EmptyState(
@@ -620,7 +634,30 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                     final urlImagesEnabled = connector
                         .isChannelUrlImagesEnabled(widget.channel.index);
                     final rowCount = layout.length;
-                    final itemCount = rowCount + (_isLoadingOlder ? 1 : 0);
+                    // Item index of each file bubble (newest first, the same
+                    // order as [fileJobs]): a job goes in front of the older
+                    // rows, i.e. after the rows that arrived after it started.
+                    final fileSlots = <int>[];
+                    for (var j = 0; j < fileJobs.length; j++) {
+                      var lo = 0;
+                      var hi = rowCount;
+                      while (lo < hi) {
+                        final mid = (lo + hi) >> 1;
+                        if (layout
+                            .rowAt(mid, messages)
+                            .receivedAt
+                            .isAfter(fileJobs[j].startedAt)) {
+                          lo = mid + 1;
+                        } else {
+                          hi = mid;
+                        }
+                      }
+                      fileSlots.add(lo + j);
+                    }
+                    final itemCount =
+                        rowCount +
+                        fileJobs.length +
+                        (_isLoadingOlder ? 1 : 0);
 
                     // Auto-scroll to bottom if user is already at bottom
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -656,9 +693,30 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   ),
                                 );
                               }
-                              final row = layout.rowAt(index, messages);
+                              final fileSlot = fileSlots.indexOf(index);
+                              if (fileSlot >= 0) {
+                                final job = fileJobs[fileSlot];
+                                return Container(
+                                  key: ValueKey('file:${job.id}'),
+                                  child: Builder(
+                                    builder: (context) => _buildFileJobBubble(
+                                      job,
+                                      fileService!,
+                                      context
+                                          .select<ChatTextScaleService, double>(
+                                            (service) => service.scale,
+                                          ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              var rowIndex = index;
+                              for (final slot in fileSlots) {
+                                if (slot < index) rowIndex--;
+                              }
+                              final row = layout.rowAt(rowIndex, messages);
                               final GlobalKey messageKey;
-                              if (layout.keyedIndices.contains(index)) {
+                              if (layout.keyedIndices.contains(rowIndex)) {
                                 messageKey = _messageKeys.putIfAbsent(
                                   row.id,
                                   GlobalKey.new,
@@ -704,10 +762,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                       );
                                     }
                                     final startsDay =
-                                        index == rowCount - 1 ||
+                                        rowIndex == rowCount - 1 ||
                                         !isSameChatDay(
                                           layout
-                                              .rowAt(index + 1, messages)
+                                              .rowAt(rowIndex + 1, messages)
                                               .receivedAt,
                                           row.receivedAt,
                                         );
@@ -1963,6 +2021,161 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   /// Bubble for one AEIC image, following the GIF-message precedent: minimal
   /// chrome, the renderer owns every state (receiving / decoding / failed) and
   /// the mandatory AI-reconstruction label.
+  String _fileSizeText(int bytes) => bytes < 1024
+      ? '$bytes B'
+      : '${(bytes / 1024).toStringAsFixed(1)} KB';
+
+  /// A file transfer as a chat bubble: name, size, progress and the delivery
+  /// state (clock while in flight, tick when the receiver confirmed a
+  /// verified copy), with save / cancel / remove actions.
+  Widget _buildFileJobBubble(
+    FileTransferJob job,
+    FileTransferService service,
+    double textScale,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final isOutgoing = job.outgoing;
+    final bubbleTheme = MeshBubbleTheme.of(context);
+    final textColor = isOutgoing ? bubbleTheme.meInk : scheme.onSurface;
+    final metaColor = textColor.withValues(alpha: 0.65);
+    final canSave = job.status == FileJobStatus.received && job.data != null;
+    final failed =
+        job.status == FileJobStatus.failed ||
+        job.status == FileJobStatus.cancelled;
+    final IconData stateIcon;
+    if (job.isActive) {
+      stateIcon = Icons.access_time;
+    } else if (failed) {
+      stateIcon = Icons.error_outline;
+    } else if (job.status == FileJobStatus.delivered) {
+      stateIcon = Icons.done_all;
+    } else {
+      stateIcon = Icons.check;
+    }
+    final stateColor = failed ? scheme.error : metaColor;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: isOutgoing
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 320),
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
+              decoration: BoxDecoration(
+                color: isOutgoing ? bubbleTheme.me : scheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(MeshRadii.lg),
+                border: Border.all(
+                  color: isOutgoing
+                      ? bubbleTheme.meBorder
+                      : scheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.insert_drive_file_outlined,
+                        size: 32 * textScale.clamp(1.0, 1.5),
+                        color: textColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              job.name.isEmpty ? '…' : job.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15 * textScale,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            Text(
+                              _fileSizeText(job.size),
+                              style: TextStyle(
+                                fontSize: 12 * textScale,
+                                color: metaColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (job.isActive) ...[
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: job.fraction == 0 ? null : job.fraction,
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Text(
+                    fileJobStatusText(l10n, job),
+                    style: TextStyle(
+                      fontSize: 12 * textScale,
+                      color: failed ? scheme.error : metaColor,
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (job.isActive)
+                        IconButton(
+                          tooltip: l10n.fileTransfer_cancel,
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () => service.cancel(job.id),
+                        )
+                      else ...[
+                        if (canSave)
+                          IconButton(
+                            tooltip: l10n.fileTransfer_save,
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.save_alt, size: 20),
+                            onPressed: () => saveFileJobToDevice(context, job),
+                          ),
+                        IconButton(
+                          tooltip: l10n.fileTransfer_dismiss,
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.delete_outline, size: 20),
+                          onPressed: () => service.dismiss(job.id),
+                        ),
+                      ],
+                      const Spacer(),
+                      Text(
+                        formatChatTime(context, job.startedAt),
+                        style: MeshTheme.mono(
+                          fontSize: 12 * textScale,
+                          color: metaColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(stateIcon, size: 14 * textScale, color: stateColor),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildImageBubble(ReceivedImageEntry entry, double textScale) {
     final scheme = Theme.of(context).colorScheme;
     final isOutgoing = entry.isOutgoing;
@@ -2375,7 +2588,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             },
           ),
         if (_imageSendTotal > 0) _buildImageSendProgress(scheme),
-        FileTransferBanner(channelIndex: widget.channel.index),
       ],
       actionsBuilder: () {
         final connector = context.read<MeshCoreConnector>();
