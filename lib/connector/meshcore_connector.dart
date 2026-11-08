@@ -552,6 +552,10 @@ class MeshCoreConnector extends ChangeNotifier {
   bool get isUsbTransportConnected =>
       _state == MeshCoreConnectionState.connected &&
       _activeTransport == MeshCoreTransportType.usb;
+  /// Backoff steps taken so far; tests use it to see that a reconnect attempt
+  /// failed and the next one was scheduled.
+  @visibleForTesting
+  int get reconnectAttemptsForTest => _reconnectAttempts;
   bool get isAutoReconnectScheduled =>
       (_shouldAutoReconnect || _shouldAutoReconnectTcp) &&
       (_reconnectTimer?.isActive ?? false);

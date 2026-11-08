@@ -208,14 +208,14 @@ void main() {
             _connector.state == MeshCoreConnectionState.disconnected &&
             _connector.isAutoReconnectScheduled,
       );
-      await _waitFor(
-        () => !_connector.isAutoReconnectScheduled,
-        pollInterval: const Duration(milliseconds: 1),
-      );
-      // The timer firing proves an attempt started; wait for its failure to
-      // finish and the next backoff to become active.
+      // Each failed attempt schedules the next one with a longer backoff, so
+      // a higher step count proves an attempt ran and failed. (Polling for the
+      // brief "not scheduled" gap raced with a loopback failure that finishes
+      // in under a millisecond.)
+      final stepsBefore = _connector.reconnectAttemptsForTest;
       await _waitFor(
         () =>
+            _connector.reconnectAttemptsForTest > stepsBefore &&
             _connector.state == MeshCoreConnectionState.disconnected &&
             _connector.isAutoReconnectScheduled,
       );
