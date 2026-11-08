@@ -483,6 +483,7 @@ void main() {
       selfPrefix: 0xAAAA,
       statusWait: const Duration(milliseconds: 5),
       maxRounds: 6,
+      maxSilentRounds: 1 << 30,
       sendBlobs: (blobs, ch, progress) async {
         for (final b in blobs) {
           if ((b[0] & kFileKindMask) == kFileKindProbe) probes.add(b);
