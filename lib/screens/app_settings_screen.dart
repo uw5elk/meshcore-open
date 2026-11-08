@@ -761,30 +761,6 @@ class AppSettingsScreen extends StatelessWidget {
   ) {
     return Column(
       children: [
-        SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
-          secondary: const Icon(Icons.image_search_outlined, size: 24),
-          title: Text(context.l10n.appSettings_loadLinkImages),
-          subtitle: Text(context.l10n.appSettings_loadLinkImagesSubtitle),
-          value: settingsService.settings.loadLinkImages,
-          onChanged: settingsService.setLoadLinkImages,
-        ),
-        const Divider(height: 1, indent: 16),
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
-          leading: const Icon(Icons.link_outlined, size: 20),
-          title: Text(context.l10n.appSettings_ipfsImageLinks),
-          subtitle: Text(context.l10n.appSettings_ipfsImageLinksSubtitle),
-          trailing: const Icon(Icons.chevron_right, size: 18),
-          onTap: () => _showIpfsImageLinksDialog(context, settingsService),
-        ),
-        const Divider(height: 1, indent: 16),
         _ScrollIntoViewOnce(
           enabled: focusImageMessages,
           child: SwitchListTile(

@@ -933,24 +933,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 const Divider(height: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(context.l10n.urlImage_enable),
-                  subtitle: loadLinkImages
-                      ? null
-                      : Text(context.l10n.urlImage_disabledInAppSettings),
-                  value: urlImagesEnabled,
-                  onChanged: loadLinkImages
-                      ? (value) {
-                          connector.setContactUrlImagesEnabled(
-                            contact.publicKeyHex,
-                            value,
-                          );
-                          setDialogState(() => urlImagesEnabled = value);
-                        }
-                      : null,
-                ),
-                const Divider(height: 8),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.contact_teleBase),
                   subtitle: Text(context.l10n.contact_teleBaseSubtitle),
                   value: teleBaseEnabled,

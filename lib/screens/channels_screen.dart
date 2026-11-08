@@ -1792,23 +1792,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             ),
                           ),
                         ],
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(sheetContext.l10n.urlImage_enable),
-                          subtitle: loadLinkImages
-                              ? null
-                              : Text(
-                                  sheetContext
-                                      .l10n
-                                      .urlImage_disabledInAppSettings,
-                                ),
-                          value: urlImagesEnabled,
-                          onChanged: loadLinkImages
-                              ? (value) => setSheetState(
-                                  () => urlImagesEnabled = value,
-                                )
-                              : null,
-                        ),
                         const SizedBox(height: 24),
                       ],
                     ),
