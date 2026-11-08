@@ -652,6 +652,26 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   }
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.qr_code),
+                title: Text(sheetContext.l10n.channels_shareChannel),
+                onTap: () async {
+                  Navigator.pop(sheetContext);
+                  await Future.delayed(const Duration(milliseconds: 100));
+                  if (parentContext.mounted) {
+                    // Same link format the QR scanner accepts.
+                    final link =
+                        'meshcore://channel/add?name=${Uri.encodeQueryComponent(channel.name)}&secret=${channel.pskHex}';
+                    QrCodeShareDialog.show(
+                      context: parentContext,
+                      data: link,
+                      title: parentContext.l10n.channels_shareChannelTitle,
+                      instructions: parentContext.l10n
+                          .channels_shareChannelInstructions(channel.name),
+                    );
+                  }
+                },
+              ),
               // Notification mode selection
               ListTile(
                 leading: const Icon(Icons.notifications_outlined),

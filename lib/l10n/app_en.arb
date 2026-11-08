@@ -4569,5 +4569,15 @@
         "type": "String"
       }
     }
+  },
+  "channels_shareChannel": "Share channel (QR)",
+  "channels_shareChannelTitle": "Share channel",
+  "channels_shareChannelInstructions": "Scan in MeshCore to join \"{name}\". Anyone with this code can read the channel.",
+  "@channels_shareChannelInstructions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

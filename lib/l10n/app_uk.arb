@@ -4569,5 +4569,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "channels_shareChannel": "Поділитися каналом (QR)",
+  "channels_shareChannelTitle": "Поділитися каналом",
+  "channels_shareChannelInstructions": "Скануйте в MeshCore, щоб приєднатися до «{name}». Хто має цей код, бачить усі повідомлення каналу."
 }
