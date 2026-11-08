@@ -19,10 +19,26 @@ jobs:
         with:
           flutter-version-file: pubspec.yaml
           cache: true
-      - uses: actions/cache@v4
-        with:
-          path: ~/.gradle/wrapper/dists
-          key: gradle-dist-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Fetch Gradle (with mirrors)
+        run: |
+          V=8.14
+          F=/tmp/gradle-$V-bin.zip
+          for url in \
+            https://downloads.gradle.org/distributions/gradle-$V-bin.zip \
+            https://mirrors.cloud.tencent.com/gradle/gradle-$V-bin.zip \
+            https://mirrors.aliyun.com/gradle/gradle-$V-bin.zip \
+            https://github.com/gradle/gradle-distributions/releases/download/v$V.0/gradle-$V-bin.zip; do
+            echo "Trying $url"
+            if curl -fL --retry 3 --retry-delay 5 --connect-timeout 20 -o "$F" "$url" && unzip -tq "$F" >/dev/null; then
+              echo "OK: $url"
+              sed -i "s#^distributionUrl=.*#distributionUrl=file\\:$F#" android/gradle/wrapper/gradle-wrapper.properties
+              cat android/gradle/wrapper/gradle-wrapper.properties
+              exit 0
+            fi
+            rm -f "$F"
+          done
+          echo "All Gradle sources failed"
+          exit 1
       - run: flutter pub get
       - run: flutter gen-l10n
       - name: Analyze
@@ -31,14 +47,7 @@ jobs:
       - name: Test
         run: flutter test
         continue-on-error: true
-      - name: Build APK (retry)
-        run: |
-          for i in 1 2 3 4 5; do
-            flutter build apk --release --no-pub --target-platform android-arm64 && exit 0
-            echo "Build failed, retry $i"
-            sleep 45
-          done
-          exit 1
+      - run: flutter build apk --release --no-pub --target-platform android-arm64
       - uses: actions/upload-artifact@v4
         with:
           name: meshcore-open-apk
