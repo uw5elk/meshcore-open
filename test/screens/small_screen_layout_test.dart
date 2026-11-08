@@ -132,7 +132,6 @@ Contact _contactOfType(MeshCoreConnector c, int type) => c.contacts.firstWhere(
 );
 
 _Env? _shared;
-String? _sharedLang;
 
 typedef _ScreenBuilder = Widget Function(MeshCoreConnector c);
 
@@ -239,8 +238,10 @@ void main() {
       if (entry.key.startsWith('Repeater') || entry.key == 'Neighbors')
         (entry, true),
   ];
-  for (final lang in const ['en', 'uk'])
-  for (final (entry, offline) in variants) {
+  // Screen-major order: the shared review connection only stays alive for a
+  // limited stretch of simulated time, and the sheet tests need it live.
+  for (final (entry, offline) in variants)
+  for (final lang in const ['en', 'uk']) {
     for (final (size, scales) in _layouts) {
       for (final scale in scales) {
         final state = offline ? ' (radio offline)' : '';
@@ -250,12 +251,6 @@ void main() {
           tester.view.devicePixelRatio = 1.0;
           addTearDown(tester.view.reset);
 
-          // A fresh review-mode connection per language: the one from the
-          // previous language may have been dropped by then.
-          if (_sharedLang != lang) {
-            _shared = null;
-            _sharedLang = lang;
-          }
           final shared = _shared ??= await _connect(tester);
           final env = offline
               ? _Env(shared.connector, [
