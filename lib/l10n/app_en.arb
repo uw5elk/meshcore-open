@@ -4550,6 +4550,7 @@
     }
   },
   "fileTransfer_status_cancelled": "Cancelled",
+  "fileTransfer_status_noResponse": "No one answered: there may be no receivers in range.",
   "fileTransfer_save": "Save",
   "fileTransfer_cancel": "Cancel",
   "fileTransfer_dismiss": "Dismiss",

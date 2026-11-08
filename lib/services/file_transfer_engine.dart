@@ -20,6 +20,9 @@ typedef FileBlobSender =
       void Function(int sent, int total)? onProgress,
     );
 
+/// [FileTransferJob.error] of a send that nobody ever answered.
+const String kFileErrorNoResponse = 'no response';
+
 enum FileJobStatus {
   /// Outgoing: transmitting a burst of blobs.
   sending,
@@ -169,6 +172,11 @@ class FileTransferEngine {
   /// Retransmission rounds after the first burst before giving up.
   final int maxRounds;
 
+  /// Silent rounds (no STATUS at all) tolerated when no receiver has ever
+  /// answered this file: past that, nobody is listening and probing on only
+  /// wastes airtime. Once any STATUS has arrived, [maxRounds] applies instead.
+  final int maxSilentRounds;
+
   /// Minimum spacing of STATUS replies to probes of one incoming stream.
   final Duration replyInterval;
 
@@ -201,6 +209,7 @@ class FileTransferEngine {
     int? selfPrefix,
     this.statusWait = const Duration(seconds: 90),
     this.maxRounds = 12,
+    this.maxSilentRounds = 4,
     this.replyInterval = const Duration(seconds: 5),
     this.maxJobs = 20,
     this.onChanged,
@@ -275,6 +284,8 @@ class FileTransferEngine {
   ) async {
     try {
       var burst = state.plan.initialBurst;
+      var silentRounds = 0;
+      var heardStatus = false;
       for (var round = 0; round <= maxRounds; round++) {
         if (state.cancelled) return _finish(job, FileJobStatus.cancelled);
         job
@@ -321,10 +332,15 @@ class FileTransferEngine {
 
         if (status == null) {
           log?.call('job ${job.id} round $round: no STATUS within $statusWait');
+          silentRounds++;
+          if (!heardStatus && silentRounds >= maxSilentRounds) {
+            return _fail(job, kFileErrorNoResponse);
+          }
           // No answer: the PROBE or the STATUS was lost. Probe again.
           burst = <Uint8List>[state.plan.probe];
           continue;
         }
+        heardStatus = true;
         log?.call(
           'job ${job.id} round $round: STATUS complete=${status.complete} '
           'missing=${status.missing.length} needOffer=${status.needOffer}',

@@ -25,6 +25,9 @@ String fileJobStatusText(AppLocalizations l10n, FileTransferJob job) {
     case FileJobStatus.received:
       return l10n.fileTransfer_status_received;
     case FileJobStatus.failed:
+      if (job.error == kFileErrorNoResponse) {
+        return l10n.fileTransfer_status_noResponse;
+      }
       return l10n.fileTransfer_status_failed(job.error ?? '');
     case FileJobStatus.cancelled:
       return l10n.fileTransfer_status_cancelled;

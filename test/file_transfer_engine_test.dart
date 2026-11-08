@@ -27,12 +27,14 @@ class _Net {
     this.lossBtoA = 0,
     Duration statusWait = const Duration(milliseconds: 30),
     int maxRounds = 40,
+    int maxSilentRounds = 1 << 30,
     Duration bReplyInterval = Duration.zero,
   }) {
     a = FileTransferEngine(
       selfPrefix: 0xAAAA,
       statusWait: statusWait,
       maxRounds: maxRounds,
+      maxSilentRounds: maxSilentRounds,
       sendBlobs: (blobs, ch, progress) async {
         blobsFromA += blobs.length;
         return _deliver(() => b, blobs, ch, lossAtoB, progress);
@@ -113,6 +115,23 @@ void main() {
     expect(job.status, FileJobStatus.failed);
     expect(job.error, 'no confirmation after 2 rounds');
     expect(net.receivedByB, isEmpty);
+  });
+
+  test('stops early when no receiver ever answers', () async {
+    final net = _Net(
+      lossAtoB: 1,
+      statusWait: const Duration(milliseconds: 10),
+      maxRounds: 40,
+      maxSilentRounds: 3,
+    );
+    final job = await net.a.sendFile(
+      data: _bytes(500),
+      name: 'x',
+      channelIndex: 0,
+    );
+    expect(job.status, FileJobStatus.failed);
+    expect(job.error, kFileErrorNoResponse);
+    expect(job.round, lessThan(5));
   });
 
   test('cancel stops a transfer that waits for a status', () async {
