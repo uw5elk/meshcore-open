@@ -241,6 +241,7 @@ void main() {
   // Screen-major order: the shared review connection only stays alive for a
   // limited stretch of simulated time, and the sheet tests need it live.
   for (final (entry, offline) in variants)
+  // ignore: curly_braces_in_flow_control_structures
   for (final lang in const ['en', 'uk']) {
     for (final (size, scales) in _layouts) {
       for (final scale in scales) {

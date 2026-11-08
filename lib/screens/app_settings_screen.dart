@@ -798,6 +798,7 @@ class AppSettingsScreen extends StatelessWidget {
     }
   }
 
+  // ignore: unused_element
   void _showIpfsImageLinksDialog(
     BuildContext context,
     AppSettingsService settingsService,

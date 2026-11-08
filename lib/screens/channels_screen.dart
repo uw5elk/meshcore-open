@@ -1683,7 +1683,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       channel.index,
     );
     bool urlImagesEnabled = initialUrlImagesEnabled;
-    final loadLinkImages = appSettingsService.settings.loadLinkImages;
     String? selectedCyr2LatProfileId = connector.getChannelCyr2LatProfileId(
       channel.index,
     );

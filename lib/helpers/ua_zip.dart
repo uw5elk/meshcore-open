@@ -20,8 +20,11 @@ class UaZip {
   static const String prefix = 'z:';
 
   // ---- token types (order is part of the format) ----
+  // ignore: unused_field
   static const int _wlS = 0, _wl = 1, _wcS = 2, _wc = 3, _wuS = 4, _wu = 5;
+  // ignore: unused_field
   static const int _olS = 6, _ol = 7, _ocS = 8, _oc = 9, _ouS = 10, _ou = 11;
+  // ignore: unused_field
   static const int _omS = 12, _om = 13;
   static const int _num = 14, _numS = 15, _space = 16;
   static const int _punct = 17, _punctS = 18, _raw = 19, _pad = 20;

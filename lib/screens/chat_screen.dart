@@ -809,13 +809,6 @@ class _ChatScreenState extends State<ChatScreen> {
     bool cyr2latEnabled = connector.isContactCyr2LatEnabled(
       contact.publicKeyHex,
     );
-    bool urlImagesEnabled = connector.isContactUrlImagesEnabled(
-      contact.publicKeyHex,
-    );
-    final loadLinkImages = context
-        .read<AppSettingsService>()
-        .settings
-        .loadLinkImages;
     String? selectedCyr2LatProfileId = connector.getContactCyr2LatProfileId(
       contact.publicKeyHex,
     );

@@ -86,9 +86,10 @@ void main() {
 
   test('random garbage after the prefix never throws', () {
     for (var i = 0; i < 200; i++) {
-      final s = 'z:' + String.fromCharCodes(
+      final body = String.fromCharCodes(
         List.generate(1 + i % 40, (k) => 0x21 + (i * 31 + k * 17) % 94),
       );
+      final s = 'z:$body';
       UaZip.tryDecodePrefixed(s);
     }
   });

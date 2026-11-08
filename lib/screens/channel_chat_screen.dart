@@ -2666,7 +2666,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         data.length,
         fileChunkCount(data.length) + 2,
       ),
-      if (details != null) details,
+      ?details,
       if (estimate != null)
         l10n.fileTransfer_confirmEstimate(
           math.max(1, (estimate.inSeconds / 60).ceil()),

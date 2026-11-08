@@ -2168,6 +2168,7 @@ class _MapScreenState extends State<MapScreen> with DisconnectNavigationMixin {
     settings.mapKeyPrefixEnabled,
   ].where((active) => active).length;
 
+  // ignore: unused_element
   Widget _buildMapSourceSwitch(BuildContext context, MapSourceOption source) {
     final l10n = context.l10n;
     return Material(
