@@ -79,8 +79,6 @@ import 'app_settings_screen.dart';
 import 'channel_chat_transcript_grouping.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
-import 'region_management_screen.dart';
-import '../storage/region_store.dart';
 import '../utils/share_origin.dart';
 import '../services/chat_background_service.dart';
 import '../widgets/chat_background.dart';
@@ -426,7 +424,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       appBar: AppBar(
         title: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => openRegionSelectDialog(widget.channel),
           child: Row(
             children: [
               _channelIcon(widget.channel),
@@ -461,25 +458,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             context.l10n.community_publicChannel,
                           ChannelType.communityHashtag => null,
                         };
-                        final ownRegion = connector.getChannelRegion(
-                          widget.channel.index,
-                        );
-                        final region = connector.getEffectiveChannelRegion(
-                          widget.channel.index,
-                        );
-                        final defaultSuffix = ownRegion.isEmpty
-                            ? ' ${context.l10n.channels_regionDefaultSuffix}'
-                            : '';
-                        final radioDefault = connector.defaultFloodScopeName;
-                        final regionText = region.isNotEmpty
-                            ? '${context.l10n.channels_regionSetTo(region)}$defaultSuffix'
-                            : radioDefault != null &&
-                                  connector.channelUsesRadioDefaultScope(
-                                    widget.channel.index,
-                                  )
-                            ? '${context.l10n.channels_regionSetTo(radioDefault)} ${context.l10n.channels_regionRadioDefaultSuffix}'
-                            : null;
-                        final subtitle = [?privacy, ?regionText].join(' • ');
+                        final subtitle = [?privacy].join(' • ');
                         if (subtitle.isEmpty) return const SizedBox.shrink();
                         return Text(
                           subtitle,
@@ -523,9 +502,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
-              if (value == 'region') {
-                openRegionSelectDialog(widget.channel);
-              } else if (value == 'background') {
+              if (value == 'background') {
                 showChatBackgroundSheet(
                   context,
                   ChatBackgroundService.channelKey(widget.channel),
@@ -536,8 +513,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 _toggleChannelFiltering();
               }
             },
-            // Region lives here (and on a tap of the title) so the channel
-            // name keeps its room in the app bar.
             itemBuilder: (context) => [
               if (_messageFilter case final filter?
                   when filter.settings.enabled)
@@ -546,16 +521,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                   checked: filter.isChannelFiltered(_messageFilterChannelId),
                   child: Text(context.l10n.messageFilter_channelToggle),
                 ),
-              PopupMenuItem(
-                value: 'region',
-                child: Row(
-                  children: [
-                    const Icon(Icons.landscape, size: 20),
-                    const SizedBox(width: 12),
-                    Text(context.l10n.channels_regionSelect_Title),
-                  ],
-                ),
-              ),
               PopupMenuItem(
                 value: 'background',
                 child: Row(
@@ -3271,191 +3236,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
   String _displayRegion(String region) {
     return region.startsWith('#') ? region.substring(1) : region;
-  }
-
-  Future<void> openRegionSelectDialog(Channel channel) async {
-    // The AppBar subtitle reads the region from the connector inside a
-    // Consumer, so setChannelRegion's notifyListeners refreshes it directly —
-    // no post-dialog setState needed.
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) => _RegionSelectDialog(channel: channel),
-    );
-  }
-}
-
-class _RegionSelectDialog extends StatefulWidget {
-  final Channel channel;
-
-  const _RegionSelectDialog({required this.channel});
-
-  @override
-  State<_RegionSelectDialog> createState() => _RegionSelectDialogState();
-}
-
-class _RegionSelectDialogState extends State<_RegionSelectDialog> {
-  final RegionStore regionStore = RegionStore();
-
-  bool _canForceUnscoped(BuildContext context) =>
-      context.read<MeshCoreConnector>().supportsExplicitUnscopedFlood;
-
-  bool _hasOwnAssignment(BuildContext context) {
-    final connector = context.read<MeshCoreConnector>();
-    final index = widget.channel.index;
-    return connector.hasChannelRegion(index) ||
-        connector.isChannelExplicitlyUnscoped(index);
-  }
-
-  /// On firmware that cannot force an unscoped flood, explain that floods
-  /// without a region still use the radio's default region.
-  List<Widget> _buildRadioDefaultNote(BuildContext context) {
-    final connector = context.read<MeshCoreConnector>();
-    final radioDefault = connector.defaultFloodScopeName;
-    if (radioDefault == null || connector.supportsExplicitUnscopedFlood) {
-      return const [];
-    }
-    return [
-      const SizedBox(height: 8),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Text(
-          context.l10n.channels_regionRadioDefaultApplies(radioDefault),
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ),
-    ];
-  }
-
-  Widget _buildUnscopedTile(BuildContext context) {
-    final connector = context.read<MeshCoreConnector>();
-    final selected = connector.isChannelExplicitlyUnscoped(
-      widget.channel.index,
-    );
-    final primary = Theme.of(context).colorScheme.primary;
-    return ListTile(
-      leading: Icon(Icons.public_off, color: selected ? primary : null),
-      title: Text(context.l10n.settings_regionNoRegion),
-      trailing: selected ? Icon(Icons.check, color: primary) : null,
-      tileColor: selected ? primary.withValues(alpha: 0.16) : null,
-      onTap: () {
-        // Tapping the already-selected option clears it back to the default.
-        connector.setChannelRegion(
-          widget.channel.index,
-          selected ? '' : kUnscopedRegion,
-        );
-        Navigator.pop(context);
-      },
-    );
-  }
-
-  List<Region> regions = [];
-  int selectedIndex = -1;
-
-  @override
-  void initState() {
-    super.initState();
-    loadRegions();
-  }
-
-  void loadRegions() {
-    setState(() {
-      regions = regionStore.loadRegions();
-      final channelRegion = context.read<MeshCoreConnector>().getChannelRegion(
-        widget.channel.index,
-      );
-      selectedIndex = regions.indexOf(channelRegion);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppBar(
-              backgroundColor: Colors.transparent,
-              title: Text(context.l10n.channels_regionSelect_Title),
-              centerTitle: true,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                context.l10n.channels_regionSelectExplanation,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-            ..._buildRadioDefaultNote(context),
-            const SizedBox(height: 8),
-            if (_canForceUnscoped(context)) _buildUnscopedTile(context),
-            if (regions.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(context.l10n.channels_regionEmpty),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: regions.length,
-                  itemBuilder: (context, index) {
-                    final selected = selectedIndex == index;
-                    final primary = Theme.of(context).colorScheme.primary;
-                    return ListTile(
-                      leading: Icon(
-                        Icons.landscape,
-                        color: selected ? primary : null,
-                      ),
-                      title: Text(regions[index]),
-                      trailing: selected
-                          ? Icon(Icons.check, color: primary)
-                          : null,
-                      tileColor: selected
-                          ? primary.withValues(alpha: 0.16)
-                          : null,
-                      onTap: () {
-                        // Tapping the already-selected region clears it.
-                        context.read<MeshCoreConnector>().setChannelRegion(
-                          widget.channel.index,
-                          selected ? '' : regions[index],
-                        );
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: !_hasOwnAssignment(context)
-                      ? null
-                      : () {
-                          context.read<MeshCoreConnector>().setChannelRegion(
-                            widget.channel.index,
-                            '',
-                          );
-                          Navigator.pop(context);
-                        },
-                  child: Text(context.l10n.common_clear),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    await pushRegionManagementScreen(context);
-                    if (!mounted) return;
-                    loadRegions();
-                  },
-                  child: Text(context.l10n.channels_manageRegions),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

@@ -23,7 +23,6 @@ import 'ble_debug_log_screen.dart';
 import '../widgets/radio_stats_entry.dart';
 import 'telemetry_screen.dart';
 import '../widgets/sync_progress_overlay.dart';
-import 'region_management_screen.dart';
 import '../utils/share_origin.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -546,13 +545,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onTap: connected
               ? () => _showRadioSettings(context, connector)
               : null,
-        ),
-        const Divider(height: 1, indent: 16),
-        MeshNavTile(
-          icon: Icons.landscape,
-          title: l10n.settings_regionSettings,
-          subtitle: l10n.settings_regionSettingsSubtitle,
-          onTap: () => pushRegionManagementScreen(context),
         ),
         const Divider(height: 1, indent: 16),
         MeshNavTile(

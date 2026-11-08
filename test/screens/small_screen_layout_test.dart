@@ -30,7 +30,6 @@ import 'package:meshcore_open/screens/map_cache_screen.dart';
 import 'package:meshcore_open/screens/map_screen.dart';
 import 'package:meshcore_open/screens/neighbors_screen.dart';
 import 'package:meshcore_open/screens/path_trace_map.dart';
-import 'package:meshcore_open/screens/region_management_screen.dart';
 import 'package:meshcore_open/screens/repeater_cli_screen.dart';
 import 'package:meshcore_open/screens/repeater_hub_screen.dart';
 import 'package:meshcore_open/screens/repeater_settings_screen.dart';
@@ -166,7 +165,6 @@ final Map<String, _ScreenBuilder> _screens = {
   'Settings': (_) => const SettingsScreen(),
   'AppSettings': (_) => const AppSettingsScreen(),
   'Discovery': (_) => const DiscoveryScreen(),
-  'RegionManagement': (_) => const RegionManagementScreen(),
   'MapCache': (_) => const MapCacheScreen(),
   'CompanionRadioStats': (_) => const CompanionRadioStatsScreen(),
   'AppDebugLog': (_) => const AppDebugLogScreen(),

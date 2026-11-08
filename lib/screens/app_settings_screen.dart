@@ -462,18 +462,6 @@ class AppSettingsScreen extends StatelessWidget {
             settingsService.setEnableMessageTracing(value);
           },
         ),
-        const Divider(height: 1, indent: 16),
-        SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
-          secondary: const Icon(Icons.short_text, size: 24),
-          title: Text(context.l10n.appSettings_regionOnHopsLine),
-          subtitle: Text(context.l10n.appSettings_regionOnHopsLineSubtitle),
-          value: settingsService.settings.regionOnHopsLine,
-          onChanged: settingsService.setRegionOnHopsLine,
-        ),
       ],
     );
   }

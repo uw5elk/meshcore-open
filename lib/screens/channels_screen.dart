@@ -396,15 +396,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     final community = isCommunityChannel
         ? _communityIndex.getCommunityForChannel(channel)
         : null;
-    // Only flood-routed channels carry a region; show it when one is set.
-    String subtitle = connector.hasChannelRegion(channel.index)
-        ? context.l10n.channels_regionSetTo(
-            connector.getChannelRegion(channel.index),
-          )
-        : connector.isChannelExplicitlyUnscoped(channel.index) &&
-              connector.supportsExplicitUnscopedFlood
-        ? context.l10n.channels_regionNotSet
-        : '';
+    String subtitle = '';
     switch (channelType) {
       case ChannelType.communityPublic:
         icon = Icons.groups;
