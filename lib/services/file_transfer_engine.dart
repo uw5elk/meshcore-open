@@ -227,7 +227,7 @@ class FileTransferEngine {
     int? selfPrefix,
     this.statusWait = const Duration(seconds: 90),
     this.maxRounds = 12,
-    this.maxSilentRounds = 2,
+    this.maxSilentRounds = 1,
     this.silentWait,
     this.incomingIdleTimeout = const Duration(minutes: 5),
     this.replyInterval = const Duration(seconds: 5),

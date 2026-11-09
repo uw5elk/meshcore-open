@@ -1,0 +1,151 @@
+diff --git a/README.md b/README.md
+index c2c359e..05ebd00 100644
+--- a/README.md
++++ b/README.md
+@@ -39,7 +39,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 1. Відкрийте чат каналу → меню вкладень → **Надіслати файл по радіо**.
+ 2. Виберіть файл. Якщо стиснення зменшує розмір (текст, журнали, CSV), файл стискається zlib автоматично; JPEG, ZIP і подібні йдуть без змін.
+ 3. У вікні підтвердження видно розмір до та після стиснення, кількість пакетів і приблизний час.
+-4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 10 до 45 с, два очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
++4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 8 до 40 с, одне очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
+ 
+ Передача завершується як *Доставлено, перевірено*, коли одержувач підтвердив повну копію, або як *Помилка* після 12 раундів без підтвердження.
+ 
+diff --git a/README.uk.md b/README.uk.md
+index c2c359e..05ebd00 100644
+--- a/README.uk.md
++++ b/README.uk.md
+@@ -39,7 +39,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 1. Відкрийте чат каналу → меню вкладень → **Надіслати файл по радіо**.
+ 2. Виберіть файл. Якщо стиснення зменшує розмір (текст, журнали, CSV), файл стискається zlib автоматично; JPEG, ZIP і подібні йдуть без змін.
+ 3. У вікні підтвердження видно розмір до та після стиснення, кількість пакетів і приблизний час.
+-4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 10 до 45 с, два очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
++4. Файл з'являється в чаті бульбашкою, як у месенджерах: назва, розмір, смуга прогресу й стан. Годинник означає «в дорозі», одна галочка — «надіслано, підтвердження ще немає», подвійна — одержувач підтвердив перевірену копію. Кнопка ✕ скасовує передачу, повний список відкривається в **Передачі файлів**. Якщо ніхто не відповів, передача зупиняється з позначкою «Ніхто не відповів»: очікування першої відповіді прив'язане до швидкості радіо (від 8 до 40 с, одне очікування), тож це займає десятки секунд, а не хвилини. Довге очікування (90 с) лишається лише тоді, коли одержувач уже відповідав, але файл ще неповний. Неповний вхідний файл, від якого 5 хвилин немає пакетів, закривається сам.
+ 
+ Передача завершується як *Доставлено, перевірено*, коли одержувач підтвердив повну копію, або як *Помилка* після 12 раундів без підтвердження.
+ 
+diff --git a/documentation/file-transfer.md b/documentation/file-transfer.md
+index 98e6cbe..dbe88f9 100644
+--- a/documentation/file-transfer.md
++++ b/documentation/file-transfer.md
+@@ -15,7 +15,7 @@ MeshCore Open can send a file over the radio to everyone on a channel. The file
+ 
+ A transfer ends as *Delivered and verified* once a receiver reports a complete copy, or as *Failed* after 12 rounds without confirmation.
+ 
+-While no receiver has answered, the sender waits only about three packet airtimes plus 10 s for a reply (clamped to 10-45 s, 30 s when the radio settings are unknown), probes once more and then stops with *No one answered* (a single tick shows *Sent, no confirmation yet* meanwhile). The long 90 s wait is used only after a receiver has answered but the file is still incomplete. On the receiving side a partly received file with no new packet for 5 minutes is closed as failed.
++While no receiver has answered, the sender waits only about three packet airtimes plus 5 s for a reply (clamped to 8-40 s, 20 s when the radio settings are unknown) and then stops with *No one answered*; use **Retry** to send again (a single tick shows *Sent, no confirmation yet* meanwhile). The long 90 s wait is used only after a receiver has answered but the file is still incomplete. On the receiving side a partly received file with no new packet for 5 minutes is closed as failed.
+ 
+ ## Receive a file
+ 
+diff --git a/lib/services/file_transfer_engine.dart b/lib/services/file_transfer_engine.dart
+index f651aa2..31a9647 100644
+--- a/lib/services/file_transfer_engine.dart
++++ b/lib/services/file_transfer_engine.dart
+@@ -227,7 +227,7 @@ class FileTransferEngine {
+     int? selfPrefix,
+     this.statusWait = const Duration(seconds: 90),
+     this.maxRounds = 12,
+-    this.maxSilentRounds = 2,
++    this.maxSilentRounds = 1,
+     this.silentWait,
+     this.incomingIdleTimeout = const Duration(minutes: 5),
+     this.replyInterval = const Duration(seconds: 5),
+diff --git a/lib/services/file_transfer_service.dart b/lib/services/file_transfer_service.dart
+index 1fec276..bb092f6 100644
+--- a/lib/services/file_transfer_service.dart
++++ b/lib/services/file_transfer_service.dart
+@@ -71,7 +71,7 @@ Duration? estimateFileSendTime({
+ /// How long a sender waits for the first answer while nobody has replied yet:
+ /// a receiver answers right after the PROBE, so the reply needs roughly three
+ /// packet airtimes (hops and a busy channel) plus the reply spacing. Clamped
+-/// to 10..45 s; 30 s while the radio parameters are unknown.
++/// to 8..40 s; 20 s while the radio parameters are unknown.
+ Duration fileSilentWait({
+   required int? spreadingFactor,
+   required int? bandwidthHz,
+@@ -81,7 +81,7 @@ Duration fileSilentWait({
+   final bw = bandwidthHz;
+   final cr = codingRate;
+   if (sf == null || bw == null || cr == null) {
+-    return const Duration(seconds: 30);
++    return const Duration(seconds: 20);
+   }
+   final normalizedCr = normalizeCodingRate(cr);
+   if (!areLoRaParamsValid(
+@@ -89,7 +89,7 @@ Duration fileSilentWait({
+     bandwidthHz: bw,
+     codingRate: normalizedCr,
+   )) {
+-    return const Duration(seconds: 30);
++    return const Duration(seconds: 20);
+   }
+   final airtime = loraTimeOnAir(
+     payloadBytes: kFileBlobBytes,
+@@ -97,9 +97,9 @@ Duration fileSilentWait({
+     bandwidthHz: bw,
+     codingRate: normalizedCr,
+   );
+-  final wait = airtime * 3 + const Duration(seconds: 10);
+-  if (wait < const Duration(seconds: 10)) return const Duration(seconds: 10);
+-  if (wait > const Duration(seconds: 45)) return const Duration(seconds: 45);
++  final wait = airtime * 3 + const Duration(seconds: 5);
++  if (wait < const Duration(seconds: 8)) return const Duration(seconds: 8);
++  if (wait > const Duration(seconds: 40)) return const Duration(seconds: 40);
+   return wait;
+ }
+ 
+diff --git a/test/file_job_store_test.dart b/test/file_job_store_test.dart
+index d5af3f3..0ce4001 100644
+--- a/test/file_job_store_test.dart
++++ b/test/file_job_store_test.dart
+@@ -110,18 +110,18 @@ void main() {
+ 
+ void silentWaitTests() {
+   group('fileSilentWait', () {
+-    test('unknown radio parameters give 30 s', () {
++    test('unknown radio parameters give 20 s', () {
+       expect(
+         fileSilentWait(
+           spreadingFactor: null,
+           bandwidthHz: null,
+           codingRate: null,
+         ),
+-        const Duration(seconds: 30),
++        const Duration(seconds: 20),
+       );
+     });
+ 
+-    test('fast settings wait about 10 s, slow ones longer', () {
++    test('fast settings wait about 8 s, slow ones longer', () {
+       final fast = fileSilentWait(
+         spreadingFactor: 7,
+         bandwidthHz: 250000,
+@@ -132,10 +132,10 @@ void silentWaitTests() {
+         bandwidthHz: 125000,
+         codingRate: 1,
+       );
+-      expect(fast, greaterThanOrEqualTo(const Duration(seconds: 10)));
+-      expect(fast, lessThan(const Duration(seconds: 12)));
++      expect(fast, greaterThanOrEqualTo(const Duration(seconds: 8)));
++      expect(fast, lessThan(const Duration(seconds: 10)));
+       expect(slow, greaterThan(fast));
+-      expect(slow, lessThanOrEqualTo(const Duration(seconds: 45)));
++      expect(slow, lessThanOrEqualTo(const Duration(seconds: 40)));
+     });
+   });
+ }
+diff --git a/test/file_transfer_engine_test.dart b/test/file_transfer_engine_test.dart
+index c8f54aa..4d364b0 100644
+--- a/test/file_transfer_engine_test.dart
++++ b/test/file_transfer_engine_test.dart
+@@ -190,8 +190,8 @@ void main() {
+         .timeout(const Duration(seconds: 5));
+     expect(job.status, FileJobStatus.failed);
+     expect(job.error, kFileErrorNoResponse);
+-    // Default maxSilentRounds: the first burst and one more probe.
+-    expect(job.round, 1);
++    // Default maxSilentRounds: one wait after the first burst, no more.
++    expect(job.round, 0);
+   });
+ 
+   test('a partly received file expires when the sender goes quiet', () async {

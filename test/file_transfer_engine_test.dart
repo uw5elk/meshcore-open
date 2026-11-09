@@ -190,8 +190,8 @@ void main() {
         .timeout(const Duration(seconds: 5));
     expect(job.status, FileJobStatus.failed);
     expect(job.error, kFileErrorNoResponse);
-    // Default maxSilentRounds: the first burst and one more probe.
-    expect(job.round, 1);
+    // Default maxSilentRounds: one wait after the first burst, no more.
+    expect(job.round, 0);
   });
 
   test('a partly received file expires when the sender goes quiet', () async {

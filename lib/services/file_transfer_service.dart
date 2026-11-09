@@ -71,7 +71,7 @@ Duration? estimateFileSendTime({
 /// How long a sender waits for the first answer while nobody has replied yet:
 /// a receiver answers right after the PROBE, so the reply needs roughly three
 /// packet airtimes (hops and a busy channel) plus the reply spacing. Clamped
-/// to 10..45 s; 30 s while the radio parameters are unknown.
+/// to 8..40 s; 20 s while the radio parameters are unknown.
 Duration fileSilentWait({
   required int? spreadingFactor,
   required int? bandwidthHz,
@@ -81,7 +81,7 @@ Duration fileSilentWait({
   final bw = bandwidthHz;
   final cr = codingRate;
   if (sf == null || bw == null || cr == null) {
-    return const Duration(seconds: 30);
+    return const Duration(seconds: 20);
   }
   final normalizedCr = normalizeCodingRate(cr);
   if (!areLoRaParamsValid(
@@ -89,7 +89,7 @@ Duration fileSilentWait({
     bandwidthHz: bw,
     codingRate: normalizedCr,
   )) {
-    return const Duration(seconds: 30);
+    return const Duration(seconds: 20);
   }
   final airtime = loraTimeOnAir(
     payloadBytes: kFileBlobBytes,
@@ -97,9 +97,9 @@ Duration fileSilentWait({
     bandwidthHz: bw,
     codingRate: normalizedCr,
   );
-  final wait = airtime * 3 + const Duration(seconds: 10);
-  if (wait < const Duration(seconds: 10)) return const Duration(seconds: 10);
-  if (wait > const Duration(seconds: 45)) return const Duration(seconds: 45);
+  final wait = airtime * 3 + const Duration(seconds: 5);
+  if (wait < const Duration(seconds: 8)) return const Duration(seconds: 8);
+  if (wait > const Duration(seconds: 40)) return const Duration(seconds: 40);
   return wait;
 }
 

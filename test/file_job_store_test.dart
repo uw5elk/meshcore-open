@@ -110,18 +110,18 @@ void main() {
 
 void silentWaitTests() {
   group('fileSilentWait', () {
-    test('unknown radio parameters give 30 s', () {
+    test('unknown radio parameters give 20 s', () {
       expect(
         fileSilentWait(
           spreadingFactor: null,
           bandwidthHz: null,
           codingRate: null,
         ),
-        const Duration(seconds: 30),
+        const Duration(seconds: 20),
       );
     });
 
-    test('fast settings wait about 10 s, slow ones longer', () {
+    test('fast settings wait about 8 s, slow ones longer', () {
       final fast = fileSilentWait(
         spreadingFactor: 7,
         bandwidthHz: 250000,
@@ -132,10 +132,10 @@ void silentWaitTests() {
         bandwidthHz: 125000,
         codingRate: 1,
       );
-      expect(fast, greaterThanOrEqualTo(const Duration(seconds: 10)));
-      expect(fast, lessThan(const Duration(seconds: 12)));
+      expect(fast, greaterThanOrEqualTo(const Duration(seconds: 8)));
+      expect(fast, lessThan(const Duration(seconds: 10)));
       expect(slow, greaterThan(fast));
-      expect(slow, lessThanOrEqualTo(const Duration(seconds: 45)));
+      expect(slow, lessThanOrEqualTo(const Duration(seconds: 40)));
     });
   });
 }
