@@ -161,8 +161,12 @@ class FileTransferService extends ChangeNotifier {
     onFileReceived?.call(job);
   }
 
+  /// True while files loaded from storage are put into the list: they are
+  /// already on disk and must not be saved a second time.
+  bool _restoring = false;
+
   void _handleChanged() {
-    _persistFinishedOutgoing();
+    if (!_restoring) _persistFinishedOutgoing();
     notifyListeners();
   }
 
@@ -238,10 +242,17 @@ class FileTransferService extends ChangeNotifier {
           ..data = f.outgoing ? null : f.data
           ..sourceData = f.outgoing ? f.data : null,
     ];
-    final created = _engine.replaceFinishedJobs(restored);
-    for (var i = 0; i < created.length; i++) {
-      _storeKeys[created[i].id] = stored[i].key;
+    _restoring = true;
+    try {
+      final created = _engine.replaceFinishedJobs(restored);
+      for (var i = 0; i < created.length; i++) {
+        _storeKeys[created[i].id] = stored[i].key;
+      }
+    } finally {
+      _restoring = false;
     }
+    // Notified only now, with every restored job already mapped to its file.
+    notifyListeners();
   }
 
   /// Newest first.

@@ -151,6 +151,8 @@ void main() {
       expect(job.outgoing, isTrue);
       expect(job.status, FileJobStatus.failed);
       expect(job.sourceData, <int>[1, 2, 3, 4]);
+      // Restoring must not write the same file again.
+      expect(await store.load('radio00001'), hasLength(1));
 
       await second.retry(job.id)!;
       await Future<void>.delayed(Duration.zero);

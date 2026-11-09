@@ -1,0 +1,52 @@
+diff --git a/lib/services/file_transfer_service.dart b/lib/services/file_transfer_service.dart
+index c7b7daf..087918f 100644
+--- a/lib/services/file_transfer_service.dart
++++ b/lib/services/file_transfer_service.dart
+@@ -161,8 +161,12 @@ class FileTransferService extends ChangeNotifier {
+     onFileReceived?.call(job);
+   }
+ 
++  /// True while files loaded from storage are put into the list: they are
++  /// already on disk and must not be saved a second time.
++  bool _restoring = false;
++
+   void _handleChanged() {
+-    _persistFinishedOutgoing();
++    if (!_restoring) _persistFinishedOutgoing();
+     notifyListeners();
+   }
+ 
+@@ -238,10 +242,17 @@ class FileTransferService extends ChangeNotifier {
+           ..data = f.outgoing ? null : f.data
+           ..sourceData = f.outgoing ? f.data : null,
+     ];
+-    final created = _engine.replaceFinishedJobs(restored);
+-    for (var i = 0; i < created.length; i++) {
+-      _storeKeys[created[i].id] = stored[i].key;
++    _restoring = true;
++    try {
++      final created = _engine.replaceFinishedJobs(restored);
++      for (var i = 0; i < created.length; i++) {
++        _storeKeys[created[i].id] = stored[i].key;
++      }
++    } finally {
++      _restoring = false;
+     }
++    // Notified only now, with every restored job already mapped to its file.
++    notifyListeners();
+   }
+ 
+   /// Newest first.
+diff --git a/test/file_job_store_test.dart b/test/file_job_store_test.dart
+index 616199a..fe0e884 100644
+--- a/test/file_job_store_test.dart
++++ b/test/file_job_store_test.dart
+@@ -151,6 +151,8 @@ void main() {
+       expect(job.outgoing, isTrue);
+       expect(job.status, FileJobStatus.failed);
+       expect(job.sourceData, <int>[1, 2, 3, 4]);
++      // Restoring must not write the same file again.
++      expect(await store.load('radio00001'), hasLength(1));
+ 
+       await second.retry(job.id)!;
+       await Future<void>.delayed(Duration.zero);
