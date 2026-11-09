@@ -45,6 +45,37 @@ void main() {
       ]);
     });
 
+    test('keeps the sent flag, status and the last radio', () async {
+      await store.save(
+        'abc1234567',
+        StoredFile(
+          key: 'k1',
+          name: 'sent.jpg',
+          channelIndex: 2,
+          receivedAt: DateTime(2026, 1, 1),
+          data: Uint8List.fromList(<int>[9]),
+          outgoing: true,
+          status: 'failed',
+          error: 'no response',
+        ),
+      );
+      final f = (await store.load('abc1234567')).single;
+      expect(f.outgoing, isTrue);
+      expect(f.status, 'failed');
+      expect(f.error, 'no response');
+      expect(await store.lastRadio(), isNull);
+      await store.setLastRadio('abc1234567');
+      expect(await store.lastRadio(), 'abc1234567');
+    });
+
+    test('concurrent saves and loads lose nothing', () async {
+      await Future.wait(<Future<Object?>>[
+        for (var i = 0; i < 8; i++) store.save('abc1234567', _file('k$i', i)),
+        for (var i = 0; i < 4; i++) store.load('abc1234567'),
+      ]);
+      expect(await store.load('abc1234567'), hasLength(8));
+    });
+
     test('radios are isolated from each other', () async {
       await store.save('radioaaaaa', _file('k1', 1));
       expect(await store.load('radiobbbbb'), isEmpty);
@@ -91,6 +122,41 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(service.jobs, isEmpty);
       expect(await store.load('radio00001'), isEmpty);
+    });
+
+    test('a sent file survives a restart and can be retried', () async {
+      final store = InMemoryFileJobStore();
+      final first = FileTransferService(
+        sendBlobs: (blobs, ch, progress) async => false,
+        store: store,
+      );
+      first.selfPrefix = 0xAAAA;
+      await first.attachRadio('radio00001');
+      await first.sendFile(
+        data: Uint8List.fromList(<int>[1, 2, 3, 4]),
+        name: 'p.jpg',
+        channelIndex: 1,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(await store.load('radio00001'), hasLength(1));
+
+      // New launch: the files show before any radio connects.
+      final second = FileTransferService(
+        sendBlobs: (blobs, ch, progress) async => false,
+        store: store,
+      );
+      second.selfPrefix = 0xAAAA;
+      await second.restoreLastRadio();
+      final job = second.jobs.single;
+      expect(job.outgoing, isTrue);
+      expect(job.status, FileJobStatus.failed);
+      expect(job.sourceData, <int>[1, 2, 3, 4]);
+
+      await second.retry(job.id)!;
+      await Future<void>.delayed(Duration.zero);
+      // The old record is replaced by the new attempt's record.
+      expect(second.jobs, hasLength(1));
+      expect(await store.load('radio00001'), hasLength(1));
     });
 
     test('switching radio swaps the visible files', () async {

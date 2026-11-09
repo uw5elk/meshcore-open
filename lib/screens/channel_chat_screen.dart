@@ -2044,32 +2044,36 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         n.endsWith('.bmp');
   }
 
+  /// Full-screen viewer: pinch to zoom, drag to pan, tap the cross to close.
   void _openFilePreview(Uint8List bytes, String name) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => Dialog(
-        insetPadding: const EdgeInsets.all(12),
-        child: Stack(
-          children: [
-            InteractiveViewer(
-              child: Image.memory(
-                bytes,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Icon(Icons.broken_image_outlined, size: 48),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (ctx) => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            title: Text(name, overflow: TextOverflow.ellipsis),
+          ),
+          body: SizedBox.expand(
+            child: InteractiveViewer(
+              minScale: 1,
+              maxScale: 8,
+              child: Center(
+                child: Image.memory(
+                  bytes,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                  errorBuilder: (_, _, _) => const Icon(
+                    Icons.broken_image_outlined,
+                    size: 64,
+                    color: Colors.white54,
+                  ),
                 ),
               ),
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

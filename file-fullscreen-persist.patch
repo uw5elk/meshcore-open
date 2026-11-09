@@ -1,0 +1,601 @@
+diff --git a/README.md b/README.md
+index 05ebd00..aee8313 100644
+--- a/README.md
++++ b/README.md
+@@ -45,7 +45,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 
+ ### Отримання
+ 
+-Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
++Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані та надіслані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску, їх видно ще до підключення радіо; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити на весь екран із масштабуванням). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
+ 
+ ### Фото зі стисненням
+ 
+diff --git a/README.uk.md b/README.uk.md
+index 05ebd00..aee8313 100644
+--- a/README.uk.md
++++ b/README.uk.md
+@@ -45,7 +45,7 @@ APK збирає GitHub Actions (Flutter на самому телефоні зі
+ 
+ ### Отримання
+ 
+-Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
++Вхідний файл з'являється в чаті бульбашкою з прогресом. Коли він повний і перевірений, натисніть значок **Зберегти** в бульбашці. Отримані та надіслані файли зберігаються на пристрої (до 20 останніх для кожного радіо) і лишаються після перезапуску, їх видно ще до підключення радіо; кнопка кошика видаляє файл. Фото показуються мініатюрою в бульбашці (торкніться, щоб відкрити на весь екран із масштабуванням). Якщо передача не вдалася або скасована, кнопка **Повторити** надсилає файл знову.
+ 
+ ### Фото зі стисненням
+ 
+diff --git a/documentation/file-transfer.md b/documentation/file-transfer.md
+index dbe88f9..2b9db7f 100644
+--- a/documentation/file-transfer.md
++++ b/documentation/file-transfer.md
+@@ -19,7 +19,7 @@ While no receiver has answered, the sender waits only about three packet airtime
+ 
+ ## Receive a file
+ 
+-An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are stored in the app's private storage (the 20 newest per radio) and survive restarts; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it larger). A failed or cancelled outgoing file has a **Retry** button that sends it again.
++An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received and sent files are stored in the app's private storage (the 20 newest per radio), survive restarts and are listed right after launch, before the radio connects; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it full screen, pinch to zoom). A failed or cancelled outgoing file has a **Retry** button that sends it again.
+ 
+ ## Send a photo shrunk to a size
+ 
+diff --git a/lib/main.dart b/lib/main.dart
+index 46564e0..7290a3a 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -164,6 +164,8 @@ void main() async {
+       dataType: dataTypeFileTransfer,
+     ),
+   );
++  // Files saved by earlier sessions show up before the radio connects.
++  unawaited(fileTransferService.restoreLastRadio());
+ 
+   // Initialize app logger
+   appLogger.initialize(
+diff --git a/lib/screens/channel_chat_screen.dart b/lib/screens/channel_chat_screen.dart
+index d90db44..f7404e5 100644
+--- a/lib/screens/channel_chat_screen.dart
++++ b/lib/screens/channel_chat_screen.dart
+@@ -2044,32 +2044,36 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
+         n.endsWith('.bmp');
+   }
+ 
++  /// Full-screen viewer: pinch to zoom, drag to pan, tap the cross to close.
+   void _openFilePreview(Uint8List bytes, String name) {
+-    showDialog<void>(
+-      context: context,
+-      builder: (ctx) => Dialog(
+-        insetPadding: const EdgeInsets.all(12),
+-        child: Stack(
+-          children: [
+-            InteractiveViewer(
+-              child: Image.memory(
+-                bytes,
+-                fit: BoxFit.contain,
+-                errorBuilder: (_, _, _) => const Padding(
+-                  padding: EdgeInsets.all(32),
+-                  child: Icon(Icons.broken_image_outlined, size: 48),
++    Navigator.of(context).push(
++      MaterialPageRoute<void>(
++        fullscreenDialog: true,
++        builder: (ctx) => Scaffold(
++          backgroundColor: Colors.black,
++          appBar: AppBar(
++            backgroundColor: Colors.black,
++            foregroundColor: Colors.white,
++            title: Text(name, overflow: TextOverflow.ellipsis),
++          ),
++          body: SizedBox.expand(
++            child: InteractiveViewer(
++              minScale: 1,
++              maxScale: 8,
++              child: Center(
++                child: Image.memory(
++                  bytes,
++                  fit: BoxFit.contain,
++                  filterQuality: FilterQuality.medium,
++                  errorBuilder: (_, _, _) => const Icon(
++                    Icons.broken_image_outlined,
++                    size: 64,
++                    color: Colors.white54,
++                  ),
+                 ),
+               ),
+             ),
+-            Positioned(
+-              top: 0,
+-              right: 0,
+-              child: IconButton(
+-                icon: const Icon(Icons.close),
+-                onPressed: () => Navigator.of(ctx).pop(),
+-              ),
+-            ),
+-          ],
++          ),
+         ),
+       ),
+     );
+diff --git a/lib/services/file_job_store.dart b/lib/services/file_job_store.dart
+index 0284c16..c322773 100644
+--- a/lib/services/file_job_store.dart
++++ b/lib/services/file_job_store.dart
+@@ -9,12 +9,21 @@ class StoredFile {
+   final DateTime receivedAt;
+   final Uint8List data;
+ 
++  /// True for a file this device sent; [status] is then delivered, failed or
++  /// cancelled, otherwise received.
++  final bool outgoing;
++  final String status;
++  final String? error;
++
+   const StoredFile({
+     required this.key,
+     required this.name,
+     required this.channelIndex,
+     required this.receivedAt,
+     required this.data,
++    this.outgoing = false,
++    this.status = 'received',
++    this.error,
+   });
+ }
+ 
+@@ -28,6 +37,12 @@ abstract class FileJobStore {
+ 
+   Future<void> delete(String radioKey, String key);
+ 
++  /// The radio whose files were shown last, so they can be listed right after
++  /// launch, before the radio has connected.
++  Future<String?> lastRadio();
++
++  Future<void> setLastRadio(String radioKey);
++
+   /// Files kept per radio; the oldest are dropped first.
+   static const int maxFiles = 20;
+ }
+@@ -54,4 +69,12 @@ class InMemoryFileJobStore implements FileJobStore {
+   Future<void> delete(String radioKey, String key) async {
+     _files[radioKey]?.remove(key);
+   }
++
++  String? _last;
++
++  @override
++  Future<String?> lastRadio() async => _last;
++
++  @override
++  Future<void> setLastRadio(String radioKey) async => _last = radioKey;
+ }
+diff --git a/lib/services/file_job_store_io.dart b/lib/services/file_job_store_io.dart
+index 3ad4f54..29e9ee7 100644
+--- a/lib/services/file_job_store_io.dart
++++ b/lib/services/file_job_store_io.dart
+@@ -11,6 +11,7 @@
+ /// A `.bin` without its `.json` (crash mid-save) is swept on [load].
+ library;
+ 
++import 'dart:async';
+ import 'dart:convert';
+ import 'dart:io';
+ import 'dart:typed_data';
+@@ -42,8 +43,68 @@ class FileJobStoreIo implements FileJobStore {
+   String _path(Directory dir, String key, String ext) =>
+       '${dir.path}${Platform.pathSeparator}$key$ext';
+ 
++  /// Operations run one at a time: a load sweeping "orphans" must never see
++  /// the half-written file of a concurrent save.
++  Future<void> _tail = Future<void>.value();
++
++  Future<T> _run<T>(Future<T> Function() op) {
++    final done = Completer<T>();
++    _tail = _tail.then((_) async {
++      try {
++        done.complete(await op());
++      } catch (e, st) {
++        done.completeError(e, st);
++      }
++    });
++    return done.future;
++  }
++
++  @override
++  Future<List<StoredFile>> load(String radioKey) =>
++      _run(() => _load(radioKey));
++
++  @override
++  Future<bool> save(String radioKey, StoredFile file) =>
++      _run(() => _save(radioKey, file));
++
++  @override
++  Future<void> delete(String radioKey, String key) =>
++      _run(() => _delete(radioKey, key));
++
++  @override
++  Future<String?> lastRadio() => _run(() async {
++    try {
++      final base = await _base();
++      final f = File(
++        '${base.path}${Platform.pathSeparator}received_files'
++        '${Platform.pathSeparator}last_radio.txt',
++      );
++      if (!await f.exists()) return null;
++      final v = (await f.readAsString()).trim();
++      return _safe.hasMatch(v) ? v : null;
++    } catch (_) {
++      return null;
++    }
++  });
++
+   @override
+-  Future<List<StoredFile>> load(String radioKey) async {
++  Future<void> setLastRadio(String radioKey) => _run(() async {
++    try {
++      if (!_safe.hasMatch(radioKey)) return;
++      final base = await _base();
++      final dir = Directory(
++        '${base.path}${Platform.pathSeparator}received_files',
++      );
++      if (!await dir.exists()) await dir.create(recursive: true);
++      await File(
++        '${dir.path}${Platform.pathSeparator}last_radio.txt',
++      ).writeAsString(radioKey, flush: true);
++    } catch (e) {
++      debugPrint('FileJobStore.setLastRadio failed: $e');
++    }
++  });
++
++  Future<List<StoredFile>> _load(String radioKey) async {
+     try {
+       final dir = await _dir(radioKey);
+       if (dir == null || !await dir.exists()) return <StoredFile>[];
+@@ -62,6 +123,9 @@ class FileJobStoreIo implements FileJobStore {
+               key: key,
+               name: meta['name'] as String? ?? '',
+               channelIndex: meta['channel'] as int? ?? 0,
++              outgoing: meta['out'] as bool? ?? false,
++              status: meta['st'] as String? ?? 'received',
++              error: meta['err'] as String?,
+               receivedAt: DateTime.fromMillisecondsSinceEpoch(
+                 meta['ts'] as int? ?? 0,
+               ),
+@@ -75,7 +139,7 @@ class FileJobStoreIo implements FileJobStore {
+       result.sort((a, b) => b.receivedAt.compareTo(a.receivedAt));
+       final kept = result.take(FileJobStore.maxFiles).toList();
+       for (final extra in result.skip(FileJobStore.maxFiles)) {
+-        await delete(radioKey, extra.key);
++        await _delete(radioKey, extra.key);
+       }
+       await _sweepOrphans(dir, kept.map((f) => f.key).toSet());
+       return kept;
+@@ -97,8 +161,7 @@ class FileJobStoreIo implements FileJobStore {
+     } catch (_) {}
+   }
+ 
+-  @override
+-  Future<bool> save(String radioKey, StoredFile file) async {
++  Future<bool> _save(String radioKey, StoredFile file) async {
+     try {
+       if (!_safe.hasMatch(file.key)) return false;
+       final dir = await _dir(radioKey, create: true);
+@@ -113,6 +176,9 @@ class FileJobStoreIo implements FileJobStore {
+           'name': file.name,
+           'channel': file.channelIndex,
+           'ts': file.receivedAt.millisecondsSinceEpoch,
++          'out': file.outgoing,
++          'st': file.status,
++          'err': file.error,
+         }),
+         flush: true,
+       );
+@@ -126,11 +192,10 @@ class FileJobStoreIo implements FileJobStore {
+   }
+ 
+   Future<void> _prune(String radioKey) async {
+-    await load(radioKey); // drops the excess itself
++    await _load(radioKey); // drops the excess itself
+   }
+ 
+-  @override
+-  Future<void> delete(String radioKey, String key) async {
++  Future<void> _delete(String radioKey, String key) async {
+     try {
+       if (!_safe.hasMatch(key)) return;
+       final dir = await _dir(radioKey);
+diff --git a/lib/services/file_transfer_engine.dart b/lib/services/file_transfer_engine.dart
+index 31a9647..69b43c5 100644
+--- a/lib/services/file_transfer_engine.dart
++++ b/lib/services/file_transfer_engine.dart
+@@ -687,26 +687,31 @@ class FileTransferEngine {
+     return future;
+   }
+ 
+-  /// Replaces every finished job with [restored] (files loaded from storage);
+-  /// running transfers are kept. Newest first, like [jobs].
+-  void replaceFinishedJobs(List<FileTransferJob> restored) {
++  /// Replaces every finished job with copies of [restored] (loaded from
++  /// storage); running transfers are kept. Returns the new jobs in the order
++  /// of [restored]. [jobs] stays newest first.
++  List<FileTransferJob> replaceFinishedJobs(List<FileTransferJob> restored) {
+     _jobs.removeWhere((j) => !j.isActive);
++    final created = <FileTransferJob>[];
+     for (final job in restored) {
+-      _jobs.add(
+-        FileTransferJob(
+-            id: _nextJobId++,
+-            outgoing: false,
+-            channelIndex: job.channelIndex,
+-            name: job.name,
+-            size: job.size,
+-            status: FileJobStatus.received,
+-            startedAt: job.startedAt,
+-          )
+-          ..data = job.data,
+-      );
++      final copy = FileTransferJob(
++        id: _nextJobId++,
++        outgoing: job.outgoing,
++        channelIndex: job.channelIndex,
++        name: job.name,
++        size: job.size,
++        status: job.status,
++        startedAt: job.startedAt,
++      )
++        ..data = job.data
++        ..error = job.error
++        ..sourceData = job.sourceData;
++      _jobs.add(copy);
++      created.add(copy);
+     }
+     _jobs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
+     _changed();
++    return created;
+   }
+ 
+   /// Removes a finished job from the list.
+diff --git a/lib/services/file_transfer_service.dart b/lib/services/file_transfer_service.dart
+index bb092f6..c7b7daf 100644
+--- a/lib/services/file_transfer_service.dart
++++ b/lib/services/file_transfer_service.dart
+@@ -129,19 +129,21 @@ class FileTransferService extends ChangeNotifier {
+     _engine = FileTransferEngine(
+       sendBlobs: sendBlobs,
+       silentWait: silentWait,
+-      onChanged: notifyListeners,
++      onChanged: _handleChanged,
+       onFileReceived: _handleReceived,
+       log: log,
+     );
+   }
+ 
++  String _newKey(FileTransferJob job) =>
++      '${job.startedAt.millisecondsSinceEpoch}-'
++      '${_random.nextInt(1 << 32).toRadixString(16)}';
++
+   void _handleReceived(FileTransferJob job) {
+     final radio = _radioKey;
+     final data = job.data;
+     if (radio != null && data != null) {
+-      final key =
+-          '${job.startedAt.millisecondsSinceEpoch}-'
+-          '${_random.nextInt(1 << 32).toRadixString(16)}';
++      final key = _newKey(job);
+       _storeKeys[job.id] = key;
+       unawaited(
+         _store.save(
+@@ -159,41 +161,86 @@ class FileTransferService extends ChangeNotifier {
+     onFileReceived?.call(job);
+   }
+ 
++  void _handleChanged() {
++    _persistFinishedOutgoing();
++    notifyListeners();
++  }
++
++  /// Files this device sent are kept once their transfer has ended, so the
++  /// chat shows them (and a failed one can be retried) after a restart.
++  void _persistFinishedOutgoing() {
++    final radio = _radioKey;
++    if (radio == null) return;
++    for (final job in _engine.jobs) {
++      final data = job.sourceData;
++      if (!job.outgoing ||
++          job.isActive ||
++          data == null ||
++          _storeKeys.containsKey(job.id)) {
++        continue;
++      }
++      final key = _newKey(job);
++      _storeKeys[job.id] = key;
++      unawaited(
++        _store.save(
++          radio,
++          StoredFile(
++            key: key,
++            name: job.name,
++            channelIndex: job.channelIndex,
++            receivedAt: job.startedAt,
++            data: data,
++            outgoing: true,
++            status: job.status.name,
++            error: job.error,
++          ),
++        ),
++      );
++    }
++  }
++
++  /// Shows the files of the radio used last, right after launch, before the
++  /// radio has connected.
++  Future<void> restoreLastRadio() async {
++    final last = await _store.lastRadio();
++    if (last != null && _radioKey == null) await attachRadio(last);
++  }
++
+   /// Switches to the radio [radioKey] and shows its saved files. Files of a
+   /// previously connected radio are dropped from the list (they stay on disk).
+   Future<void> attachRadio(String radioKey) async {
+     if (_radioKey == radioKey) return;
+     _radioKey = radioKey;
+     _storeKeys.clear();
++    unawaited(_store.setLastRadio(radioKey));
+     final stored = await _store.load(radioKey);
+     if (_radioKey != radioKey) return; // switched again while loading
+-    final restored = <FileTransferJob>[];
+-    for (final f in stored) {
+-      restored.add(
+-        FileTransferJob(
+-          id: 0,
+-          outgoing: false,
+-          channelIndex: f.channelIndex,
+-          name: f.name,
+-          size: f.data.length,
+-          status: FileJobStatus.received,
+-          startedAt: f.receivedAt,
+-        )..data = f.data,
++    FileJobStatus statusOf(StoredFile f) {
++      if (!f.outgoing) return FileJobStatus.received;
++      return FileJobStatus.values.firstWhere(
++        (s) => s.name == f.status && s != FileJobStatus.sending,
++        orElse: () => FileJobStatus.failed,
+       );
+     }
+-    _engine.replaceFinishedJobs(restored);
+-    // Map the new job ids back to their storage keys (same order: the
+-    // engine sorts by time, ties keep insertion order).
+-    final byTime = <String, StoredFile>{
++
++    final restored = <FileTransferJob>[
+       for (final f in stored)
+-        '${f.receivedAt.millisecondsSinceEpoch}|${f.name}|${f.channelIndex}': f,
+-    };
+-    for (final job in _engine.jobs) {
+-      if (job.outgoing || job.status != FileJobStatus.received) continue;
+-      final f =
+-          byTime['${job.startedAt.millisecondsSinceEpoch}|${job.name}|'
+-              '${job.channelIndex}'];
+-      if (f != null) _storeKeys[job.id] = f.key;
++        FileTransferJob(
++            id: 0,
++            outgoing: f.outgoing,
++            channelIndex: f.channelIndex,
++            name: f.name,
++            size: f.data.length,
++            status: statusOf(f),
++            startedAt: f.receivedAt,
++          )
++          ..error = f.error
++          ..data = f.outgoing ? null : f.data
++          ..sourceData = f.outgoing ? f.data : null,
++    ];
++    final created = _engine.replaceFinishedJobs(restored);
++    for (var i = 0; i < created.length; i++) {
++      _storeKeys[created[i].id] = stored[i].key;
+     }
+   }
+ 
+@@ -220,12 +267,20 @@ class FileTransferService extends ChangeNotifier {
+   Future<void> cancel(int jobId) => _engine.cancel(jobId);
+ 
+   /// Sends a failed or cancelled outgoing file again; null when not possible.
+-  Future<FileTransferJob>? retry(int jobId) => _engine.retry(jobId);
++  Future<FileTransferJob>? retry(int jobId) {
++    final future = _engine.retry(jobId);
++    if (future != null) _forget(jobId);
++    return future;
++  }
+ 
+-  void dismiss(int jobId) {
++  void _forget(int jobId) {
+     final key = _storeKeys.remove(jobId);
+     final radio = _radioKey;
+     if (key != null && radio != null) unawaited(_store.delete(radio, key));
++  }
++
++  void dismiss(int jobId) {
++    _forget(jobId);
+     _engine.dismiss(jobId);
+   }
+ 
+diff --git a/test/file_job_store_test.dart b/test/file_job_store_test.dart
+index 0ce4001..616199a 100644
+--- a/test/file_job_store_test.dart
++++ b/test/file_job_store_test.dart
+@@ -45,6 +45,37 @@ void main() {
+       ]);
+     });
+ 
++    test('keeps the sent flag, status and the last radio', () async {
++      await store.save(
++        'abc1234567',
++        StoredFile(
++          key: 'k1',
++          name: 'sent.jpg',
++          channelIndex: 2,
++          receivedAt: DateTime(2026, 1, 1),
++          data: Uint8List.fromList(<int>[9]),
++          outgoing: true,
++          status: 'failed',
++          error: 'no response',
++        ),
++      );
++      final f = (await store.load('abc1234567')).single;
++      expect(f.outgoing, isTrue);
++      expect(f.status, 'failed');
++      expect(f.error, 'no response');
++      expect(await store.lastRadio(), isNull);
++      await store.setLastRadio('abc1234567');
++      expect(await store.lastRadio(), 'abc1234567');
++    });
++
++    test('concurrent saves and loads lose nothing', () async {
++      await Future.wait(<Future<Object?>>[
++        for (var i = 0; i < 8; i++) store.save('abc1234567', _file('k$i', i)),
++        for (var i = 0; i < 4; i++) store.load('abc1234567'),
++      ]);
++      expect(await store.load('abc1234567'), hasLength(8));
++    });
++
+     test('radios are isolated from each other', () async {
+       await store.save('radioaaaaa', _file('k1', 1));
+       expect(await store.load('radiobbbbb'), isEmpty);
+@@ -93,6 +124,41 @@ void main() {
+       expect(await store.load('radio00001'), isEmpty);
+     });
+ 
++    test('a sent file survives a restart and can be retried', () async {
++      final store = InMemoryFileJobStore();
++      final first = FileTransferService(
++        sendBlobs: (blobs, ch, progress) async => false,
++        store: store,
++      );
++      first.selfPrefix = 0xAAAA;
++      await first.attachRadio('radio00001');
++      await first.sendFile(
++        data: Uint8List.fromList(<int>[1, 2, 3, 4]),
++        name: 'p.jpg',
++        channelIndex: 1,
++      );
++      await Future<void>.delayed(Duration.zero);
++      expect(await store.load('radio00001'), hasLength(1));
++
++      // New launch: the files show before any radio connects.
++      final second = FileTransferService(
++        sendBlobs: (blobs, ch, progress) async => false,
++        store: store,
++      );
++      second.selfPrefix = 0xAAAA;
++      await second.restoreLastRadio();
++      final job = second.jobs.single;
++      expect(job.outgoing, isTrue);
++      expect(job.status, FileJobStatus.failed);
++      expect(job.sourceData, <int>[1, 2, 3, 4]);
++
++      await second.retry(job.id)!;
++      await Future<void>.delayed(Duration.zero);
++      // The old record is replaced by the new attempt's record.
++      expect(second.jobs, hasLength(1));
++      expect(await store.load('radio00001'), hasLength(1));
++    });
++
+     test('switching radio swaps the visible files', () async {
+       final store = InMemoryFileJobStore();
+       await store.save('radio00001', _file('k1', 1));

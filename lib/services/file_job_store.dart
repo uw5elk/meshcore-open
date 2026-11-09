@@ -9,12 +9,21 @@ class StoredFile {
   final DateTime receivedAt;
   final Uint8List data;
 
+  /// True for a file this device sent; [status] is then delivered, failed or
+  /// cancelled, otherwise received.
+  final bool outgoing;
+  final String status;
+  final String? error;
+
   const StoredFile({
     required this.key,
     required this.name,
     required this.channelIndex,
     required this.receivedAt,
     required this.data,
+    this.outgoing = false,
+    this.status = 'received',
+    this.error,
   });
 }
 
@@ -27,6 +36,12 @@ abstract class FileJobStore {
   Future<bool> save(String radioKey, StoredFile file);
 
   Future<void> delete(String radioKey, String key);
+
+  /// The radio whose files were shown last, so they can be listed right after
+  /// launch, before the radio has connected.
+  Future<String?> lastRadio();
+
+  Future<void> setLastRadio(String radioKey);
 
   /// Files kept per radio; the oldest are dropped first.
   static const int maxFiles = 20;
@@ -54,4 +69,12 @@ class InMemoryFileJobStore implements FileJobStore {
   Future<void> delete(String radioKey, String key) async {
     _files[radioKey]?.remove(key);
   }
+
+  String? _last;
+
+  @override
+  Future<String?> lastRadio() async => _last;
+
+  @override
+  Future<void> setLastRadio(String radioKey) async => _last = radioKey;
 }

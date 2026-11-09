@@ -687,26 +687,31 @@ class FileTransferEngine {
     return future;
   }
 
-  /// Replaces every finished job with [restored] (files loaded from storage);
-  /// running transfers are kept. Newest first, like [jobs].
-  void replaceFinishedJobs(List<FileTransferJob> restored) {
+  /// Replaces every finished job with copies of [restored] (loaded from
+  /// storage); running transfers are kept. Returns the new jobs in the order
+  /// of [restored]. [jobs] stays newest first.
+  List<FileTransferJob> replaceFinishedJobs(List<FileTransferJob> restored) {
     _jobs.removeWhere((j) => !j.isActive);
+    final created = <FileTransferJob>[];
     for (final job in restored) {
-      _jobs.add(
-        FileTransferJob(
-            id: _nextJobId++,
-            outgoing: false,
-            channelIndex: job.channelIndex,
-            name: job.name,
-            size: job.size,
-            status: FileJobStatus.received,
-            startedAt: job.startedAt,
-          )
-          ..data = job.data,
-      );
+      final copy = FileTransferJob(
+        id: _nextJobId++,
+        outgoing: job.outgoing,
+        channelIndex: job.channelIndex,
+        name: job.name,
+        size: job.size,
+        status: job.status,
+        startedAt: job.startedAt,
+      )
+        ..data = job.data
+        ..error = job.error
+        ..sourceData = job.sourceData;
+      _jobs.add(copy);
+      created.add(copy);
     }
     _jobs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
     _changed();
+    return created;
   }
 
   /// Removes a finished job from the list.

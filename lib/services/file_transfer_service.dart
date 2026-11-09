@@ -129,19 +129,21 @@ class FileTransferService extends ChangeNotifier {
     _engine = FileTransferEngine(
       sendBlobs: sendBlobs,
       silentWait: silentWait,
-      onChanged: notifyListeners,
+      onChanged: _handleChanged,
       onFileReceived: _handleReceived,
       log: log,
     );
   }
 
+  String _newKey(FileTransferJob job) =>
+      '${job.startedAt.millisecondsSinceEpoch}-'
+      '${_random.nextInt(1 << 32).toRadixString(16)}';
+
   void _handleReceived(FileTransferJob job) {
     final radio = _radioKey;
     final data = job.data;
     if (radio != null && data != null) {
-      final key =
-          '${job.startedAt.millisecondsSinceEpoch}-'
-          '${_random.nextInt(1 << 32).toRadixString(16)}';
+      final key = _newKey(job);
       _storeKeys[job.id] = key;
       unawaited(
         _store.save(
@@ -159,41 +161,86 @@ class FileTransferService extends ChangeNotifier {
     onFileReceived?.call(job);
   }
 
+  void _handleChanged() {
+    _persistFinishedOutgoing();
+    notifyListeners();
+  }
+
+  /// Files this device sent are kept once their transfer has ended, so the
+  /// chat shows them (and a failed one can be retried) after a restart.
+  void _persistFinishedOutgoing() {
+    final radio = _radioKey;
+    if (radio == null) return;
+    for (final job in _engine.jobs) {
+      final data = job.sourceData;
+      if (!job.outgoing ||
+          job.isActive ||
+          data == null ||
+          _storeKeys.containsKey(job.id)) {
+        continue;
+      }
+      final key = _newKey(job);
+      _storeKeys[job.id] = key;
+      unawaited(
+        _store.save(
+          radio,
+          StoredFile(
+            key: key,
+            name: job.name,
+            channelIndex: job.channelIndex,
+            receivedAt: job.startedAt,
+            data: data,
+            outgoing: true,
+            status: job.status.name,
+            error: job.error,
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Shows the files of the radio used last, right after launch, before the
+  /// radio has connected.
+  Future<void> restoreLastRadio() async {
+    final last = await _store.lastRadio();
+    if (last != null && _radioKey == null) await attachRadio(last);
+  }
+
   /// Switches to the radio [radioKey] and shows its saved files. Files of a
   /// previously connected radio are dropped from the list (they stay on disk).
   Future<void> attachRadio(String radioKey) async {
     if (_radioKey == radioKey) return;
     _radioKey = radioKey;
     _storeKeys.clear();
+    unawaited(_store.setLastRadio(radioKey));
     final stored = await _store.load(radioKey);
     if (_radioKey != radioKey) return; // switched again while loading
-    final restored = <FileTransferJob>[];
-    for (final f in stored) {
-      restored.add(
-        FileTransferJob(
-          id: 0,
-          outgoing: false,
-          channelIndex: f.channelIndex,
-          name: f.name,
-          size: f.data.length,
-          status: FileJobStatus.received,
-          startedAt: f.receivedAt,
-        )..data = f.data,
+    FileJobStatus statusOf(StoredFile f) {
+      if (!f.outgoing) return FileJobStatus.received;
+      return FileJobStatus.values.firstWhere(
+        (s) => s.name == f.status && s != FileJobStatus.sending,
+        orElse: () => FileJobStatus.failed,
       );
     }
-    _engine.replaceFinishedJobs(restored);
-    // Map the new job ids back to their storage keys (same order: the
-    // engine sorts by time, ties keep insertion order).
-    final byTime = <String, StoredFile>{
+
+    final restored = <FileTransferJob>[
       for (final f in stored)
-        '${f.receivedAt.millisecondsSinceEpoch}|${f.name}|${f.channelIndex}': f,
-    };
-    for (final job in _engine.jobs) {
-      if (job.outgoing || job.status != FileJobStatus.received) continue;
-      final f =
-          byTime['${job.startedAt.millisecondsSinceEpoch}|${job.name}|'
-              '${job.channelIndex}'];
-      if (f != null) _storeKeys[job.id] = f.key;
+        FileTransferJob(
+            id: 0,
+            outgoing: f.outgoing,
+            channelIndex: f.channelIndex,
+            name: f.name,
+            size: f.data.length,
+            status: statusOf(f),
+            startedAt: f.receivedAt,
+          )
+          ..error = f.error
+          ..data = f.outgoing ? null : f.data
+          ..sourceData = f.outgoing ? f.data : null,
+    ];
+    final created = _engine.replaceFinishedJobs(restored);
+    for (var i = 0; i < created.length; i++) {
+      _storeKeys[created[i].id] = stored[i].key;
     }
   }
 
@@ -220,12 +267,20 @@ class FileTransferService extends ChangeNotifier {
   Future<void> cancel(int jobId) => _engine.cancel(jobId);
 
   /// Sends a failed or cancelled outgoing file again; null when not possible.
-  Future<FileTransferJob>? retry(int jobId) => _engine.retry(jobId);
+  Future<FileTransferJob>? retry(int jobId) {
+    final future = _engine.retry(jobId);
+    if (future != null) _forget(jobId);
+    return future;
+  }
 
-  void dismiss(int jobId) {
+  void _forget(int jobId) {
     final key = _storeKeys.remove(jobId);
     final radio = _radioKey;
     if (key != null && radio != null) unawaited(_store.delete(radio, key));
+  }
+
+  void dismiss(int jobId) {
+    _forget(jobId);
     _engine.dismiss(jobId);
   }
 

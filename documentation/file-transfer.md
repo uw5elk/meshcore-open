@@ -19,7 +19,7 @@ While no receiver has answered, the sender waits only about three packet airtime
 
 ## Receive a file
 
-An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received files are stored in the app's private storage (the 20 newest per radio) and survive restarts; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it larger). A failed or cancelled outgoing file has a **Retry** button that sends it again.
+An incoming file shows as a bubble in its channel's chat and in the **File transfers** list. When it is complete and verified, tap **Save** in the bubble: a save dialog on desktop, the share sheet elsewhere. Received and sent files are stored in the app's private storage (the 20 newest per radio), survive restarts and are listed right after launch, before the radio connects; the trash button deletes the file. Images show a thumbnail in the bubble (tap to open it full screen, pinch to zoom). A failed or cancelled outgoing file has a **Retry** button that sends it again.
 
 ## Send a photo shrunk to a size
 

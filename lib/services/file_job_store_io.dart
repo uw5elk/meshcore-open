@@ -11,6 +11,7 @@
 /// A `.bin` without its `.json` (crash mid-save) is swept on [load].
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -42,8 +43,68 @@ class FileJobStoreIo implements FileJobStore {
   String _path(Directory dir, String key, String ext) =>
       '${dir.path}${Platform.pathSeparator}$key$ext';
 
+  /// Operations run one at a time: a load sweeping "orphans" must never see
+  /// the half-written file of a concurrent save.
+  Future<void> _tail = Future<void>.value();
+
+  Future<T> _run<T>(Future<T> Function() op) {
+    final done = Completer<T>();
+    _tail = _tail.then((_) async {
+      try {
+        done.complete(await op());
+      } catch (e, st) {
+        done.completeError(e, st);
+      }
+    });
+    return done.future;
+  }
+
   @override
-  Future<List<StoredFile>> load(String radioKey) async {
+  Future<List<StoredFile>> load(String radioKey) =>
+      _run(() => _load(radioKey));
+
+  @override
+  Future<bool> save(String radioKey, StoredFile file) =>
+      _run(() => _save(radioKey, file));
+
+  @override
+  Future<void> delete(String radioKey, String key) =>
+      _run(() => _delete(radioKey, key));
+
+  @override
+  Future<String?> lastRadio() => _run(() async {
+    try {
+      final base = await _base();
+      final f = File(
+        '${base.path}${Platform.pathSeparator}received_files'
+        '${Platform.pathSeparator}last_radio.txt',
+      );
+      if (!await f.exists()) return null;
+      final v = (await f.readAsString()).trim();
+      return _safe.hasMatch(v) ? v : null;
+    } catch (_) {
+      return null;
+    }
+  });
+
+  @override
+  Future<void> setLastRadio(String radioKey) => _run(() async {
+    try {
+      if (!_safe.hasMatch(radioKey)) return;
+      final base = await _base();
+      final dir = Directory(
+        '${base.path}${Platform.pathSeparator}received_files',
+      );
+      if (!await dir.exists()) await dir.create(recursive: true);
+      await File(
+        '${dir.path}${Platform.pathSeparator}last_radio.txt',
+      ).writeAsString(radioKey, flush: true);
+    } catch (e) {
+      debugPrint('FileJobStore.setLastRadio failed: $e');
+    }
+  });
+
+  Future<List<StoredFile>> _load(String radioKey) async {
     try {
       final dir = await _dir(radioKey);
       if (dir == null || !await dir.exists()) return <StoredFile>[];
@@ -62,6 +123,9 @@ class FileJobStoreIo implements FileJobStore {
               key: key,
               name: meta['name'] as String? ?? '',
               channelIndex: meta['channel'] as int? ?? 0,
+              outgoing: meta['out'] as bool? ?? false,
+              status: meta['st'] as String? ?? 'received',
+              error: meta['err'] as String?,
               receivedAt: DateTime.fromMillisecondsSinceEpoch(
                 meta['ts'] as int? ?? 0,
               ),
@@ -75,7 +139,7 @@ class FileJobStoreIo implements FileJobStore {
       result.sort((a, b) => b.receivedAt.compareTo(a.receivedAt));
       final kept = result.take(FileJobStore.maxFiles).toList();
       for (final extra in result.skip(FileJobStore.maxFiles)) {
-        await delete(radioKey, extra.key);
+        await _delete(radioKey, extra.key);
       }
       await _sweepOrphans(dir, kept.map((f) => f.key).toSet());
       return kept;
@@ -97,8 +161,7 @@ class FileJobStoreIo implements FileJobStore {
     } catch (_) {}
   }
 
-  @override
-  Future<bool> save(String radioKey, StoredFile file) async {
+  Future<bool> _save(String radioKey, StoredFile file) async {
     try {
       if (!_safe.hasMatch(file.key)) return false;
       final dir = await _dir(radioKey, create: true);
@@ -113,6 +176,9 @@ class FileJobStoreIo implements FileJobStore {
           'name': file.name,
           'channel': file.channelIndex,
           'ts': file.receivedAt.millisecondsSinceEpoch,
+          'out': file.outgoing,
+          'st': file.status,
+          'err': file.error,
         }),
         flush: true,
       );
@@ -126,11 +192,10 @@ class FileJobStoreIo implements FileJobStore {
   }
 
   Future<void> _prune(String radioKey) async {
-    await load(radioKey); // drops the excess itself
+    await _load(radioKey); // drops the excess itself
   }
 
-  @override
-  Future<void> delete(String radioKey, String key) async {
+  Future<void> _delete(String radioKey, String key) async {
     try {
       if (!_safe.hasMatch(key)) return;
       final dir = await _dir(radioKey);

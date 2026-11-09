@@ -164,6 +164,8 @@ void main() async {
       dataType: dataTypeFileTransfer,
     ),
   );
+  // Files saved by earlier sessions show up before the radio connects.
+  unawaited(fileTransferService.restoreLastRadio());
 
   // Initialize app logger
   appLogger.initialize(
