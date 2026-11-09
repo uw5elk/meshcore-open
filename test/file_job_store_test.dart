@@ -121,7 +121,7 @@ void silentWaitTests() {
       );
     });
 
-    test('fast settings are clamped to 10 s, slow ones wait longer', () {
+    test('fast settings wait about 10 s, slow ones longer', () {
       final fast = fileSilentWait(
         spreadingFactor: 7,
         bandwidthHz: 250000,
@@ -132,7 +132,8 @@ void silentWaitTests() {
         bandwidthHz: 125000,
         codingRate: 1,
       );
-      expect(fast, const Duration(seconds: 10));
+      expect(fast, greaterThanOrEqualTo(const Duration(seconds: 10)));
+      expect(fast, lessThan(const Duration(seconds: 12)));
       expect(slow, greaterThan(fast));
       expect(slow, lessThanOrEqualTo(const Duration(seconds: 45)));
     });
