@@ -208,14 +208,13 @@ void main() {
             _connector.state == MeshCoreConnectionState.disconnected &&
             _connector.isAutoReconnectScheduled,
       );
-      // Each failed attempt schedules the next one with a longer backoff, so
-      // a higher step count proves an attempt ran and failed. (Polling for the
-      // brief "not scheduled" gap raced with a loopback failure that finishes
-      // in under a millisecond.)
-      final stepsBefore = _connector.reconnectAttemptsForTest;
+      final firstScheduledAttempt = _connector.reconnectAttemptsForTesting;
+      // Wait for the failed attempt to schedule its next backoff. The timer's
+      // inactive window can be shorter than a test poll interval, so observe
+      // the monotonic retry count instead of trying to catch that window.
       await _waitFor(
         () =>
-            _connector.reconnectAttemptsForTest > stepsBefore &&
+            _connector.reconnectAttemptsForTesting > firstScheduledAttempt &&
             _connector.state == MeshCoreConnectionState.disconnected &&
             _connector.isAutoReconnectScheduled,
       );
