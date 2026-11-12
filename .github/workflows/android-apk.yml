@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - file-transfer
+      - upstream-99.0.3
   workflow_dispatch:
 
 jobs:
