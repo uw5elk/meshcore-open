@@ -1,0 +1,39 @@
+diff --git a/lib/widgets/app_bar.dart b/lib/widgets/app_bar.dart
+index e908e42b..2aa222bf 100644
+--- a/lib/widgets/app_bar.dart
++++ b/lib/widgets/app_bar.dart
+@@ -35,6 +35,12 @@ class AppBarTitle extends StatelessWidget {
+         final availableWidth = constraints.hasBoundedWidth
+             ? constraints.maxWidth
+             : MediaQuery.sizeOf(context).width;
++        // Widths below are for the default font size: a larger text scale
++        // widens labels (Cyrillic more than Latin), so the thresholds grow.
++        final scale = (MediaQuery.textScalerOf(context).scale(14) / 14).clamp(
++          1.0,
++          3.0,
++        );
+         final compact = availableWidth < 170;
+         final connected = connector.isConnected;
+         final reconnecting =
+@@ -49,8 +55,8 @@ class AppBarTitle extends StatelessWidget {
+             : offlineName != null && offlineName.isNotEmpty
+             ? context.l10n.appBar_offlineSubtitle(offlineName)
+             : context.l10n.appBar_offline;
+-        final showBattery = showBatteryIndicator && availableWidth >= 60;
+-        final showSnr = availableWidth >= 110;
++        final showBattery = showBatteryIndicator && availableWidth >= 60 * scale;
++        final showSnr = availableWidth >= 110 * scale;
+         final showIndicators =
+             connected && (showBattery || showSnr) && indicators;
+         final showConnect = !connected && indicators;
+@@ -90,8 +96,8 @@ class AppBarTitle extends StatelessWidget {
+             if (showConnect) const SizedBox(width: 6),
+             if (showConnect)
+               reconnecting
+-                  ? _ReconnectingChip(compact: availableWidth < 220)
+-                  : ConnectButton(iconOnly: availableWidth < 220),
++                  ? _ReconnectingChip(compact: availableWidth < 220 * scale)
++                  : ConnectButton(iconOnly: availableWidth < 220 * scale),
+             trailing ?? const SizedBox.shrink(),
+           ],
+         );
