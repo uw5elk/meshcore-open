@@ -1,0 +1,40 @@
+diff --git a/lib/screens/channels_screen.dart b/lib/screens/channels_screen.dart
+index bd771151..db2c0ba0 100644
+--- a/lib/screens/channels_screen.dart
++++ b/lib/screens/channels_screen.dart
+@@ -498,7 +498,16 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+-                  Row(
++                  LayoutBuilder(
++                    builder: (context, box) {
++                      // The "#N" chip is dropped when large text leaves too
++                      // little room, so the title never overflows the row.
++                      final textScale =
++                          (MediaQuery.textScalerOf(context).scale(14) / 14)
++                              .clamp(1.0, 3.0);
++                      final showChip =
++                          showDragHandle && box.maxWidth >= 90 * textScale;
++                      return Row(
+                     crossAxisAlignment: CrossAxisAlignment.center,
+                     children: [
+                       Expanded(
+@@ -510,7 +519,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
+                           overflow: TextOverflow.ellipsis,
+                         ),
+                       ),
+-                      if (showDragHandle) ...[
++                      if (showChip) ...[
+                         const SizedBox(width: 6),
+                         Text(
+                           context.l10n.channels_indexChip(channel.index),
+@@ -523,6 +532,8 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
+                         ),
+                       ],
+                     ],
++                      );
++                    },
+                   ),
+                   if (subtitle.isNotEmpty) ...[
+                     const SizedBox(height: 2),
