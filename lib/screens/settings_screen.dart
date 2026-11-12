@@ -22,7 +22,6 @@ import 'ble_debug_log_screen.dart';
 import '../widgets/radio_stats_entry.dart';
 import 'telemetry_screen.dart';
 import '../widgets/sync_progress_overlay.dart';
-import '../utils/share_origin.dart';
 import 'backup_restore_screen.dart';
 import 'export_screen.dart';
 import '../utils/radio_guard.dart';
