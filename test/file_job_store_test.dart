@@ -173,6 +173,33 @@ void main() {
       await service.attachRadio('radio00002');
       expect(service.jobs.map((j) => j.name), <String>['other.txt']);
     });
+
+    test('forgetChannel removes only that channel\'s files', () async {
+      final store = InMemoryFileJobStore();
+      await store.save('radio00001', _file('k1', 1));
+      await store.save(
+        'radio00001',
+        StoredFile(
+          key: 'k2',
+          name: 'keep.txt',
+          channelIndex: 2,
+          receivedAt: DateTime(2026, 1, 1, 10, 2),
+          data: Uint8List.fromList(<int>[9]),
+        ),
+      );
+      final service = FileTransferService(
+        sendBlobs: (blobs, ch, progress) async => true,
+        store: store,
+      );
+      await service.attachRadio('radio00001');
+      expect(service.jobs, hasLength(2));
+
+      service.forgetChannel(1);
+      await Future<void>.delayed(Duration.zero);
+      expect(service.jobs.map((j) => j.name), <String>['keep.txt']);
+      final left = await store.load('radio00001');
+      expect(left.map((f) => f.key), <String>['k2']);
+    });
   });
 }
 

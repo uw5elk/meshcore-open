@@ -48,7 +48,7 @@ For Linux, use `nix develop`; see [Linux with Nix](README.md#linux-with-nix) for
 | File transfer (GRP_DATA `0xF11E`) | `lib/services/file_transfer_protocol.dart`, `lib/services/file_transfer_engine.dart`, `lib/services/file_transfer_service.dart` |
 | Material themes | `lib/theme/mesh_theme.dart` |
 | Screens and reusable UI | `lib/screens/`, `lib/widgets/` |
-| Localization | `lib/l10n/` (19 locales) |
+| Localization | `lib/l10n/` (English and Ukrainian) |
 
 `Provider`/`ChangeNotifier` drives UI state. `main.dart` wires `MeshTheme.light()` and `MeshTheme.dark()` and uses the saved theme preference. Its `MultiProvider` exposes `MeshCoreConnector`, `MessageRetryService`, `PathHistoryService`, `AppSettingsService`, `BleDebugLogService`, `AppDebugLogService`, `ChatTextScaleService`, `TranslationService`, `UiViewStateService`, `StorageService` (plain `Provider`), `MapTileCacheService`, `TimeoutPredictionService`, `ImageCodecService`, `ReceivedImageStore`, and `MessageFilterService`; screens read them with `Consumer<T>`, `context.watch<T>()`, or `context.read<T>()`.
 

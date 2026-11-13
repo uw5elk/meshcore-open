@@ -233,6 +233,8 @@ void main() async {
   final networkMapUploadService = NetworkMapUploadService(
     connector: connector,
     settings: appSettingsService,
+    // The online network map is disabled in this build.
+    uploadsAllowed: false,
   );
 
   await connector.restoreLastRadio();

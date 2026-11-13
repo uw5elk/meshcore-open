@@ -22,7 +22,6 @@ import '../widgets/message_status_icon.dart';
 import '../widgets/empty_state.dart';
 import '../helpers/chat_scroll_controller.dart';
 import '../helpers/gif_helper.dart';
-import '../helpers/ipfs_link_attach_flow.dart';
 import '../helpers/contact_share_message.dart';
 import '../helpers/marker_message.dart';
 import '../helpers/message_search.dart';
@@ -794,19 +793,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _resolveContact(connector).name,
       ),
       actionsBuilder: () {
-        final showIpfsAction = context
-            .read<AppSettingsService>()
-            .settings
-            .uploadIpfsEndpoint
-            .trim()
-            .isNotEmpty;
         return [
-          if (showIpfsAction)
-            ChatComposerAction(
-              id: 'ipfs-image',
-              icon: Icons.cloud_upload_outlined,
-              label: context.l10n.chat_sendImageIpfs,
-            ),
           ChatComposerAction(
             id: 'send-my-location',
             icon: Icons.my_location,
@@ -822,10 +809,6 @@ class _ChatScreenState extends State<ChatScreen> {
       onAction: (action) {
         if (!mounted) return;
         switch (action) {
-          case 'gif':
-            showChatGifPicker(context, _textController);
-          case 'ipfs-image':
-            _sendImageViaIpfs();
           case 'send-my-location':
             _shareMyLocation(context.read<MeshCoreConnector>());
           case 'share-contact':
@@ -836,19 +819,6 @@ class _ChatScreenState extends State<ChatScreen> {
             );
         }
       },
-    );
-  }
-
-  Future<void> _sendImageViaIpfs() {
-    final connector = context.read<MeshCoreConnector>();
-    final contact = _resolveContact(connector);
-    return attachIpfsLinkToDraft(
-      context: context,
-      controller: _textController,
-      focusNode: _textFieldFocusNode,
-      maxBytes: maxContactMessageBytes(),
-      encodeOutbound: (text) =>
-          connector.prepareContactOutboundText(contact, text),
     );
   }
 
@@ -1746,26 +1716,7 @@ class _MessageBubble extends StatelessWidget {
                               },
                             )
                           else
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (settingsService.settings.loadLinkImages &&
-                                    MessageUrlImageHelper.hasPotentialImageUrl(
-                                      message.text,
-                                    ))
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: Text(
-                                      context.l10n.urlImage_possible,
-                                      style: TextStyle(
-                                        color: metaColor,
-                                        fontSize: 12 * textScale,
-                                      ),
-                                    ),
-                                  ),
-                                buildTextContent(),
-                              ],
-                            ),
+                            buildTextContent(),
                           if (enableTracing &&
                               isOutgoing &&
                               message.retryCount > 0) ...[

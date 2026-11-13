@@ -289,15 +289,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _setMapSource(MapSourceOption source) {
-    context.read<UiViewStateService>().setMapSource(source);
-    if (_showsOnline(source)) {
-      _requestOnlineData();
-    } else {
-      _online.cancel();
-    }
-  }
-
   void _showOnlineRepeater(
     BuildContext context,
     MeshCoreConnector connector,
@@ -2207,54 +2198,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     !settings.mapShowOnlineLinks,
     settings.mapKeyPrefixEnabled,
   ].where((active) => active).length;
-
-  // ignore: unused_element
-  Widget _buildMapSourceSwitch(BuildContext context, MapSourceOption source) {
-    final l10n = context.l10n;
-    return Material(
-      color: _overlayPanelColor,
-      shape: StadiumBorder(side: BorderSide(color: _overlayBorderColor)),
-      clipBehavior: Clip.antiAlias,
-      child: SegmentedButton<MapSourceOption>(
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(
-          minimumSize: const Size(0, 46),
-          side: BorderSide.none,
-          foregroundColor: _overlaySecondaryTextColor,
-          selectedForegroundColor: _overlayPrimaryTextColor,
-          selectedBackgroundColor: MeshMapTheme.of(
-            context,
-          ).accent.withValues(alpha: 0.34),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-        ),
-        segments: [
-          ButtonSegment(
-            value: MapSourceOption.local,
-            icon: const Icon(Icons.radio, size: 20),
-            label: MeshSegmentLabel(l10n.networkMap_sourceLocal),
-            tooltip: l10n.networkMap_sourceLocalHint,
-          ),
-          ButtonSegment(
-            value: MapSourceOption.online,
-            icon: const Icon(Icons.public, size: 20),
-            label: MeshSegmentLabel(l10n.networkMap_sourceOnline),
-            tooltip: l10n.networkMap_sourceOnlineHint,
-          ),
-          ButtonSegment(
-            value: MapSourceOption.both,
-            icon: const Icon(Icons.layers, size: 20),
-            label: MeshSegmentLabel(l10n.networkMap_sourceBoth),
-            tooltip: l10n.networkMap_sourceBothHint,
-          ),
-        ],
-        selected: {source},
-        onSelectionChanged: (selection) {
-          HapticFeedback.selectionClick();
-          _setMapSource(selection.first);
-        },
-      ),
-    );
-  }
 
   Widget _buildOnlineHint(BuildContext context, NetworkMapLoadState state) {
     final zoomIn = state == NetworkMapLoadState.zoomIn;

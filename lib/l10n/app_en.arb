@@ -15,7 +15,6 @@
   "common_done": "Done",
   "common_edit": "Edit",
   "common_add": "Add",
-  "common_settings": "Settings",
   "common_disconnect": "Disconnect",
   "common_connected": "Connected",
   "common_disconnected": "Disconnected",
@@ -29,11 +28,9 @@
   "common_enable": "Enable",
   "common_disable": "Disable",
   "common_undo": "Undo",
-  "messageStatus_sent": "Sent",
   "messageStatus_delivered": "Delivered. The contact confirmed they got it.",
   "messageStatus_pending": "Sending",
   "messageStatus_failed": "Failed to send",
-  "messageStatus_repeated": "Heard repeated",
   "messageStatus_failedChannel": "Your radio couldn't send this message.",
   "messageStatus_resending": "Not heard through enough repeaters yet. Resent {resends} of {maxResends} times.",
   "@messageStatus_resending": {
@@ -67,9 +64,6 @@
       }
     }
   },
-  "urlImage_enable": "Enable URL images",
-  "urlImage_possible": "Possible URL image; enable it in Settings.",
-  "urlImage_disabledInAppSettings": "Turned off in app settings",
   "common_reboot": "Reboot",
   "common_loading": "Loading...",
   "common_notAvailable": "—",
@@ -122,9 +116,7 @@
     }
   },
   "usbScreenTitle": "Connect over USB",
-  "usbScreenSubtitle": "Choose a detected serial device and connect directly to your MeshCore node.",
   "usbScreenStatus": "Select a USB device",
-  "usbScreenNote": "USB serial is active on supported Android devices and desktop platforms.",
   "usbScreenEmptyState": "No USB devices found. Plug one in and refresh.",
   "usbErrorPermissionDenied": "USB permission was denied.",
   "usbErrorDeviceMissing": "The selected USB device is no longer available.",
@@ -142,14 +134,6 @@
   "usbStatus_notConnected": "Select a USB device",
   "usbStatus_connecting": "Connecting to USB device...",
   "usbStatus_searching": "Searching for USB devices...",
-  "usbConnectionFailed": "USB connection failed: {error}",
-  "@usbConnectionFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "scanner_scanning": "Scanning for devices...",
   "scanner_connecting": "Connecting...",
   "scanner_disconnecting": "Disconnecting...",
@@ -179,13 +163,7 @@
   "scanner_chromeRequired": "Chrome Browser Required",
   "scanner_chromeRequiredMessage": "This web application requires Google Chrome or a Chromium-based browser for Bluetooth support.",
   "scanner_enableBluetooth": "Enable Bluetooth",
-  "scanner_getNodeTitle": "Need a new node?",
-  "scanner_getNodeBody": "Wallet-sized, runs MeshCore, dual-band GPS, waterproof, 5-day battery.",
-  "scanner_getNodeAction": "Get one here",
-  "scanner_getNodeDisclosure": "Affiliate link: each purchase supports MeshCore Open.",
   "scanner_bluetoothWebUnsupported": "Bluetooth isn't available in the browser. Connect over USB instead.",
-  "device_quickSwitch": "Quick switch",
-  "device_meshcore": "MeshCore",
   "settings_title": "Settings",
   "settings_deviceInfo": "Device Info",
   "settings_appSettings": "App Settings",
@@ -201,7 +179,6 @@
   "backupRestore_importUnavailable": "Check the password or choose a supported backup file.",
   "backupRestore_items": "Backup and restore items",
   "backupRestore_nodeSettings": "Node Settings",
-  "backupRestore_nodeSettingsDescription": "Device name, private and public keys, radio settings, and regions",
   "backupRestore_deviceName": "Device Name",
   "backupRestore_privateKey": "Private Key (sensitive)",
   "backupRestore_publicKey": "Public Key",
@@ -220,17 +197,12 @@
   "backupRestore_communities": "Communities",
   "backupRestore_channelHistory": "Channel History",
   "backupRestore_locationSettings": "Location Settings",
-  "backupRestore_locationSettingsDescription": "Location, contact settings, and privacy settings",
   "backupRestore_appSettings": "App Settings",
-  "backupRestore_appSettingsDescription": "App preferences and appearance settings",
   "backupRestore_ipfsKey": "IPFS API Key (sensitive)",
   "backupRestore_stadiaMapKey": "Stadia Maps API Key (sensitive)",
   "backupRestore_contacts": "Contacts",
-  "backupRestore_contactsDescription": "Contacts, per-contact filters and settings, groups, and message history",
   "backupRestore_discoveredContacts": "Discovered Contacts",
-  "backupRestore_discoveredContactsDescription": "Discovered contacts and their saved details",
   "backupRestore_channels": "Channels",
-  "backupRestore_channelsDescription": "Channels, channel filters, communities, and message history",
   "backupRestore_backup": "Create Backup",
   "backupRestore_restore": "Restore Selected",
   "backupRestore_backupComplete": "Backup file created.",
@@ -269,43 +241,7 @@
   "settings_radioSettingsUpdated": "Radio settings updated",
   "settings_radioSettingsNotApplied": "The radio did not apply these settings",
   "settings_pathHashModeNotApplied": "Radio settings were applied, but the radio did not confirm the new path hash size",
-  "settings_regionSettings": "Regions",
-  "settings_regionSettingsSubtitle": "Limit channel floods to an area",
-  "settings_regionEmptyExplanation": "Regions limit flood messages to repeaters in an area. Fetch them from nearby repeaters or add one by name.",
-  "settings_regionFetchFromRepeaters": "Fetch from repeaters",
-  "settings_regionDefault": "Default region",
-  "settings_regionDefaultSubtitle": "Used by channels without their own region",
-  "settings_regionDefaultNone": "None",
-  "settings_regionUseRadioDefault": "Radio default ({region})",
-  "@settings_regionUseRadioDefault": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
-  "settings_regionNoRegion": "No region (unscoped)",
-  "settings_regionRadioDefault": "Radio default region",
-  "settings_regionRadioDefaultSubtitle": "Saved on the radio. Floods sent without a region use it, from this app and any other app connected to the radio.",
-  "settings_regionRadioDefaultUpdated": "Radio default region updated",
-  "settings_regionRadioDefaultFailed": "Could not update the radio default region",
-  "settings_regionManagement_screenTitle": "Region Management",
-  "settings_regionNameHint": "Enter region name",
-  "settings_regionAddRegion": "Add region",
-  "settings_regionFetchRegions": "Fetch regions from repeaters",
-  "settings_regionFetchRegionsFail": "No regions were found",
-  "settings_regionFetchRegionsAlreadyExists": "This region has already been added",
   "settings_regionName": "Region Name",
-  "settings_regionDeleted": "Region deleted",
-  "settings_deleteRegion": "Delete Region",
-  "settings_deleteRegionConfirm": "Remove \"{region}\" from region list?",
-  "@settings_deleteRegionConfirm": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
   "settings_location": "Location",
   "settings_locationSubtitle": "GPS coordinates",
   "settings_locationUpdated": "Location and GPS settings updated",
@@ -319,11 +255,6 @@
   "settings_longitude": "Longitude",
   "settings_contactSettings": "Contact Settings",
   "settings_contactSettingsSubtitle": "Settings for how contacts are added.",
-  "settings_privacyMode": "Privacy Mode",
-  "settings_privacyModeSubtitle": "Hide name/location in advertisements",
-  "settings_privacyModeToggle": "Toggle privacy mode to hide your name and location in advertisements.",
-  "settings_privacyModeEnabled": "Privacy mode enabled",
-  "settings_privacyModeDisabled": "Privacy mode disabled",
   "settings_privacy": "Privacy Settings",
   "settings_privacySubtitle": "Control what information is shared.",
   "settings_privacySettingsDescription": "Choose what information your device shares with others.",
@@ -344,8 +275,6 @@
   "settings_actions": "Actions",
   "settings_deleteAllPaths": "Delete All Paths",
   "settings_deleteAllPathsSubtitle": "Clear all path data from contacts.",
-  "settings_sendAdvertisement": "Send Advertisement",
-  "settings_sendAdvertisementSubtitle": "Broadcast presence now",
   "settings_advertisementSent": "Advertisement sent",
   "settings_syncTime": "Sync Time",
   "settings_syncTimeSubtitle": "Set device clock to phone time",
@@ -371,10 +300,7 @@
   },
   "settings_aboutLegalese": "2026 MeshCore Open Source Project",
   "settings_aboutDescription": "An open-source Flutter client for MeshCore LoRa mesh networking devices.",
-  "settings_aboutOpenMeteoAttribution": "LOS elevation data: Open-Meteo (CC BY 4.0)",
-  "settings_infoName": "Name",
   "settings_infoId": "ID",
-  "settings_infoStatus": "Status",
   "settings_infoBattery": "Battery",
   "settings_infoPublicKey": "Public Key",
   "settings_publicKeyCopied": "Public key copied",
@@ -403,7 +329,6 @@
       }
     }
   },
-  "settings_txPowerInvalid": "Invalid TX power",
   "settings_clientRepeat": "Off-Grid Repeat",
   "settings_clientRepeatFrequencyNote": "Frequency set to {freq} MHz for off-grid repeat",
   "@settings_clientRepeatFrequencyNote": {
@@ -544,14 +469,10 @@
   "appSettings_language": "Language",
   "appSettings_languageSystem": "System default",
   "appSettings_languageEn": "English",
-  "appSettings_languagePt": "Português (Brasil)",
-  "appSettings_languagePtPt": "Português (Portugal)",
   "appSettings_languageUk": "Українська",
-  "appSettings_languageCs": "Čeština",
   "repeater_pathHashModeOption0": "1 byte",
   "repeater_pathHashModeOption1": "2 bytes",
   "repeater_pathHashModeOption2": "3 bytes",
-  "repeater_pathHashModeOption3": "4 bytes",
   "settings_pathHashModeHelper": "Size of each node ID recorded in the path of flood packets this radio sends: 1 byte (256 IDs, up to 64 hops), 2 bytes (65K IDs, up to 32 hops), 3 bytes (16M IDs, up to 21 hops). Larger IDs reduce collisions, but repeaters on firmware older than v1.14 drop packets with 2- or 3-byte IDs.",
   "settings_requiresFirmware": "Requires firmware {version} or newer",
   "@settings_requiresFirmware": {
@@ -590,8 +511,6 @@
   },
   "appSettings_enableMessageTracing": "Show full repeater path in messages",
   "appSettings_enableMessageTracingSubtitle": "Also show repeat counts and trip times. Long-press a message and choose Path for full details.",
-  "appSettings_regionOnHopsLine": "Region next to hop count",
-  "appSettings_regionOnHopsLineSubtitle": "Show a channel message's region on the same line as its hop count instead of below it.",
   "appSettings_notifications": "Notifications",
   "appSettings_enableNotifications": "Enable Notifications",
   "appSettings_enableNotificationsSubtitle": "Receive notifications for messages and adverts",
@@ -617,22 +536,6 @@
   "appSettings_autoRouteRotationDisabled": "Auto route rotation disabled",
   "appSettings_maxMessageRetries": "Max Message Retries",
   "appSettings_maxMessageRetriesSubtitle": "Number of retry attempts before marking a message as failed",
-  "appSettings_ipfsImageLinks": "IPFS provider configuration",
-  "appSettings_ipfsImageLinksSubtitle": "Upload for url Images (or Files) via IPFS provider and default gateway to receive",
-  "appSettings_loadLinkImages": "Load images from links",
-  "appSettings_loadLinkImagesSubtitle": "Show pictures from links in messages. Loading an image shares your IP address with the site that hosts it.",
-  "appSettings_showLinkImagesByDefault": "Show link images in all chats by default",
-  "appSettings_showLinkImagesByDefaultSubtitle": "Load link images in every chat unless you turned them off there. This shares your IP address with image hosts in every chat.",
-  "appSettings_publicIpfsGateway": "Public gateway",
-  "appSettings_ipfsGatewayDeactivated": "Deactivated",
-  "appSettings_ipfsGatewayCustom": "Custom (Kubo)",
-  "appSettings_uploadIpfsProvider": "Upload provider",
-  "appSettings_uploadIpfsGateway": "Upload gateway",
-  "appSettings_uploadIpfsGatewaySubtitle": "Gateway to share Image or File as url-link. Leave empty to use ipfs: format, which may not be opened by other clients.",
-  "appSettings_uploadIpfsEndpoint": "Upload endpoint",
-  "appSettings_uploadIpfsEndpointSubtitle": "The API endpoint used to upload files",
-  "appSettings_uploadIpfsApiKey": "Upload API key",
-  "appSettings_ipfsImageLinksDescription": "Public gateway downloads ipfs: format images. Upload gateway is used to generate share links for uploaded url images or files.",
   "appSettings_battery": "Battery",
   "appSettings_batteryChemistry": "Battery Chemistry",
   "appSettings_batteryChemistryPerDevice": "Set per device ({deviceName})",
@@ -677,7 +580,6 @@
   "appSettings_rasterTileSource": "Raster Tile Source",
   "appSettings_stadiaEndpoint": "Stadia Endpoint",
   "appSettings_stadiaApiKey": "Stadia API Key",
-  "appSettings_stadiaApiKeyRequired": "Required for Stadia Maps usage",
   "appSettings_stadiaApiKeyConfigured": "Configured: {maskedKey}",
   "@appSettings_stadiaApiKeyConfigured": {
     "placeholders": {
@@ -710,7 +612,6 @@
   "appSettings_appDebugLoggingDisabled": "App debug logging disabled",
   "contacts_title": "Contacts",
   "contacts_noContacts": "No contacts yet",
-  "contacts_contactsWillAppear": "Contacts will appear when devices advertise",
   "contacts_unread": "Unread",
   "contacts_searchContactsNoNumber": "Search Contacts...",
   "contacts_searchContacts": "Search {number}{str} Contacts...",
@@ -771,15 +672,6 @@
   "contacts_noUnreadContacts": "No unread contacts",
   "contacts_noContactsFound": "No contacts or groups found",
   "contacts_storageFull": "Contact storage on the node is full. New nodes cannot be added until contacts are removed.",
-  "contacts_deleteContact": "Delete Contact",
-  "contacts_removeConfirm": "Remove {contactName} from contacts?",
-  "@contacts_removeConfirm": {
-    "placeholders": {
-      "contactName": {
-        "type": "String"
-      }
-    }
-  },
   "contacts_removeFromContacts": "Remove from contacts",
   "contacts_removeFromContactsConfirm": "{contactName} will move to Discovered contacts. Chat history will be deleted.",
   "@contacts_removeFromContactsConfirm": {
@@ -803,7 +695,6 @@
   },
   "contacts_noContactsDiscoveredHint": "Nodes your radio hears but hasn't added yet are listed in Discovered contacts",
   "contacts_manageRepeater": "Manage Repeater",
-  "contacts_manageRoom": "Manage Room Server",
   "contacts_roomLogin": "Room Server Login",
   "contacts_openChat": "Open Chat",
   "contacts_editGroup": "Edit Group",
@@ -833,7 +724,6 @@
   },
   "contacts_filterContacts": "Filter contacts...",
   "contacts_noContactsMatchFilter": "No contacts match your filter",
-  "contacts_noMembers": "No members",
   "contacts_lastSeenNow": "recently",
   "contacts_lastSeenMinsAgo": "~ {minutes} min.",
   "@contacts_lastSeenMinsAgo": {
@@ -895,7 +785,6 @@
     }
   },
   "channels_private": "Private",
-  "channels_hashtag": "Hashtag",
   "channels_addSectionJoin": "Join existing",
   "channels_addSectionCreate": "Create new",
   "channels_dragToReorder": "Drag to reorder",
@@ -912,8 +801,6 @@
       }
     }
   },
-  "channels_muteChannel": "Mute channel",
-  "channels_unmuteChannel": "Unmute channel",
   "channels_deleteChannel": "Delete channel",
   "channels_deleteChannelConfirm": "Delete \"{name}\"? This cannot be undone.",
   "@channels_deleteChannelConfirm": {
@@ -940,10 +827,7 @@
     }
   },
   "channels_addChannel": "Add Channel",
-  "channels_channelIndexLabel": "Channel Index",
   "channels_channelName": "Channel Name",
-  "channels_usePublicChannel": "Use Public Channel",
-  "channels_standardPublicPsk": "Standard public PSK",
   "channels_pskHex": "PSK (Hex)",
   "channels_generateRandomPsk": "Generate random PSK",
   "channels_enterChannelName": "Please enter a channel name",
@@ -1017,7 +901,6 @@
   "channels_joinHashtagChannel": "Join a Hashtag Channel",
   "channels_joinHashtagChannelDesc": "Anyone can join hashtag channels.",
   "channels_scanQrCode": "Scan a QR Code",
-  "channels_scanQrCodeComingSoon": "Coming soon",
   "channels_scanQrCodeDesc": "Join a channel or community from its QR code.",
   "channels_scanQrInstructions": "Point the camera at a channel or community QR code",
   "channels_invalidQrCode": "Not a MeshCore channel or community QR code",
@@ -1049,22 +932,6 @@
       }
     }
   },
-  "channels_regionNotSet": "Region: none",
-  "channels_regionSelect_Title": "Select a region",
-  "channels_clearRegion": "Clear region",
-  "channels_regionDefaultSuffix": "(default)",
-  "channels_regionRadioDefaultSuffix": "(radio default)",
-  "channels_regionRadioDefaultApplies": "This radio sends floods without a region in its default region: {region}.",
-  "@channels_regionRadioDefaultApplies": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
-  "channels_regionSelectExplanation": "Flood messages on this channel will only be forwarded by repeaters in the selected region.",
-  "channels_regionEmpty": "No regions yet.",
-  "channels_manageRegions": "Manage regions",
   "chat_noMessages": "No messages yet",
   "chatSearch_tooltip": "Search messages",
   "chatSearch_hint": "Search messages",
@@ -1089,7 +956,6 @@
       }
     }
   },
-  "chat_sendMessageToStart": "Send a message to get started",
   "chat_originalMessageNotFound": "Original message not found",
   "chat_replyingTo": "Replying to {name}",
   "@chat_replyingTo": {
@@ -1177,7 +1043,6 @@
     }
   },
   "chat_selectSendAction": "Select send action",
-  "chat_sendGif": "Send GIF",
   "chat_shareMyLocation": "Share my location",
   "@chat_shareMyLocation": {
     "description": "Chat input menu action that shares the radio's own position as a map marker"
@@ -1189,29 +1054,7 @@
   "chat_removeGif": "Remove GIF",
   "chat_cancelReply": "Cancel reply",
   "chat_sendImageLora": "Send low-res image over radio",
-  "chat_sendImageIpfs": "Send image or file via IPFS",
-  "chat_ipfsUploadFailed": "IPFS upload failed: {error}",
-  "@chat_ipfsUploadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "chat_ipfsUploadNotConfigured": "Configure an IPFS upload provider in App Settings first.",
   "chat_ipfsSelectedFileEmpty": "The selected file is empty.",
-  "chat_ipfsEndpointInvalid": "The IPFS upload endpoint must be a full http:// or https:// address. Check it in App Settings.",
-  "chat_ipfsPinataTokenMissing": "Pinata needs an API key or JWT. Add it in App Settings.",
-  "chat_ipfsFilebaseTokenMissing": "Filebase needs an API token. Add it in App Settings.",
-  "chat_ipfsKuboPathInvalid": "The Kubo upload endpoint must end with /api/v0/add. Check it in App Settings.",
-  "chat_ipfsLinkNoRoom": "Not enough room for the image link. Shorten your message, then try again.",
-  "@chat_ipfsLinkNoRoom": {
-    "description": "Shown before an IPFS upload when the link would push the draft over the message size limit"
-  },
-  "chat_ipfsLinkOverLimit": "Image link added, but the message is now too long. Shorten it before sending.",
-  "@chat_ipfsLinkOverLimit": {
-    "description": "Shown after an IPFS upload when the link plus the draft no longer fits the message size limit"
-  },
   "chat_imagePickFailed": "Couldn't open that image",
   "@chat_imagePickFailed": {
     "description": "Shown when picking or reading a photo to send fails"
@@ -1225,13 +1068,6 @@
   "emojiCategoryGestures": "Gestures",
   "emojiCategoryHearts": "Hearts",
   "emojiCategoryObjects": "Objects",
-  "gifPicker_title": "Choose a GIF",
-  "gifPicker_searchHint": "Search GIFs...",
-  "gifPicker_poweredBy": "Powered by GIPHY",
-  "gifPicker_noGifsFound": "No GIFs found",
-  "gifPicker_failedLoad": "Failed to load GIFs",
-  "gifPicker_failedSearch": "Failed to search GIFs",
-  "gifPicker_noInternet": "No internet connection",
   "debugLog_appTitle": "App Debug Log",
   "debugLog_bleTitle": "BLE Debug Log",
   "debugLog_copyLog": "Copy log",
@@ -1439,14 +1275,6 @@
       }
     }
   },
-  "chat_unread": "Unread: {count}",
-  "@chat_unread": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "chat_markAsUnread": "Mark as Unread",
   "chat_newMessages": "New messages",
   "chat_today": "Today",
@@ -1478,37 +1306,16 @@
   "map_noResults": "No matching nodes",
   "map_lineOfSight": "Line of Sight",
   "map_losScreenTitle": "Line of Sight",
-  "map_noNodesWithLocation": "No nodes with location data",
   "map_noNodesLocationHint": "No nodes with a recent location. Widen the time filter, or set your own location in Settings.",
-  "map_nodesNeedGps": "Nodes need to share their GPS coordinates\nto appear on the map",
-  "map_nodesCount": "Nodes: {count}",
-  "@map_nodesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "map_pinsCount": "Pins: {count}",
-  "@map_pinsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "map_chat": "Chat",
   "map_repeater": "Repeater",
   "map_room": "Room",
   "map_sensor": "Sensor",
   "map_pinDm": "Pin (DM)",
-  "map_pinPrivate": "Pin (Private)",
-  "map_pinPublic": "Pin (Public)",
   "map_lastSeen": "Last Seen",
   "map_from": "From",
   "map_source": "Source",
   "map_flags": "Flags",
-  "map_type": "Type",
   "map_path": "Path",
   "map_location": "Location",
   "map_estLocation": "Est. Location",
@@ -1547,7 +1354,6 @@
   "map_showSharedMarkers": "Show shared markers",
   "map_showGuessedLocations": "Show guessed node locations",
   "map_clusterNodes": "Group nearby nodes",
-  "map_groupChip": "Group",
   "map_clusterNodesSubtitle": "When zoomed out, show nearby nodes as one numbered circle",
   "map_showDiscoveryContacts": "Show Discovery Contacts",
   "map_guessedLocation": "Guessed location",
@@ -1559,9 +1365,7 @@
   "map_manageServer": "Manage Server",
   "map_tapToAdd": "Tap on nodes to add them to the path.",
   "map_runTrace": "Run path trace",
-  "map_runTraceWithReturnPath": "Return back on the same path.",
   "map_removeLast": "Remove Last",
-  "map_pathTraceCancelled": "Path trace cancelled.",
   "map_pathTraceAddMoreHint": "Tap more nodes to add hops, choose how the trace returns, then tap Run path trace.",
   "map_pathTraceModeRoundTrip": "Round trip",
   "map_pathTraceModeRoundTripHint": "The trace goes out through these hops and comes back the same way.",
@@ -1812,7 +1616,6 @@
     }
   },
   "login_failedMessage": "Login failed. Either the password is incorrect or the repeater is unreachable.",
-  "common_reload": "Reload",
   "common_clear": "Clear",
   "common_clearSearch": "Clear search",
   "path_currentPathLabel": "Current path",
@@ -1960,9 +1763,7 @@
   "repeater_guestPasswordHelper": "Read-only access password",
   "repeater_radioSettings": "Radio Settings",
   "repeater_frequencyMhz": "Frequency (MHz)",
-  "repeater_frequencyHelper": "300-2500 MHz",
   "repeater_txPower": "TX Power",
-  "repeater_txPowerHelper": "1-30 dBm",
   "repeater_bandwidth": "Bandwidth",
   "repeater_spreadingFactor": "Spreading Factor",
   "repeater_codingRate": "Coding Rate",
@@ -1976,8 +1777,6 @@
   "repeater_packetForwardingSubtitle": "Enable repeater to forward packets",
   "repeater_guestAccess": "Guest Access",
   "repeater_guestAccessSubtitle": "Allow read-only guest access",
-  "repeater_privacyMode": "Privacy Mode",
-  "repeater_privacyModeSubtitle": "Hide name/location in advertisements",
   "repeater_advertisementSettings": "Advertisement Settings",
   "repeater_localAdvertInterval": "Local Advertisement Interval",
   "repeater_localAdvertIntervalMinutes": "{minutes} minutes",
@@ -1997,34 +1796,13 @@
       }
     }
   },
-  "repeater_encryptedAdvertInterval": "Encrypted Advertisement Interval",
   "repeater_dangerZone": "Danger Zone",
   "repeater_rebootRepeater": "Reboot Repeater",
   "repeater_rebootRepeaterSubtitle": "Restart the repeater device",
   "repeater_rebootRepeaterConfirm": "Are you sure you want to reboot this repeater?",
-  "repeater_regenerateIdentityKey": "Regenerate Identity Key",
-  "repeater_regenerateIdentityKeySubtitle": "Generate new public/private key pair",
-  "repeater_regenerateIdentityKeyConfirm": "This will generate a new identity for the repeater. Continue?",
   "repeater_eraseFileSystem": "Erase File System",
   "repeater_eraseFileSystemSubtitle": "Format the repeater file system",
-  "repeater_eraseFileSystemConfirm": "WARNING: This will erase all data on the repeater. This cannot be undone!",
   "repeater_eraseSerialOnly": "Erase is only available over serial console.",
-  "repeater_commandSent": "Command sent: {command}",
-  "@repeater_commandSent": {
-    "placeholders": {
-      "command": {
-        "type": "String"
-      }
-    }
-  },
-  "repeater_errorSendingCommand": "Error sending command: {error}",
-  "@repeater_errorSendingCommand": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "repeater_confirm": "Confirm",
   "repeater_settingsSaved": "Settings saved successfully",
   "repeater_rxGain": "Boosted RX gain",
@@ -2125,7 +1903,6 @@
     }
   },
   "repeater_refreshRadioSettings": "Refresh Radio Settings",
-  "repeater_refreshPrivacyMode": "Refresh Privacy Mode",
   "repeater_refreshAll": "Refresh all",
   "repeater_settingsNotLoaded": "Settings haven't been loaded from this repeater yet.",
   "repeater_settingsLoadIncomplete": "Some settings could not be loaded. Use the refresh buttons to retry.",
@@ -2269,19 +2046,16 @@
   "repeater_cliHelpDiscoverNeighbors": "Sends a node-discovery request to nearby neighbors. (Repeater only)",
   "repeater_cliHelpPowersaving": "Shows whether powersaving mode is on or off.",
   "repeater_cliHelpPowersavingOnOff": "Enables or disables powersaving mode (where supported).",
-  "repeater_cliHelpErase": "(Serial only) Formats the device file system. Wipes all settings and contacts.",
   "repeater_cliHelpSetDutyCycle": "Sets the maximum allowed transmit duty cycle as a percentage (1-100). Internally adjusts the airtime factor.",
   "repeater_cliHelpSetPrvKey": "Replaces the device identity private key. Reboot required to apply. Generates a new public key.",
   "repeater_cliHelpSetRadioRxGain": "(SX126x only) Toggles boosted RX gain for improved sensitivity at higher current draw.",
   "repeater_cliHelpSetOwnerInfo": "Sets the owner contact info string included in adverts. Use '|' for newlines.",
   "repeater_cliHelpSetPathHashMode": "Sets the node ID size used in this repeater's adverts: 0 = 1 byte (up to 64 hops), 1 = 2 bytes (up to 32 hops), 2 = 3 bytes (up to 21 hops). 3 is reserved. Does not affect which sizes are forwarded. Requires firmware v1.14+.",
   "repeater_cliHelpSetLoopDetect": "Sets the routing loop-detection sensitivity: off, minimal, moderate, or strict.",
-  "repeater_cliHelpSetFreq": "(Serial only) Quickly sets just the frequency. Reboot required. Prefer \"set radio\" for full radio params.",
   "repeater_cliHelpSetBridgeChannel": "(ESPNow bridge only) Sets the WiFi channel (1-14) used by the bridge.",
   "repeater_cliHelpGetName": "Shows the configured node name.",
   "repeater_cliHelpGetRole": "Shows the firmware role (Repeater, Room Server, etc.).",
   "repeater_cliHelpGetPublicKey": "Shows the device public key.",
-  "repeater_cliHelpGetPrvKey": "(Serial only) Shows the device private key. Treat as a secret.",
   "repeater_cliHelpGetRepeat": "Shows whether packet forwarding (repeater role) is on or off.",
   "repeater_cliHelpGetTx": "Shows the current TX power in dBm.",
   "repeater_cliHelpGetFreq": "Shows the configured radio frequency in MHz.",
@@ -2305,7 +2079,6 @@
   "repeater_cliHelpGetOwnerInfo": "Shows the owner contact info string.",
   "repeater_cliHelpGetPathHashMode": "Shows the node ID size mode used in adverts (0 = 1 byte, 1 = 2 bytes, 2 = 3 bytes).",
   "repeater_cliHelpGetLoopDetect": "Shows the loop-detection sensitivity.",
-  "repeater_cliHelpGetAcl": "(Serial only) Lists the access-control entries on a repeater.",
   "repeater_cliHelpGetBridgeEnabled": "Shows whether the bridge is enabled.",
   "repeater_cliHelpGetBridgeDelay": "Shows the bridge delay in ms.",
   "repeater_cliHelpGetBridgeSource": "Shows whether the bridge logs RX or TX packets.",
@@ -2325,9 +2098,6 @@
   "repeater_cliHelpRegionDefaultSet": "Sets the default region scope. Use \"<null>\" to clear.",
   "repeater_cliHelpRegionListAllowed": "Lists regions that allow flood traffic.",
   "repeater_cliHelpRegionListDenied": "Lists regions that deny flood traffic.",
-  "repeater_cliHelpStatsPackets": "(Serial only) Shows packet-level statistics.",
-  "repeater_cliHelpStatsRadio": "(Serial only) Shows radio statistics.",
-  "repeater_cliHelpStatsCore": "(Serial only) Shows core firmware statistics.",
   "telemetry_receivedData": "Received Telemetry Data",
   "telemetry_requestTimeout": "Telemetry request timed out.",
   "telemetry_errorLoading": "Error loading telemetry: {error}",
@@ -2375,17 +2145,6 @@
   "@telemetry_currentValue": {
     "placeholders": {
       "amps": {
-        "type": "String"
-      }
-    }
-  },
-  "telemetry_temperatureValue": "{celsius}°C / {fahrenheit}°F",
-  "@telemetry_temperatureValue": {
-    "placeholders": {
-      "celsius": {
-        "type": "String"
-      },
-      "fahrenheit": {
         "type": "String"
       }
     }
@@ -2504,7 +2263,6 @@
   },
   "telemetry_autoFetchQuantity": "Requests quantity",
   "telemetry_error": "Unable to retrieve data",
-  "neighbors_receivedData": "Received Neighbors Data",
   "neighbors_requestTimedOut": "Neighbors request timed out.",
   "neighbors_errorLoading": "Error loading neighbors: {error}",
   "@neighbors_errorLoading": {
@@ -2555,20 +2313,6 @@
     }
   },
   "channelPath_noLocationData": "No location data",
-  "channelPath_timeWithDate": "{day}/{month} {time}",
-  "@channelPath_timeWithDate": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      },
-      "month": {
-        "type": "int"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "channelPath_timeOnly": "{time}",
   "@channelPath_timeOnly": {
     "placeholders": {
@@ -2631,7 +2375,6 @@
   },
   "channelPath_noHopDetailsAvailable": "No hop details available for this packet.",
   "channelPath_unknownRepeater": "Unknown Repeater",
-  "community_title": "Community",
   "community_create": "Create Community",
   "community_createDesc": "Create a new community and share via QR code.",
   "community_join": "Join",
@@ -2644,8 +2387,6 @@
       }
     }
   },
-  "community_scanQr": "Scan Community QR",
-  "community_scanInstructions": "Point the camera at a community QR code",
   "community_showQr": "Show QR Code",
   "community_publicChannel": "Community Public",
   "community_hashtagChannel": "Community Hashtag",
@@ -2677,7 +2418,6 @@
     }
   },
   "community_hashtagPrivacyHint": "Community hashtag channels are only joinable by members of the community",
-  "community_invalidQrCode": "Invalid community QR code",
   "community_alreadyMember": "Already a Member",
   "community_alreadyMemberMessage": "You are already a member of \"{name}\".",
   "@community_alreadyMemberMessage": {
@@ -2717,56 +2457,11 @@
       }
     }
   },
-  "community_regenerateSecret": "Regenerate Secret",
-  "community_regenerateSecretConfirm": "Regenerate the secret key for \"{name}\"? All members will need to scan the new QR code to continue communicating.",
-  "@community_regenerateSecretConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "community_regenerate": "Regenerate",
-  "community_secretRegenerated": "Secret regenerated for \"{name}\"",
-  "@community_secretRegenerated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "community_updateSecret": "Update Secret",
-  "community_secretUpdated": "Secret updated for \"{name}\"",
-  "@community_secretUpdated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "community_scanToUpdateSecret": "Scan the new QR code to update the secret for \"{name}\"",
-  "@community_scanToUpdateSecret": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "community_addHashtagChannel": "Add Community Hashtag",
-  "community_addHashtagChannelDesc": "Add a hashtag channel for this community",
   "community_selectCommunity": "Select Community",
   "community_regularHashtag": "Regular Hashtag",
   "community_regularHashtagDesc": "Public hashtag (anyone can join)",
   "community_communityHashtag": "Community Hashtag",
   "community_communityHashtagDesc": "Private to community members",
-  "community_forCommunity": "For {name}",
-  "@community_forCommunity": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "listFilter_tooltip": "Filter and sort",
   "listFilter_sortBy": "Sort by",
   "listFilter_latestMessages": "Latest messages",
@@ -2781,13 +2476,9 @@
   "listFilter_repeaters": "Repeaters",
   "listFilter_roomServers": "Room servers",
   "listFilter_unreadOnly": "Unread only",
-  "listFilter_newGroup": "New group",
   "pathTrace_you": "You",
-  "pathTrace_failed": "Path trace failed.",
   "pathTrace_notAvailable": "Path trace not available.",
   "pathTrace_refreshTooltip": "Refresh Path Trace.",
-  "pathTrace_someHopsNoLocation": "One or more of the hops is missing a location!",
-  "pathTrace_clearTooltip": "Clear path.",
   "losSelectStartEnd": "Select start and end nodes for LOS.",
   "losRunFailed": "Line-of-sight check failed: {error}",
   "@losRunFailed": {
@@ -2798,7 +2489,6 @@
     }
   },
   "losClearAllPoints": "Clear all points",
-  "losRunToViewElevationProfile": "Run LOS to view elevation profile",
   "losMenuTitle": "LOS Menu",
   "losMenuSubtitle": "Tap nodes or long-press map for custom points",
   "losShowDisplayNodes": "Show display nodes",
@@ -2836,41 +2526,6 @@
     }
   },
   "losRun": "Run LOS",
-  "losNoElevationData": "No elevation data",
-  "losProfileClear": "{distance} {distanceUnit}, clear LOS, min clearance {clearance} {heightUnit}",
-  "@losProfileClear": {
-    "placeholders": {
-      "distance": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "clearance": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      }
-    }
-  },
-  "losProfileBlocked": "{distance} {distanceUnit}, blocked by {obstruction} {heightUnit}",
-  "@losProfileBlocked": {
-    "placeholders": {
-      "distance": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "obstruction": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      }
-    }
-  },
   "losStatusChecking": "LOS: checking...",
   "losStatusNoData": "LOS: no data",
   "losStatusSummary": "LOS: {clear}/{total} clear, {blocked} blocked, {unknown} unknown",
@@ -2890,8 +2545,6 @@
       }
     }
   },
-  "losErrorElevationUnavailable": "Elevation data unavailable for one or more samples.",
-  "losErrorInvalidInput": "Invalid points/elevation data for LOS calculation.",
   "losRenameCustomPoint": "Rename custom point",
   "losPointName": "Point name",
   "losShowPanelTooltip": "Show LOS panel",
@@ -2920,26 +2573,6 @@
     }
   },
   "losSelectedObstructionTitle": "Selected obstruction",
-  "losSelectedObstructionDetails": "Blocked by {obstruction} {heightUnit}, {distanceFromA} from A and {distanceFromB} from B ({distanceUnit}).",
-  "@losSelectedObstructionDetails": {
-    "placeholders": {
-      "obstruction": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      },
-      "distanceFromA": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "distanceFromB": {
-        "type": "String"
-      }
-    }
-  },
   "losFrequencyLabel": "Frequency",
   "losFrequencyInfoTooltip": "View calculation details",
   "losFrequencyDialogTitle": "Radio horizon calculation",
@@ -3070,22 +2703,6 @@
       }
     }
   },
-  "notification_messagesCount": "{count} {count, plural, =1{message} other{messages}}",
-  "@notification_messagesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "notification_channelMessagesCount": "{count} {count, plural, =1{channel message} other{channel messages}}",
-  "@notification_channelMessagesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "notification_newNodesCount": "{count} {count, plural, =1{new node} other{new nodes}}",
   "@notification_newNodesCount": {
     "placeholders": {
@@ -3149,13 +2766,10 @@
   "settings_gpxExportShareText": "Map data exported from meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open GPX map data export",
   "snrIndicator_nearByRepeaters": "Nearby Repeaters",
-  "snrIndicator_lastSeen": "Last seen",
   "snrIndicator_nearByRepeatersDescription": "Repeaters your radio heard directly, most recently heard first.",
   "snrIndicator_unknownRepeater": "Unknown repeater",
   "snrIndicator_unknownRepeaterHint": "This repeater isn't in your contacts yet. Its name, location and options appear once your radio receives its advert.",
-  "contactsSettings_title": "Contacts settings",
   "contactsSettings_autoAddTitle": "Automatic Discovery",
-  "contactsSettings_otherTitle": "Other contact related settings",
   "contactsSettings_autoAddUsersTitle": "Auto-add users",
   "contactsSettings_autoAddUsersSubtitle": "Allow the companion to automatically add discovered users.",
   "contactsSettings_autoAddRepeatersTitle": "Auto-add repeaters",
@@ -3177,7 +2791,6 @@
   },
   "discoveredContacts_Title": "Discovered Contacts",
   "discoveredContacts_noMatching": "No matching contacts",
-  "discoveredContacts_searchHint": "Search discovered contacts",
   "discoveredContacts_contactAdded": "Contact added",
   "discoveredContacts_addContact": "Add Contact",
   "discoveredContacts_copyContact": "Copy Contact to clipboard",
@@ -3265,15 +2878,6 @@
     }
   },
   "radioStats_chartCaption": "Noise floor (dBm) over recent samples.",
-  "radioStats_stripNoise": "Noise floor: {noiseDbm} dBm",
-  "@radioStats_stripNoise": {
-    "placeholders": {
-      "noiseDbm": {
-        "type": "int"
-      }
-    }
-  },
-  "radioStats_stripWaiting": "Fetching radio stats…",
   "radioStats_settingsTile": "Radio stats",
   "radioStats_settingsSubtitle": "Noise floor, RSSI, SNR, and airtime",
   "translation_title": "Translation",
@@ -3285,7 +2889,6 @@
   "imageMessages_removeModel": "Remove model",
   "imageMessages_modelReady": "Ready",
   "imageMessages_modelNotPublished": "Not published yet — this build cannot download it.",
-  "imageMessages_downloadFailed": "The image model could not be downloaded.",
   "imageMessages_autoProcessTitle": "Process images automatically",
   "imageMessages_autoProcessSubtitle": "Reconstruct every image as soon as it arrives. Uses about 2 GB of memory for a second each time; leave off to reconstruct with a tap instead.",
   "translation_enableTitle": "Enable translation",
@@ -3473,7 +3076,6 @@
   "pathMap_followPacket": "Lock view to packet",
   "pathMap_unfollowPacket": "Unlock view from packet",
   "imageSend_title": "Send image",
-  "imageSend_cropNote": "Resized to 512 × 512 · aspect ratio not preserved",
   "imageSend_lossyNote": "Compressed to about {bytes} bytes. The receiver's model reconstructs it, so details will differ.",
   "@imageSend_lossyNote": {
     "placeholders": {
@@ -3493,15 +3095,6 @@
   "imageSend_qualityHigh": "High",
   "imageSend_packetsLabel": "Packets",
   "imageSend_airtimeLabel": "Time on air",
-  "imageSend_sizeLabel": "Payload",
-  "imageSend_packetsCount": "{count} {count, plural, =1{packet} other{packets}}",
-  "@imageSend_packetsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "imageSend_range": "{min}–{max}",
   "@imageSend_range": {
     "placeholders": {
@@ -3535,7 +3128,6 @@
   "imageSend_codecUnavailable": "Image sending is not available on this device.",
   "imageSend_codecDisabled": "Image messages are turned off in settings.",
   "imageSend_deviceUnsupported": "This radio cannot send image packets. Connect a device running companion firmware 13 or newer.",
-  "imageSend_directMessagesUnsupported": "Images travel as group data, so they can only be sent to a channel — not in a direct message.",
   "imageSend_tooLarge": "That image encoded to more packets than the mesh format allows.",
   "imageSend_sentConfirmation": "Image sent as {count} {count, plural, =1{packet} other{packets}}.",
   "@imageSend_sentConfirmation": {
@@ -4121,20 +3713,6 @@
   "settings_publicKeyCopyHint": "Copy public key",
   "settings_locationClearHelper": "Leave both fields empty to remove your location.",
   "settings_locationCleared": "Location removed",
-  "settings_regionFetchDiscovering": "Looking for nearby repeaters…",
-  "settings_regionFetchProgress": "Asking repeater {current} of {total}…",
-  "@settings_regionFetchProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "settings_regionFetchNoRepeaters": "No repeaters are known yet. Add a repeater as a contact or wait for one to advertise, then try again.",
-  "settings_regionFetchNoneResponded": "No nearby repeaters answered. Move closer to a repeater and try again.",
   "appSettings_sourceSummary": "{label} - {description}",
   "@appSettings_sourceSummary": {
     "placeholders": {
@@ -4284,35 +3862,6 @@
       }
     }
   },
-  "networkMap_settingsSection": "Network map",
-  "networkMap_uploadTitle": "Share what my radio hears",
-  "networkMap_uploadExplanation": "When this is on and your radio is connected, the app sends a short summary of the packets your radio hears to the MeshCore Open network map, so everyone can see which repeaters exist and how they link up. It sends each packet's type, route, hops, signal strength and size, plus repeater names and rough locations from their own adverts. It never sends message text, who is talking to whom, channel names, your contacts or your exact position: locations are rounded to about 2 km, and your app gets a new random ID every day.",
-  "networkMap_whatWeCollect": "What we collect",
-  "networkMap_promptTitle": "Help build the network map?",
-  "networkMap_promptBody": "MeshCore Open can share what your radio hears with the public network map at map.meshcoreopen.org, so everyone can see which repeaters exist and how they link up.\n\nIt never sends message text, who is talking to whom, channel names, your contacts or your exact position. Locations are rounded to about 2 km.",
-  "networkMap_promptSettingsHint": "You can change this any time in Settings → App settings → Network map.",
-  "networkMap_promptAccept": "Share",
-  "networkMap_promptDecline": "No thanks",
-  "networkMap_statusOff": "Off. Nothing is sent.",
-  "networkMap_statusWaiting": "On. Waiting for a radio connection.",
-  "networkMap_statusNothingSent": "On. Nothing sent yet.",
-  "networkMap_statusLastSent": "Last sent {time}. {count} packets today.",
-  "@networkMap_statusLastSent": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "networkMap_sourceLocal": "Local",
-  "networkMap_sourceOnline": "Online",
-  "networkMap_sourceBoth": "Both",
-  "networkMap_sourceLocalHint": "Nodes your radio has heard",
-  "networkMap_sourceOnlineHint": "Repeaters from the online network map",
-  "networkMap_sourceBothHint": "Your radio's nodes plus the online network map",
   "networkMap_zoomInHint": "Zoom in to see the online network map",
   "networkMap_loadFailed": "Couldn't load the online network map",
   "networkMap_inYourContacts": "In your contacts",

@@ -21,7 +21,6 @@
   "common_done": "Готово",
   "common_edit": "Змінити",
   "common_add": "Додати",
-  "common_settings": "Налаштування",
   "common_disconnect": "Відключити",
   "common_connected": "Підключено",
   "common_disconnected": "Відключено",
@@ -80,8 +79,6 @@
   },
   "scanner_stop": "Стоп",
   "scanner_scan": "Сканувати",
-  "device_quickSwitch": "Швидке перемикання",
-  "device_meshcore": "MeshCore",
   "settings_title": "Налаштування",
   "settings_deviceInfo": "Інформація про пристрій",
   "settings_appSettings": "Налаштування застосунку",
@@ -103,16 +100,9 @@
   "settings_longitude": "Довгота",
   "settings_autoZeroHopAdvertOnGpsUpdate": "Авто zero-hop advert при зміні GPS",
   "settings_autoZeroHopAdvertOnGpsUpdateSubtitle": "Налаштування застосунку: після зміни позиції GPS автоматично надсилати нові координати лише сусіднім вузлам (потрібне «Розташування в advert»).",
-  "settings_privacyMode": "Режим приватності",
-  "settings_privacyModeSubtitle": "Приховати ім'я й розташування в advert",
-  "settings_privacyModeToggle": "Перемикає приховування вашого імені й розташування в advert.",
-  "settings_privacyModeEnabled": "Режим приватності ввімкнено",
-  "settings_privacyModeDisabled": "Режим приватності вимкнено",
   "settings_actions": "Дії",
   "settings_deleteAllPaths": "Видалити всі шляхи",
   "settings_deleteAllPathsSubtitle": "Очистити дані шляхів у всіх контактів.",
-  "settings_sendAdvertisement": "Надіслати advert",
-  "settings_sendAdvertisementSubtitle": "Оголосити про себе зараз",
   "settings_advertisementSent": "Advert надіслано",
   "settings_syncTime": "Синхронізувати час",
   "settings_syncTimeSubtitle": "Встановити на пристрої час телефону",
@@ -136,9 +126,7 @@
   },
   "settings_aboutLegalese": "2026 MeshCore Open Source Project",
   "settings_aboutDescription": "Відкритий Flutter-клієнт для LoRa mesh-пристроїв MeshCore.",
-  "settings_infoName": "Ім'я",
   "settings_infoId": "ID",
-  "settings_infoStatus": "Статус",
   "settings_infoBattery": "Акумулятор",
   "settings_infoPublicKey": "Публічний ключ",
   "settings_infoContactsCount": "Кількість контактів",
@@ -151,7 +139,6 @@
   "settings_spreadingFactor": "Spreading factor",
   "settings_codingRate": "Coding rate",
   "settings_txPower": "Потужність TX (дБм)",
-  "settings_txPowerInvalid": "Некоректна потужність TX",
   "settings_error": "Помилка: {message}",
   "@settings_error": {
     "placeholders": {
@@ -169,8 +156,6 @@
   "appSettings_language": "Мова",
   "appSettings_languageSystem": "Системна",
   "appSettings_languageEn": "English",
-  "appSettings_languagePt": "Португальська (Бразилія)",
-  "appSettings_languageCs": "Чеська",
   "appSettings_languageUk": "Українська",
   "appSettings_notifications": "Сповіщення",
   "appSettings_enableNotifications": "Увімкнути сповіщення",
@@ -234,7 +219,6 @@
   "appSettings_rasterTileSource": "Джерело растрових тайлів",
   "appSettings_stadiaEndpoint": "Endpoint Stadia",
   "appSettings_stadiaApiKey": "API-ключ Stadia",
-  "appSettings_stadiaApiKeyRequired": "Потрібен для Stadia Maps",
   "appSettings_stadiaApiKeyConfigured": "Налаштовано: {maskedKey}",
   "@appSettings_stadiaApiKeyConfigured": {
     "placeholders": {
@@ -264,19 +248,9 @@
   "appSettings_appDebugLoggingDisabled": "Журнал застосунку вимкнено",
   "contacts_title": "Контакти",
   "contacts_noContacts": "Контактів ще немає",
-  "contacts_contactsWillAppear": "Контакти з'являться, коли пристрої надішлють advert",
   "contacts_searchContacts": "Пошук серед {number}{str} контактів…",
   "contacts_noUnreadContacts": "Немає непрочитаних контактів",
   "contacts_noContactsFound": "Контактів і груп не знайдено",
-  "contacts_deleteContact": "Видалити контакт",
-  "contacts_removeConfirm": "Видалити {contactName} з контактів?",
-  "@contacts_removeConfirm": {
-    "placeholders": {
-      "contactName": {
-        "type": "String"
-      }
-    }
-  },
   "contacts_manageRepeater": "Керування репітером",
   "contacts_roomLogin": "Вхід у Room-сервер",
   "contacts_openChat": "Відкрити чат",
@@ -304,7 +278,6 @@
   },
   "contacts_filterContacts": "Фільтр контактів…",
   "contacts_noContactsMatchFilter": "Немає контактів за фільтром",
-  "contacts_noMembers": "Немає учасників",
   "contacts_lastSeenNow": "щойно",
   "contacts_lastSeenMinsAgo": "~ {minutes} хв",
   "@contacts_lastSeenMinsAgo": {
@@ -361,8 +334,6 @@
       }
     }
   },
-  "channels_muteChannel": "Вимкнути звук каналу",
-  "channels_unmuteChannel": "Увімкнути звук каналу",
   "channels_deleteChannel": "Видалити канал",
   "channels_deleteChannelConfirm": "Видалити «{name}»? Цю дію не можна скасувати.",
   "@channels_deleteChannelConfirm": {
@@ -381,10 +352,7 @@
     }
   },
   "channels_addChannel": "Додати канал",
-  "channels_channelIndexLabel": "Індекс каналу",
   "channels_channelName": "Назва каналу",
-  "channels_usePublicChannel": "Використати публічний канал",
-  "channels_standardPublicPsk": "Стандартний публічний PSK",
   "channels_pskHex": "PSK (hex)",
   "channels_generateRandomPsk": "Згенерувати випадковий PSK",
   "channels_enterChannelName": "Введіть назву каналу",
@@ -437,7 +405,6 @@
   "channels_sortLatestMessages": "За останнім повідомленням",
   "channels_sortUnread": "Непрочитані",
   "chat_noMessages": "Повідомлень ще немає",
-  "chat_sendMessageToStart": "Надішліть повідомлення, щоб почати",
   "chat_originalMessageNotFound": "Початкове повідомлення не знайдено",
   "chat_replyingTo": "Відповідь для {name}",
   "@chat_replyingTo": {
@@ -490,7 +457,6 @@
     }
   },
   "chat_selectSendAction": "Вибір дії надсилання",
-  "chat_sendGif": "Надіслати GIF",
   "chat_reply": "Відповісти",
   "chat_addReaction": "Додати реакцію",
   "chat_me": "Я",
@@ -498,13 +464,6 @@
   "emojiCategoryGestures": "Жести",
   "emojiCategoryHearts": "Серця",
   "emojiCategoryObjects": "Предмети",
-  "gifPicker_title": "Вибір GIF",
-  "gifPicker_searchHint": "Пошук GIF…",
-  "gifPicker_poweredBy": "На основі GIPHY",
-  "gifPicker_noGifsFound": "GIF не знайдено",
-  "gifPicker_failedLoad": "Не вдалося завантажити GIF",
-  "gifPicker_failedSearch": "Не вдалося знайти GIF",
-  "gifPicker_noInternet": "Немає інтернет-з'єднання",
   "debugLog_appTitle": "Журнал застосунку",
   "debugLog_bleTitle": "Журнал BLE",
   "debugLog_copyLog": "Копіювати журнал",
@@ -579,7 +538,6 @@
     }
   },
   "debugFrame_hexDump": "Hex-дамп:",
-  "chat_forceFloodMode": "Примусовий режим Flood",
   "chat_hopsCount": "{count} {count, plural, one{хоп} few{хопи} many{хопів} other{хопа}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -591,7 +549,6 @@
   "chat_removePath": "Видалити шлях",
   "chat_noPathHistoryYet": "Історії шляхів ще немає.\nНадішліть повідомлення, щоб знайти шляхи.",
   "chat_pathCleared": "Шлях скинуто. Наступне повідомлення знову шукатиме маршрут.",
-  "chat_floodModeEnabled": "Режим Flood увімкнено. Вимикайте через іконку маршрутизації на панелі застосунку.",
   "chat_fullPath": "Повний шлях",
   "chat_pathSavedLocally": "Збережено локально. Підключіться для синхронізації.",
   "chat_pathDeviceConfirmed": "Пристрій підтвердив.",
@@ -613,14 +570,6 @@
   "chat_floodAuto": "Flood (авто)",
   "chat_direct": "Direct",
   "chat_poiShared": "Надіслано точку",
-  "chat_unread": "Непрочитані: {count}",
-  "@chat_unread": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "chat_openLink": "Відкрити посилання?",
   "chat_openLinkConfirmation": "Відкрити це посилання в браузері?",
   "chat_open": "Відкрити",
@@ -634,36 +583,15 @@
   },
   "chat_invalidLink": "Некоректне посилання",
   "map_title": "Карта вузлів",
-  "map_noNodesWithLocation": "Немає вузлів із розташуванням",
-  "map_nodesNeedGps": "Щоб з'явитися на карті, вузли мають\nпередавати координати GPS",
-  "map_nodesCount": "Вузлів: {count}",
-  "@map_nodesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "map_pinsCount": "Міток: {count}",
-  "@map_pinsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "map_chat": "Чат",
   "map_repeater": "Репітер",
   "map_room": "Room",
   "map_sensor": "Сенсор",
   "map_pinDm": "Мітка (DM)",
-  "map_pinPrivate": "Мітка (приватна)",
-  "map_pinPublic": "Мітка (публічна)",
   "map_lastSeen": "Востаннє в мережі",
   "map_from": "Від",
   "map_source": "Джерело",
   "map_flags": "Прапори",
-  "map_type": "Тип",
   "map_path": "Шлях",
   "map_location": "Розташування",
   "map_estLocation": "Прибл. розташування",
@@ -907,7 +835,6 @@
     }
   },
   "login_failedMessage": "Помилка входу. Невірний пароль або репітер недоступний.",
-  "common_reload": "Оновити",
   "common_clear": "Очистити",
   "path_currentPathLabel": "Поточний шлях",
   "path_noRepeatersFound": "Репітерів і Room-серверів не знайдено.",
@@ -923,7 +850,6 @@
   "repeater_settingsSubtitle": "Параметри репітера",
   "repeater_statusTitle": "Статус репітера",
   "repeater_routingMode": "Режим маршрутизації",
-  "repeater_forceFloodMode": "Примусовий режим Flood",
   "repeater_refresh": "Оновити",
   "repeater_statusRequestTimeout": "Час очікування статусу вичерпано.",
   "repeater_errorLoadingStatus": "Помилка завантаження статусу: {error}",
@@ -1025,9 +951,7 @@
   "repeater_guestPasswordHelper": "Доступ лише для читання",
   "repeater_radioSettings": "Радіо",
   "repeater_frequencyMhz": "Частота (МГц)",
-  "repeater_frequencyHelper": "300–2500 МГц",
   "repeater_txPower": "Потужність TX",
-  "repeater_txPowerHelper": "1–30 дБм",
   "repeater_bandwidth": "Bandwidth",
   "repeater_spreadingFactor": "Spreading factor",
   "repeater_codingRate": "Coding rate",
@@ -1041,8 +965,6 @@
   "repeater_packetForwardingSubtitle": "Дозволити репітеру пересилати пакети",
   "repeater_guestAccess": "Гостьовий доступ",
   "repeater_guestAccessSubtitle": "Дозволити гостьовий доступ лише для читання",
-  "repeater_privacyMode": "Режим приватності",
-  "repeater_privacyModeSubtitle": "Приховати ім'я й розташування в advert",
   "repeater_advertisementSettings": "Advert",
   "repeater_localAdvertInterval": "Інтервал локального advert",
   "repeater_localAdvertIntervalMinutes": "{minutes} хв",
@@ -1062,34 +984,13 @@
       }
     }
   },
-  "repeater_encryptedAdvertInterval": "Інтервал зашифрованого advert",
   "repeater_dangerZone": "Небезпечна зона",
   "repeater_rebootRepeater": "Перезавантажити репітер",
   "repeater_rebootRepeaterSubtitle": "Перезапуск репітера",
   "repeater_rebootRepeaterConfirm": "Перезавантажити цей репітер?",
-  "repeater_regenerateIdentityKey": "Згенерувати новий ключ ідентичності",
-  "repeater_regenerateIdentityKeySubtitle": "Створює нову пару публічного й приватного ключів",
-  "repeater_regenerateIdentityKeyConfirm": "Репітер отримає нову ідентичність. Продовжити?",
   "repeater_eraseFileSystem": "Стерти файлову систему",
   "repeater_eraseFileSystemSubtitle": "Форматує файлову систему репітера",
-  "repeater_eraseFileSystemConfirm": "УВАГА: усі дані на репітері буде стерто. Дію не можна скасувати!",
   "repeater_eraseSerialOnly": "Стирання можливе лише через serial-консоль.",
-  "repeater_commandSent": "Команду надіслано: {command}",
-  "@repeater_commandSent": {
-    "placeholders": {
-      "command": {
-        "type": "String"
-      }
-    }
-  },
-  "repeater_errorSendingCommand": "Помилка надсилання команди: {error}",
-  "@repeater_errorSendingCommand": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "repeater_confirm": "Підтвердити",
   "repeater_settingsSaved": "Налаштування збережено",
   "repeater_rxGain": "Підсилений RX gain",
@@ -1173,7 +1074,6 @@
     }
   },
   "repeater_refreshRadioSettings": "Оновити налаштування радіо",
-  "repeater_refreshPrivacyMode": "Оновити режим приватності",
   "repeater_refreshed": "Оновлено: {label}",
   "@repeater_refreshed": {
     "placeholders": {
@@ -1369,17 +1269,6 @@
       }
     }
   },
-  "telemetry_temperatureValue": "{celsius} °C / {fahrenheit} °F",
-  "@telemetry_temperatureValue": {
-    "placeholders": {
-      "celsius": {
-        "type": "String"
-      },
-      "fahrenheit": {
-        "type": "String"
-      }
-    }
-  },
   "channelPath_title": "Шлях пакета",
   "channelPath_viewMap": "Мапа",
   "channelPath_otherObservedPaths": "Інші спостережені шляхи",
@@ -1403,20 +1292,6 @@
     }
   },
   "channelPath_noLocationData": "Немає координат",
-  "channelPath_timeWithDate": "{day}/{month} {time}",
-  "@channelPath_timeWithDate": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      },
-      "month": {
-        "type": "int"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "channelPath_timeOnly": "{time}",
   "@channelPath_timeOnly": {
     "placeholders": {
@@ -1490,7 +1365,6 @@
   "listFilter_repeaters": "Репітери",
   "listFilter_roomServers": "Room-сервери",
   "listFilter_unreadOnly": "Лише непрочитані",
-  "listFilter_newGroup": "Нова група",
   "@neighbors_errorLoading": {
     "placeholders": {
       "error": {
@@ -1500,7 +1374,6 @@
   },
   "repeater_neighbors": "Сусіди",
   "repeater_neighborsSubtitle": "Zero-hop сусіди.",
-  "neighbors_receivedData": "Отримані сусіди",
   "neighbors_requestTimedOut": "Час очікування сусідів вичерпано.",
   "neighbors_errorLoading": "Помилка завантаження сусідів: {error}",
   "neighbors_repeatersNeighbors": "Сусіди репітера",
@@ -1514,7 +1387,6 @@
   "channels_joinHashtagChannel": "Приєднатися до хештег-каналу",
   "channels_joinHashtagChannelDesc": "До хештег-каналів може приєднатися будь-хто.",
   "channels_scanQrCode": "Сканувати QR-код",
-  "channels_scanQrCodeComingSoon": "Незабаром",
   "channels_scanQrCodeDesc": "Приєднання до каналу чи спільноти за QR-кодом.",
   "channels_scanQrInstructions": "Наведіть камеру на QR-код каналу або спільноти",
   "channels_invalidQrCode": "Це не QR-код каналу чи спільноти MeshCore",
@@ -1557,7 +1429,6 @@
   "settings_locationGPSEnableSubtitle": "GPS автоматично оновлюватиме розташування.",
   "settings_locationIntervalSec": "Інтервал GPS (с)",
   "settings_locationIntervalInvalid": "Інтервал: від 60 до 86399 с.",
-  "contacts_manageRoom": "Керування Room-сервером",
   "room_management": "Керування Room-сервером",
   "@community_joinConfirmation": {
     "placeholders": {
@@ -1608,22 +1479,12 @@
       }
     }
   },
-  "@community_forCommunity": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "common_ok": "OK",
-  "community_title": "Спільнота",
   "community_create": "Створити спільноту",
   "community_createDesc": "Створіть спільноту й поділіться через QR-код.",
   "community_join": "Приєднатися",
   "community_joinTitle": "Приєднатися до спільноти",
   "community_joinConfirmation": "Приєднатися до спільноти «{name}»?",
-  "community_scanQr": "Сканувати QR спільноти",
-  "community_scanInstructions": "Наведіть камеру на QR-код спільноти",
   "community_showQr": "Показати QR-код",
   "community_publicChannel": "Публічний канал спільноти",
   "community_hashtagChannel": "Хештег спільноти",
@@ -1634,7 +1495,6 @@
   "community_qrTitle": "Поділитися спільнотою",
   "community_qrInstructions": "Скануйте QR-код, щоб приєднатися до «{name}»",
   "community_hashtagPrivacyHint": "До хештег-каналів спільноти можуть приєднатися лише її учасники",
-  "community_invalidQrCode": "Хибний QR-код спільноти",
   "community_alreadyMember": "Ви вже учасник",
   "community_alreadyMemberMessage": "Ви вже учасник «{name}».",
   "community_addPublicChannel": "Додати публічний канал спільноти",
@@ -1653,49 +1513,11 @@
     }
   },
   "community_deleted": "Ви вийшли зі спільноти «{name}»",
-  "community_addHashtagChannel": "Додати хештег спільноти",
-  "community_addHashtagChannelDesc": "Додати хештег-канал для цієї спільноти",
   "community_selectCommunity": "Вибір спільноти",
   "community_regularHashtag": "Звичайний хештег",
   "community_regularHashtagDesc": "Публічний хештег (приєднатися може кожен)",
   "community_communityHashtag": "Хештег спільноти",
   "community_communityHashtagDesc": "Лише для учасників спільноти",
-  "community_forCommunity": "Для {name}",
-  "@community_regenerateSecretConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@community_secretRegenerated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@community_secretUpdated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@community_scanToUpdateSecret": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "community_regenerateSecret": "Перегенерувати секрет",
-  "community_regenerateSecretConfirm": "Перегенерувати секретний ключ «{name}»? Усім учасникам доведеться знову сканувати QR-код.",
-  "community_regenerate": "Перегенерувати",
-  "community_secretRegenerated": "Секрет «{name}» перегенеровано",
-  "community_scanToUpdateSecret": "Скануйте новий QR-код, щоб оновити секрет «{name}»",
-  "community_updateSecret": "Оновити секрет",
-  "community_secretUpdated": "Секрет «{name}» оновлено",
   "@contacts_pathTraceTo": {
     "placeholders": {
       "name": {
@@ -1704,7 +1526,6 @@
     }
   },
   "pathTrace_you": "Ви",
-  "pathTrace_failed": "Помилка трасування шляху.",
   "pathTrace_notAvailable": "Трасування недоступне.",
   "pathTrace_refreshTooltip": "Оновити трасування.",
   "contacts_pathTrace": "Трасування шляху",
@@ -1748,8 +1569,6 @@
       }
     }
   },
-  "notification_messagesCount": "{count, plural, one{{count} повідомлення} few{{count} повідомлення} many{{count} повідомлень} other{{count} повідомлення}}",
-  "notification_channelMessagesCount": "{count, plural, one{{count} повідомлення каналу} few{{count} повідомлення каналу} many{{count} повідомлень каналу} other{{count} повідомлення каналу}}",
   "notification_newNodesCount": "{count, plural, one{{count} новий вузол} few{{count} нові вузли} many{{count} нових вузлів} other{{count} нового вузла}}",
   "notification_newTypeDiscovered": "Знайдено: {contactType}",
   "notification_receivedNewMessage": "Нове повідомлення",
@@ -1787,12 +1606,9 @@
   "settings_gpxExportShareText": "Дані мапи, експортовані з meshcore-open",
   "settings_gpxExportAllContacts": "Розташування всіх контактів",
   "settings_gpxExportShareSubject": "Експорт мапи GPX із meshcore-open",
-  "pathTrace_someHopsNoLocation": "Для одного чи кількох хопів немає координат!",
   "map_tapToAdd": "Торкайтеся вузлів, щоб додати їх до шляху.",
   "map_runTrace": "Запустити трасування шляху",
-  "pathTrace_clearTooltip": "Очистити шлях.",
   "map_removeLast": "Видалити останній",
-  "map_pathTraceCancelled": "Трасування шляху скасовано.",
   "map_pathTraceAddMoreHint": "Торкніться ще вузлів, щоб додати хопи, виберіть зворотний шлях і натисніть «Запустити трасування».",
   "map_pathTraceModeRoundTrip": "Туди й назад",
   "map_pathTraceModeRoundTripHint": "Трасування йде через ці хопи й повертається тим самим шляхом.",
@@ -1804,12 +1620,10 @@
   "scanner_chromeRequired": "Потрібен браузер Chrome",
   "scanner_chromeRequiredMessage": "Для Bluetooth цей вебзастосунок потребує Google Chrome або браузера на Chromium.",
   "scanner_bluetoothOff": "Bluetooth вимкнено",
-  "snrIndicator_lastSeen": "Востаннє чутно",
   "snrIndicator_nearByRepeaters": "Репітери поруч",
   "settings_clientRepeatFreqWarning": "Off-grid repeat потребує частоти 433, 869,495 або 918 МГц",
   "settings_clientRepeatSubtitle": "Дозволити пристрою повторювати mesh-пакети для інших",
   "settings_clientRepeat": "Off-grid repeat",
-  "settings_aboutOpenMeteoAttribution": "Дані висот для LOS: Open-Meteo (CC BY 4.0)",
   "appSettings_unitsTitle": "Одиниці",
   "appSettings_unitsMetric": "Метричні (м / км)",
   "appSettings_unitsImperial": "Імперські (фут / миля)",
@@ -1825,7 +1639,6 @@
     }
   },
   "losClearAllPoints": "Очистити всі точки",
-  "losRunToViewElevationProfile": "Запустіть LOS, щоб побачити профіль висот",
   "losMenuTitle": "Меню LOS",
   "losMenuSubtitle": "Торкніться вузлів або утримуйте мапу для власних точок",
   "losShowDisplayNodes": "Показати вузли мапи",
@@ -1863,41 +1676,6 @@
     }
   },
   "losRun": "Запустити LOS",
-  "losNoElevationData": "Немає даних про висоти",
-  "losProfileClear": "{distance} {distanceUnit}, LOS чистий, мін. зазор {clearance} {heightUnit}",
-  "@losProfileClear": {
-    "placeholders": {
-      "distance": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "clearance": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      }
-    }
-  },
-  "losProfileBlocked": "{distance} {distanceUnit}, перешкода {obstruction} {heightUnit}",
-  "@losProfileBlocked": {
-    "placeholders": {
-      "distance": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "obstruction": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      }
-    }
-  },
   "losStatusChecking": "LOS: перевірка…",
   "losStatusNoData": "LOS: немає даних",
   "losStatusSummary": "LOS: чисто {clear}/{total}, перешкод {blocked}, невідомо {unknown}",
@@ -1917,8 +1695,6 @@
       }
     }
   },
-  "losErrorElevationUnavailable": "Немає даних про висоти для одного чи кількох зразків.",
-  "losErrorInvalidInput": "Хибні точки або висоти для розрахунку LOS.",
   "losRenameCustomPoint": "Перейменувати точку",
   "losPointName": "Назва точки",
   "losShowPanelTooltip": "Показати панель LOS",
@@ -2003,13 +1779,10 @@
   "contactsSettings_autoAddRepeatersTitle": "Автододавання репітерів",
   "contactsSettings_autoAddRepeatersSubtitle": "Дозволити companion автоматично додавати знайдені репітери.",
   "contactsSettings_autoAddRoomServersTitle": "Автододавання Room-серверів",
-  "contactsSettings_otherTitle": "Інші налаштування контактів",
   "contactsSettings_autoAddTitle": "Автовиявлення",
   "contactsSettings_autoAddUsersTitle": "Автододавання користувачів",
-  "contactsSettings_title": "Налаштування контактів",
   "contactsSettings_autoAddRoomServersSubtitle": "Дозволити companion автоматично додавати знайдені Room-сервери.",
   "contactsSettings_autoAddSensorsTitle": "Автододавання сенсорів",
-  "discoveredContacts_searchHint": "Пошук знайдених контактів",
   "discoveredContacts_contactAdded": "Контакт додано",
   "contactsSettings_autoAddSensorsSubtitle": "Дозволити companion автоматично додавати знайдені сенсори.",
   "contactsSettings_overwriteOldestTitle": "Заміщувати найстаріші",
@@ -2064,12 +1837,10 @@
   "discoveredContacts_deleteContactAllContent": "Видалити всі знайдені контакти?",
   "map_showGuessedLocations": "Показувати приблизні розташування вузлів",
   "map_guessedLocation": "Приблизне розташування",
-  "usbScreenSubtitle": "Виберіть знайдений послідовний пристрій і підключіться напряму до вузла MeshCore.",
   "usbScreenTitle": "Підключення через USB",
   "connectionChoiceBluetoothLabel": "Bluetooth",
   "connectionChoiceUsbLabel": "USB",
   "usbScreenStatus": "Виберіть USB-пристрій",
-  "usbScreenNote": "USB serial працює на підтримуваних Android-пристроях і на десктопі.",
   "usbScreenEmptyState": "USB-пристроїв не знайдено. Підключіть пристрій і оновіть список.",
   "usbErrorPermissionDenied": "Доступ до USB заборонено.",
   "usbErrorDeviceMissing": "Вибраний USB-пристрій більше недоступний.",
@@ -2083,16 +1854,8 @@
   "usbErrorNoDeviceSelected": "USB-пристрій не вибрано.",
   "usbErrorPortClosed": "USB-підключення закрите.",
   "usbFallbackDeviceName": "Пристрій Web Serial",
-  "@usbConnectionFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "usbStatus_searching": "Пошук USB-пристроїв…",
   "usbStatus_notConnected": "Виберіть USB-пристрій",
-  "usbConnectionFailed": "Помилка USB: {error}",
   "usbStatus_connecting": "Підключення до USB-пристрою…",
   "usbErrorConnectTimedOut": "Час очікування вичерпано. Перевірте, що на пристрої встановлено прошивку USB Companion.",
   "@tcpStatus_connectingTo": {
@@ -2148,25 +1911,8 @@
   "contact_teleEnvSubtitle": "Дозволити передачу даних сенсорів середовища",
   "appSettings_maxMessageRetries": "Макс. повторів повідомлення",
   "appSettings_maxMessageRetriesSubtitle": "Кількість спроб, після яких повідомлення вважається недоставленим",
-  "appSettings_ipfsImageLinks": "Налаштування IPFS-провайдера",
-  "appSettings_ipfsImageLinksSubtitle": "Вивантаження зображень і файлів за URL через IPFS-провайдера та шлюз за замовчуванням для отримання",
-  "appSettings_loadLinkImages": "Завантажувати зображення за посиланнями",
-  "appSettings_loadLinkImagesSubtitle": "Показувати зображення за посиланнями в повідомленнях. Завантаження повідомляє вашу IP-адресу сайту, що його розміщує.",
-  "appSettings_showLinkImagesByDefault": "Показувати зображення за посиланнями в усіх чатах",
-  "appSettings_showLinkImagesByDefaultSubtitle": "Завантажувати зображення за посиланнями в кожному чаті, якщо його не вимкнено окремо. Ваша IP-адреса стає відомою хостам зображень у кожному чаті.",
-  "appSettings_publicIpfsGateway": "Публічний шлюз",
-  "appSettings_ipfsGatewayDeactivated": "Вимкнено",
-  "appSettings_ipfsGatewayCustom": "Власний (Kubo)",
-  "appSettings_uploadIpfsProvider": "Провайдер вивантаження",
-  "appSettings_uploadIpfsGateway": "Шлюз вивантаження",
-  "appSettings_uploadIpfsGatewaySubtitle": "Шлюз для поширення зображень і файлів як URL. Якщо порожньо, використовується формат ipfs:, який інші клієнти можуть не відкрити.",
-  "appSettings_uploadIpfsEndpoint": "Endpoint вивантаження",
-  "appSettings_uploadIpfsEndpointSubtitle": "API endpoint для вивантаження файлів",
-  "appSettings_uploadIpfsApiKey": "API-ключ вивантаження",
-  "appSettings_ipfsImageLinksDescription": "Публічний шлюз завантажує зображення у форматі ipfs:. Шлюз вивантаження створює посилання на вивантажені зображення чи файли.",
   "settings_telemetryModeUpdated": "Режим телеметрії оновлено",
   "map_showOverlaps": "Збіги ключів репітерів",
-  "map_runTraceWithReturnPath": "Повернення тим самим шляхом.",
   "@radioStats_noiseFloor": {
     "placeholders": {
       "noiseDbm": {
@@ -2202,13 +1948,6 @@
       }
     }
   },
-  "@radioStats_stripNoise": {
-    "placeholders": {
-      "noiseDbm": {
-        "type": "int"
-      }
-    }
-  },
   "chat_sendCooldown": "Зачекайте перед наступним надсиланням.",
   "appSettings_jumpToOldestUnreadSubtitle": "При відкритті чату з непрочитаними прокручувати до першого непрочитаного, а не до останнього.",
   "appSettings_autoFetchRepeaterSettings": "Автозавантаження налаштувань репітера",
@@ -2225,8 +1964,6 @@
   "radioStats_txAir": "TX airtime (загалом): {seconds} с",
   "radioStats_rxAir": "RX airtime (загалом): {seconds} с",
   "radioStats_chartCaption": "Рівень шуму (дБм) за останні вибірки.",
-  "radioStats_stripNoise": "Шум: {noiseDbm} дБм",
-  "radioStats_stripWaiting": "Отримання статистики радіо…",
   "radioStats_settingsTile": "Статистика радіо",
   "radioStats_settingsSubtitle": "Шум, RSSI, SNR і airtime",
   "@translation_downloadFailed": {
@@ -2311,19 +2048,16 @@
   "repeater_cliHelpDiscoverNeighbors": "Надсилає запит виявлення вузлів сусідам. (лише репітер)",
   "repeater_cliHelpPowersaving": "Показує, чи ввімкнено powersaving.",
   "repeater_cliHelpPowersavingOnOff": "Вмикає або вимикає powersaving (де підтримується).",
-  "repeater_cliHelpErase": "(Лише serial) Форматує файлову систему. Стирає всі налаштування й контакти.",
   "repeater_cliHelpSetDutyCycle": "Задає макс. duty cycle передачі у відсотках (1–100). Внутрішньо змінює airtime factor.",
   "repeater_cliHelpSetPrvKey": "Замінює приватний ключ ідентичності. Потрібне перезавантаження. Створює новий публічний ключ.",
   "repeater_cliHelpSetRadioRxGain": "(лише SX126x) Перемикає підсилений RX gain: вища чутливість, більший струм.",
   "repeater_cliHelpSetOwnerInfo": "Задає контактні дані власника для advert. «|» — новий рядок.",
   "repeater_cliHelpSetPathHashMode": "Задає розмір ID вузла в advert цього репітера: 0 = 1 байт (до 64 хопів), 1 = 2 байти (до 32 хопів), 2 = 3 байти (до 21 хопа). 3 зарезервовано. Не впливає на пересилання. Потрібна прошивка v1.14+.",
   "repeater_cliHelpSetLoopDetect": "Задає чутливість виявлення петель маршрутизації: off, minimal, moderate або strict.",
-  "repeater_cliHelpSetFreq": "(Лише serial) Швидко задає лише частоту. Потрібне перезавантаження. Для повних параметрів краще «set radio».",
   "repeater_cliHelpSetBridgeChannel": "(Лише міст ESPNow) Задає WiFi-канал (1–14) моста.",
   "repeater_cliHelpGetName": "Показує ім'я вузла.",
   "repeater_cliHelpGetRole": "Показує роль прошивки (Repeater, Room Server тощо).",
   "repeater_cliHelpGetPublicKey": "Показує публічний ключ пристрою.",
-  "repeater_cliHelpGetPrvKey": "(Лише serial) Показує приватний ключ пристрою. Тримайте в секреті.",
   "repeater_cliHelpGetRepeat": "Показує, чи ввімкнено пересилання пакетів (роль репітера).",
   "repeater_cliHelpGetTx": "Показує поточну потужність TX у дБм.",
   "repeater_cliHelpGetFreq": "Показує частоту радіо в МГц.",
@@ -2347,7 +2081,6 @@
   "repeater_cliHelpGetOwnerInfo": "Показує контактні дані власника.",
   "repeater_cliHelpGetPathHashMode": "Показує режим розміру ID вузла в advert (0 = 1 байт, 1 = 2 байти, 2 = 3 байти).",
   "repeater_cliHelpGetLoopDetect": "Показує чутливість виявлення петель.",
-  "repeater_cliHelpGetAcl": "(Лише serial) Показує записи ACL репітера.",
   "repeater_cliHelpGetBridgeEnabled": "Показує, чи ввімкнено міст.",
   "repeater_cliHelpGetBridgeDelay": "Показує затримку моста (мс).",
   "repeater_cliHelpGetBridgeSource": "Показує, чи міст журналює RX чи TX пакети.",
@@ -2367,9 +2100,6 @@
   "repeater_cliHelpRegionDefaultSet": "Задає регіон за замовчуванням. «<null>» очищає.",
   "repeater_cliHelpRegionListAllowed": "Виводить регіони, що дозволяють flood.",
   "repeater_cliHelpRegionListDenied": "Виводить регіони, що забороняють flood.",
-  "repeater_cliHelpStatsPackets": "(Лише serial) Показує статистику пакетів.",
-  "repeater_cliHelpStatsRadio": "(Лише serial) Показує статистику радіо.",
-  "repeater_cliHelpStatsCore": "(Лише serial) Показує статистику ядра прошивки.",
   "background_serviceTitle": "MeshCore працює",
   "background_serviceText": "BLE-з'єднання активне",
   "appSettings_translationModelDeleted": "Видалено: {name}",
@@ -2398,30 +2128,10 @@
       }
     }
   },
-  "@losSelectedObstructionDetails": {
-    "placeholders": {
-      "obstruction": {
-        "type": "String"
-      },
-      "heightUnit": {
-        "type": "String"
-      },
-      "distanceFromA": {
-        "type": "String"
-      },
-      "distanceUnit": {
-        "type": "String"
-      },
-      "distanceFromB": {
-        "type": "String"
-      }
-    }
-  },
   "losBlockedSpotsHint": "Торкніться перешкоди, щоб виділити її на мапі.",
   "losBlockedSpotsTitle": "Перешкоди",
   "losSelectedObstructionTitle": "Вибрана перешкода",
   "losBlockedSpotChip": "{distance} {distanceUnit} • {obstruction} {heightUnit}",
-  "losSelectedObstructionDetails": "Перешкода {obstruction} {heightUnit}, {distanceFromA} від A і {distanceFromB} від B ({distanceUnit}).",
   "settings_companionDebugLog": "Журнал Companion",
   "settings_companionDebugLogSubtitle": "Команди, відповіді та сирі дані BLE/TCP/USB",
   "chat_newMessages": "Нові повідомлення",
@@ -2466,11 +2176,9 @@
     }
   },
   "messageStatus_delivered": "Доставлено. Контакт підтвердив отримання.",
-  "messageStatus_sent": "Надіслано",
   "common_undo": "Скасувати дію",
   "messageStatus_pending": "Надсилання",
   "messageStatus_failed": "Не надіслано",
-  "messageStatus_repeated": "Чути повтор",
   "contacts_moreOptions": "Більше",
   "contacts_searchOpen": "Пошук контактів",
   "contacts_searchClose": "Закрити пошук",
@@ -2614,13 +2322,6 @@
   "pathMap_followPacket": "Стежити за пакетом",
   "pathMap_unfollowPacket": "Не стежити за пакетом",
   "pathMap_gpsCount": "GPS {confirmed}/{total}",
-  "@settings_deleteRegionConfirm": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
   "@channels_regionSetTo": {
     "placeholders": {
       "region": {
@@ -2635,13 +2336,6 @@
   "@repeater_pubKeyPrefixHelper": {
     "placeholders": {
       "tries": {
-        "type": "int"
-      }
-    }
-  },
-  "@imageSend_packetsCount": {
-    "placeholders": {
-      "count": {
         "type": "int"
       }
     }
@@ -2741,53 +2435,16 @@
       }
     }
   },
-  "settings_regionSettings": "Регіони",
-  "settings_regionSettingsSubtitle": "Обмеження flood-пакетів каналів областю",
-  "settings_regionManagement_screenTitle": "Керування регіонами",
-  "settings_regionNameHint": "Введіть назву регіону",
-  "settings_regionAddRegion": "Додати регіон",
-  "settings_regionFetchRegions": "Отримати регіони від репітерів",
-  "settings_regionFetchRegionsFail": "Регіонів не знайдено",
-  "settings_regionFetchRegionsAlreadyExists": "Цей регіон уже додано",
   "settings_regionName": "Назва регіону",
-  "settings_regionDeleted": "Регіон видалено",
-  "settings_deleteRegion": "Видалити регіон",
-  "settings_deleteRegionConfirm": "Прибрати «{region}» зі списку регіонів?",
   "settings_infoHardware": "Обладнання",
   "settings_infoFirmware": "Прошивка",
   "repeater_pathHashModeOption0": "1 байт",
   "repeater_pathHashModeOption1": "2 байти",
   "repeater_pathHashModeOption2": "3 байти",
-  "repeater_pathHashModeOption3": "4 байти",
   "appSettings_batteryLipoHv": "LiPo HV (3,0–4,35 В)",
   "channels_regionSetTo": "Регіон: {region}",
-  "channels_regionNotSet": "Регіон: немає",
-  "channels_regionSelect_Title": "Виберіть регіон",
-  "channels_clearRegion": "Скинути регіон",
   "chat_sendImageLora": "Надіслати зображення по радіо",
-  "chat_sendImageIpfs": "Надіслати зображення чи файл через IPFS",
-  "chat_ipfsUploadFailed": "Помилка вивантаження в IPFS: {error}",
-  "@chat_ipfsUploadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "chat_ipfsUploadNotConfigured": "Спершу налаштуйте провайдера вивантаження IPFS у налаштуваннях застосунку.",
   "chat_ipfsSelectedFileEmpty": "Вибраний файл порожній.",
-  "chat_ipfsEndpointInvalid": "Endpoint вивантаження IPFS має бути повною адресою http:// або https://. Перевірте в налаштуваннях застосунку.",
-  "chat_ipfsPinataTokenMissing": "Для Pinata потрібен API-ключ або JWT. Додайте його в налаштуваннях застосунку.",
-  "chat_ipfsFilebaseTokenMissing": "Для Filebase потрібен API-токен. Додайте його в налаштуваннях застосунку.",
-  "chat_ipfsKuboPathInvalid": "Endpoint Kubo має закінчуватися на /api/v0/add. Перевірте в налаштуваннях застосунку.",
-  "chat_ipfsLinkNoRoom": "Немає місця для посилання на зображення. Скоротіть повідомлення й повторіть.",
-  "@chat_ipfsLinkNoRoom": {
-    "description": "Shown before an IPFS upload when the link would push the draft over the message size limit"
-  },
-  "chat_ipfsLinkOverLimit": "Посилання додано, але повідомлення задовге. Скоротіть його перед надсиланням.",
-  "@chat_ipfsLinkOverLimit": {
-    "description": "Shown after an IPFS upload when the link plus the draft no longer fits the message size limit"
-  },
   "chat_imagePickFailed": "Не вдалося відкрити зображення",
   "chat_receivedGif": "Отримано GIF",
   "repeater_keySettings": "Змінити ключі ідентичності",
@@ -2808,11 +2465,9 @@
   "imageMessages_removeModel": "Видалити модель",
   "imageMessages_modelReady": "Готово",
   "imageMessages_modelNotPublished": "Ще не опублікована — ця збірка не може її завантажити.",
-  "imageMessages_downloadFailed": "Не вдалося завантажити модель зображень.",
   "imageMessages_autoProcessTitle": "Обробляти зображення автоматично",
   "imageMessages_autoProcessSubtitle": "Відновлювати кожне зображення одразу після отримання. Щоразу до секунди використовує близько 2 ГБ пам'яті; вимкніть, щоб відновлювати дотиком.",
   "imageSend_title": "Надіслати зображення",
-  "imageSend_cropNote": "Зміна розміру до 512 × 512 · пропорції не зберігаються",
   "imageSend_originalSize": "Оригінал",
   "imageSend_onAirSize": "В ефірі",
   "imageSend_quality": "Якість",
@@ -2820,8 +2475,6 @@
   "imageSend_qualityHigh": "Висока",
   "imageSend_packetsLabel": "Пакети",
   "imageSend_airtimeLabel": "Час в ефірі",
-  "imageSend_sizeLabel": "Корисне навантаження",
-  "imageSend_packetsCount": "{count, plural, one{{count} пакет} few{{count} пакети} many{{count} пакетів} other{{count} пакета}}",
   "imageSend_range": "{min}–{max}",
   "imageSend_unknownValue": "—",
   "imageSend_radioUnknownTitle": "Параметри радіо невідомі",
@@ -2838,7 +2491,6 @@
   "imageSend_codecUnavailable": "Надсилання зображень недоступне на цьому пристрої.",
   "imageSend_codecDisabled": "Повідомлення із зображеннями вимкнено в налаштуваннях.",
   "imageSend_deviceUnsupported": "Це радіо не надсилає пакети зображень. Потрібна прошивка companion 13 або новіша.",
-  "imageSend_directMessagesUnsupported": "Зображення передаються як групові дані, тож їх можна надсилати лише в канал, не в особисті повідомлення.",
   "imageSend_tooLarge": "Зображення кодується в більшу кількість пакетів, ніж дозволяє формат.",
   "imageSend_sentConfirmation": "{count, plural, one{Зображення надіслано {count} пакетом} few{Зображення надіслано {count} пакетами} many{Зображення надіслано {count} пакетами} other{Зображення надіслано {count} пакетами}}",
   "imageSend_sendFailed": "Не вдалося надіслати зображення: {error}",
@@ -2884,9 +2536,6 @@
   "settings_publicKeyCopied": "Публічний ключ скопійовано",
   "settings_radioSettingsNotApplied": "Радіо не застосувало ці налаштування",
   "settings_pathHashModeNotApplied": "Налаштування радіо застосовано, але радіо не підтвердило новий розмір path hash",
-  "urlImage_enable": "Увімкнути зображення за URL",
-  "urlImage_possible": "Можливе зображення за URL. Увімкніть у налаштуваннях.",
-  "urlImage_disabledInAppSettings": "Вимкнено в налаштуваннях застосунку",
   "@chat_longMessageRetryNote": {
     "description": "Shown under the DM composer when the message is too long for the firmware's later retry attempts",
     "placeholders": {
@@ -2935,11 +2584,6 @@
       }
     }
   },
-  "settings_regionEmptyExplanation": "Регіони обмежують flood-повідомлення репітерами певної області. Отримайте їх від сусідніх репітерів або додайте за назвою.",
-  "settings_regionFetchFromRepeaters": "Отримати від репітерів",
-  "settings_regionDefault": "Регіон за замовчуванням",
-  "settings_regionDefaultSubtitle": "Для каналів без власного регіону",
-  "settings_regionDefaultNone": "Немає",
   "settings_telemetryPerContactHint": "Щоб дозволити контакту, відкрийте його чат і виберіть «Налаштування контакту» в меню.",
   "settings_multiAckSubtitle": "Додаткові ACK для кращої доставки; більше ефірного часу",
   "settings_presetCustom": "Власний",
@@ -3015,14 +2659,9 @@
     }
   },
   "contacts_noContactsDiscoveredHint": "Вузли, які радіо чує, але ще не додало, показано у «Знайдених контактах»",
-  "channels_hashtag": "Хештег",
   "channels_addSectionJoin": "Приєднатися",
   "channels_addSectionCreate": "Створити",
   "channels_dragToReorder": "Перетягніть, щоб змінити порядок",
-  "channels_regionDefaultSuffix": "(за замовчуванням)",
-  "channels_regionSelectExplanation": "Flood-повідомлення цього каналу пересилатимуть лише репітери вибраного регіону.",
-  "channels_regionEmpty": "Регіонів ще немає.",
-  "channels_manageRegions": "Керування регіонами",
   "chat_removeGif": "Прибрати GIF",
   "chat_cancelReply": "Скасувати відповідь",
   "chat_viewPathOnMap": "Показати шлях на карті",
@@ -3031,7 +2670,6 @@
   "map_centerOnMe": "До мого розташування",
   "map_noNodesLocationHint": "Немає вузлів із свіжим розташуванням. Збільште фільтр за часом або вкажіть своє розташування в налаштуваннях.",
   "map_clusterNodes": "Групувати сусідні вузли",
-  "map_groupChip": "Група",
   "map_clusterNodesSubtitle": "Під час віддалення сусідні вузли показуються одним числовим кружком",
   "map_manageServer": "Керування сервером",
   "login_showPassword": "Показати пароль",
@@ -3105,18 +2743,8 @@
   "reviewMode_testSent": "Тестове повідомлення скоро надійде.",
   "reviewMode_exit": "Вийти",
   "reviewMode_connectFailed": "Не вдалося запустити режим перегляду: {error}",
-  "settings_regionUseRadioDefault": "За замовчуванням радіо ({region})",
-  "settings_regionNoRegion": "Без регіону (unscoped)",
-  "settings_regionRadioDefault": "Регіон радіо за замовчуванням",
-  "settings_regionRadioDefaultSubtitle": "Зберігається на радіо. Його використовують flood-пакети без регіону, надіслані цим або будь-яким іншим застосунком, підключеним до радіо.",
-  "settings_regionRadioDefaultUpdated": "Регіон радіо за замовчуванням оновлено",
-  "settings_regionRadioDefaultFailed": "Не вдалося оновити регіон радіо за замовчуванням",
   "appSettings_channelMinHopsCountRepeaters": "Рахувати також різні сусідні репітери",
   "appSettings_channelMinHopsCountRepeatersSubtitle": "Повідомлення вважається надісланим, коли його повторили {count, plural, one{{count} сусідній репітер} few{{count} різні сусідні репітери} many{{count} різних сусідніх репітерів} other{{count} різного сусіднього репітера}}, навіть якщо далі ви його не чуєте.",
-  "appSettings_regionOnHopsLine": "Регіон біля числа хопів",
-  "appSettings_regionOnHopsLineSubtitle": "Показувати регіон повідомлення каналу в одному рядку з числом хопів, а не під ним.",
-  "channels_regionRadioDefaultSuffix": "(радіо за замовчуванням)",
-  "channels_regionRadioDefaultApplies": "Це радіо надсилає flood-пакети без регіону у своєму регіоні за замовчуванням: {region}.",
   "chat_futureTimestampWarning": "Час повідомлення в майбутньому: годинник відправника, ймовірно, збитий. Повідомлення показано в порядку надходження.",
   "discoveredContacts_scan": "Пошук вузлів поруч",
   "discoveredContacts_scanTitle": "Вузли поруч",
@@ -3235,10 +2863,6 @@
   "settings_publicKeyCopyHint": "Копіювати публічний ключ",
   "settings_locationClearHelper": "Залиште обидва поля порожніми, щоб видалити розташування.",
   "settings_locationCleared": "Розташування видалено",
-  "settings_regionFetchDiscovering": "Пошук репітерів поруч…",
-  "settings_regionFetchProgress": "Запит до репітера {current} з {total}…",
-  "settings_regionFetchNoRepeaters": "Репітерів ще не знайдено. Додайте репітер у контакти або дочекайтеся його advert і повторіть.",
-  "settings_regionFetchNoneResponded": "Репітери поруч не відповіли. Підійдіть ближче й повторіть.",
   "appSettings_sourceSummary": "{label} — {description}",
   "appSettings_routingSection": "Маршрутизація",
   "appSettings_resetRoutingToDefault": "Скинути алгоритм маршрутизації",
@@ -3284,39 +2908,6 @@
   "neighbors_durationSeconds": "{seconds} с",
   "neighbors_durationMinutes": "{minutes} хв {seconds} с",
   "neighbors_durationHours": "{hours} год {minutes} хв",
-  "scanner_getNodeTitle": "Потрібен новий вузол?",
-  "scanner_getNodeBody": "Кишеньковий, з MeshCore, дводіапазонним GPS, водозахистом і 5 днями роботи від акумулятора.",
-  "scanner_getNodeAction": "Придбати",
-  "scanner_getNodeDisclosure": "Партнерське посилання: кожна покупка підтримує MeshCore Open.",
-  "networkMap_settingsSection": "Мапа мережі",
-  "networkMap_uploadTitle": "Ділитися тим, що чує радіо",
-  "networkMap_uploadExplanation": "Коли ввімкнено й радіо підключене, застосунок надсилає на мапу мережі MeshCore Open короткий підсумок пакетів, які чує радіо, щоб усі бачили репітери та їхні зв'язки. Надсилаються тип пакета, маршрут, хопи, рівень сигналу й розмір, а також імена й приблизні координати репітерів з їхніх advert. Ніколи не надсилаються текст повідомлень, хто з ким спілкується, назви каналів, ваші контакти чи точна позиція: координати округлюються приблизно до 2 км, а застосунок щодня отримує новий випадковий ID.",
-  "networkMap_whatWeCollect": "Які дані збираємо",
-  "networkMap_promptTitle": "Допомогти будувати мапу мережі?",
-  "networkMap_promptBody": "MeshCore Open може ділитися тим, що чує радіо, з публічною мапою мережі map.meshcoreopen.org, щоб усі бачили репітери та їхні зв'язки.\n\nНіколи не надсилаються текст повідомлень, хто з ким спілкується, назви каналів, ваші контакти чи точна позиція. Координати округлюються приблизно до 2 км.",
-  "networkMap_promptSettingsHint": "Змінити можна будь-коли: Налаштування → Налаштування застосунку → Мапа мережі.",
-  "networkMap_promptAccept": "Ділитися",
-  "networkMap_promptDecline": "Ні, дякую",
-  "networkMap_statusOff": "Вимкнено. Нічого не надсилається.",
-  "networkMap_statusWaiting": "Увімкнено. Очікування підключення радіо.",
-  "networkMap_statusNothingSent": "Увімкнено. Ще нічого не надіслано.",
-  "networkMap_statusLastSent": "Останнє надсилання: {time}. Пакетів сьогодні: {count}.",
-  "@networkMap_statusLastSent": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "networkMap_sourceLocal": "Локальні",
-  "networkMap_sourceOnline": "Онлайн",
-  "networkMap_sourceBoth": "Обидва",
-  "networkMap_sourceLocalHint": "Вузли, почуті вашим радіо",
-  "networkMap_sourceOnlineHint": "Репітери з онлайн-мапи мережі",
-  "networkMap_sourceBothHint": "Вузли вашого радіо та онлайн-мапа мережі",
   "networkMap_zoomInHint": "Збільште масштаб, щоб побачити онлайн-мапу мережі",
   "networkMap_loadFailed": "Не вдалося завантажити онлайн-мапу мережі",
   "networkMap_inYourContacts": "У ваших контактах",
@@ -3594,10 +3185,10 @@
       }
     }
   },
-  "pathMap_expandHopList": "Розгорнути список ретрансляторів",
+  "pathMap_expandHopList": "Розгорнути список репітерів",
   "pathMap_showMap": "Показати карту",
   "routing_modeDirect": "Напряму",
-  "routing_modeDirectHint": "Завжди надсилає напряму цьому контакту, без проміжних ретрансляторів. Використовуйте, якщо він у зоні радіозв'язку.",
+  "routing_modeDirectHint": "Завжди надсилає напряму цьому контакту, без проміжних репітерів. Використовуйте, якщо він у зоні радіозв'язку.",
   "settings_export": "Експорт",
   "settings_exportSubtitle": "Експорт контактів і репітерів у GPX",
   "backupRestore_title": "Резервне копіювання",
@@ -3609,7 +3200,6 @@
   "backupRestore_importUnavailable": "Перевірте пароль або виберіть підтримуваний файл резервної копії.",
   "backupRestore_items": "Елементи резервної копії та відновлення",
   "backupRestore_nodeSettings": "Налаштування вузла",
-  "backupRestore_nodeSettingsDescription": "Назва пристрою, приватний і публічний ключі, налаштування радіо та регіони",
   "backupRestore_deviceName": "Назва пристрою",
   "backupRestore_privateKey": "Приватний ключ (секретний)",
   "backupRestore_publicKey": "Публічний ключ",
@@ -3628,17 +3218,12 @@
   "backupRestore_communities": "Спільноти",
   "backupRestore_channelHistory": "Історія каналів",
   "backupRestore_locationSettings": "Налаштування місцезнаходження",
-  "backupRestore_locationSettingsDescription": "Місцезнаходження, налаштування контактів і приватності",
   "backupRestore_appSettings": "Налаштування застосунку",
-  "backupRestore_appSettingsDescription": "Параметри застосунку та зовнішнього вигляду",
   "backupRestore_ipfsKey": "Ключ API IPFS (секретний)",
   "backupRestore_stadiaMapKey": "Ключ API Stadia Maps (секретний)",
   "backupRestore_contacts": "Контакти",
-  "backupRestore_contactsDescription": "Контакти, фільтри й налаштування по контактах, групи та історія повідомлень",
   "backupRestore_discoveredContacts": "Виявлені контакти",
-  "backupRestore_discoveredContactsDescription": "Виявлені контакти та їхні збережені дані",
   "backupRestore_channels": "Канали",
-  "backupRestore_channelsDescription": "Канали, фільтри каналів, спільноти та історія повідомлень",
   "backupRestore_backup": "Створити резервну копію",
   "backupRestore_restore": "Відновити вибране",
   "backupRestore_backupComplete": "Файл резервної копії створено.",
@@ -3653,7 +3238,6 @@
   "backupRestore_selectAtLeastOne": "Виберіть принаймні один елемент.",
   "backupRestore_replaceIdentityTitle": "Замінити ідентифікатор радіо?",
   "backupRestore_replaceIdentityMessage": "Відновлення налаштувань вузла замінює приватний ключ підключеного радіо та змінює його ідентифікатор. Продовжуйте, лише якщо це навмисно.",
-  "appSettings_languagePtPt": "Португальська (Португалія)",
   "receivedImage_syntheticBadge": "Відновлено ШІ",
   "appBar_offlineSubtitle": "Офлайн · {name}",
   "appBar_offline": "Офлайн",
@@ -3665,13 +3249,6 @@
   "connectSheet_stopReconnecting": "Зупинити перепідключення",
   "connectSheet_reconnectFailed": "Не вдалося зв'язатися з {name}. Переконайтеся, що воно увімкнене й поруч.",
   "chat_composerOffline": "Підключіться до радіо, щоб надсилати повідомлення",
-  "@settings_regionUseRadioDefault": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
   "@themes_holidayAutoApplied": {
     "placeholders": {
       "holiday": {
@@ -3721,14 +3298,6 @@
       }
     }
   },
-  "appSettings_maxRouteWeight": "Макс. вага маршруту",
-  "appSettings_maxRouteWeightSubtitle": "Максимальна вага шляху за успішні доставки",
-  "appSettings_initialRouteWeight": "Початкова вага маршруту",
-  "appSettings_initialRouteWeightSubtitle": "Початкова вага нових шляхів",
-  "appSettings_routeWeightSuccessIncrement": "Приріст ваги за успіх",
-  "appSettings_routeWeightSuccessIncrementSubtitle": "Вага, що додається шляху після успішної доставки",
-  "appSettings_routeWeightFailureDecrement": "Зменшення ваги за невдачу",
-  "appSettings_routeWeightFailureDecrementSubtitle": "Вага, що віднімається від шляху після невдалої доставки",
   "@contacts_searchContacts": {
     "placeholders": {
       "number": {
@@ -3758,20 +3327,12 @@
       }
     }
   },
-  "@channels_regionRadioDefaultApplies": {
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
-  },
   "@chat_shareMyLocation": {
     "description": "Chat input menu action that shares the radio's own position as a map marker"
   },
   "@chat_noRadioLocation": {
     "description": "Shown when sharing a location but the radio reports no usable position"
   },
-  "map_disconnectConfirm": "Відключитися від цього пристрою?",
   "@telemetry_altitudeValue": {
     "placeholders": {
       "meters": {
@@ -3865,20 +3426,6 @@
   "@discoveredContacts_importTooLarge": {
     "placeholders": {
       "maxMb": {
-        "type": "int"
-      }
-    }
-  },
-  "@notification_messagesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@notification_channelMessagesCount": {
-    "placeholders": {
-      "count": {
         "type": "int"
       }
     }
@@ -4270,16 +3817,6 @@
         "type": "int"
       },
       "max": {
-        "type": "int"
-      }
-    }
-  },
-  "@settings_regionFetchProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
         "type": "int"
       }
     }

@@ -6584,7 +6584,7 @@ class MeshCoreConnector extends ChangeNotifier {
     // The reassembler reports in-progress streams as failed while the store
     // can still map them to their entries, so drop it first.
     _imageTransport?.reassembler.clearChannel(slot);
-    _fileTransferService?.clearChannel(slot);
+    _fileTransferService?.forgetChannel(slot);
     _receivedImageStore?.forgetChannelSlot(slot);
   }
 
@@ -6694,6 +6694,8 @@ class MeshCoreConnector extends ChangeNotifier {
     await _coalescedWrites.flush();
     _channelMessages.remove(index);
     _processedChannelReactions.remove(index);
+    // Files are kept per slot, so they go with the deleted channel.
+    _fileTransferService?.forgetChannel(index);
     try {
       // Refresh before clearing history so messages from an in-flight queue
       // sync cannot recreate the channel's stored history after it is deleted.
@@ -10485,6 +10487,7 @@ class MeshCoreConnector extends ChangeNotifier {
     if (channelId != null) {
       unawaited(_channelMessageStore.clearChannelMessages(channelId));
     }
+    _fileTransferService?.forgetChannel(channelIndex);
     markChannelRead(channelIndex);
     notifyListeners();
   }

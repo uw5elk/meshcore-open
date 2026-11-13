@@ -301,4 +301,22 @@ class FileTransferService extends ChangeNotifier {
   void clear() => _engine.clear();
 
   void clearChannel(int channelIndex) => _engine.clearChannel(channelIndex);
+
+  /// Removes every file shown on [channelIndex], from the list and from
+  /// storage: the chat was cleared, or the slot was deleted or now holds a
+  /// different channel. A file still being sent there is cancelled first.
+  void forgetChannel(int channelIndex) {
+    _engine.clearChannel(channelIndex);
+    for (final job in _engine.jobs.toList()) {
+      if (job.channelIndex != channelIndex) continue;
+      if (job.isActive) {
+        if (job.outgoing) {
+          final id = job.id;
+          unawaited(_engine.cancel(id).then((_) => dismiss(id)));
+        }
+      } else {
+        dismiss(job.id);
+      }
+    }
+  }
 }

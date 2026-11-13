@@ -20,7 +20,6 @@ import '../helpers/chat_scroll_controller.dart';
 import '../connector/meshcore_protocol.dart';
 import '../helpers/cyr2lat.dart';
 import '../helpers/gif_helper.dart';
-import '../helpers/ipfs_link_attach_flow.dart';
 import '../helpers/contact_share_message.dart';
 import '../helpers/marker_message.dart';
 import '../helpers/message_search.dart';
@@ -1333,26 +1332,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             },
                           )
                         else
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (settingsService.settings.loadLinkImages &&
-                                  MessageUrlImageHelper.hasPotentialImageUrl(
-                                    message.text,
-                                  ))
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    context.l10n.urlImage_possible,
-                                    style: TextStyle(
-                                      color: metaColor,
-                                      fontSize: 12 * textScale,
-                                    ),
-                                  ),
-                                ),
-                              buildTextContent(),
-                            ],
-                          ),
+                          buildTextContent(),
                         if (displayPath.isNotEmpty) ...[
                           const SizedBox(height: 3),
                           Padding(
@@ -1899,23 +1879,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               ),
             )
           : null,
-    );
-  }
-
-  Future<void> _sendImageViaIpfs() {
-    final connector = context.read<MeshCoreConnector>();
-    return attachIpfsLinkToDraft(
-      context: context,
-      controller: _textController,
-      focusNode: _textFieldFocusNode,
-      maxBytes: maxChannelMessageBytes(connector.selfName),
-      encodeOutbound: (text) {
-        final replyTo = _replyingToMessage;
-        return connector.prepareChannelOutboundText(
-          widget.channel.index,
-          replyTo == null ? text : '${_replyPrefix(replyTo)}$text',
-        );
-      },
     );
   }
 
@@ -2977,9 +2940,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final showImageAction = context.select<AppSettingsService, bool>(
       (s) => s.settings.imageMessagesEnabled,
     );
-    final showIpfsAction = context.select<AppSettingsService, bool>(
-      (s) => s.settings.uploadIpfsEndpoint.trim().isNotEmpty,
-    );
     final replyTo = _replyingToMessage;
     final replyPrefixBytes = replyTo == null
         ? 0
@@ -3015,12 +2975,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       actionsBuilder: () {
         final connector = context.read<MeshCoreConnector>();
         return [
-          if (showIpfsAction)
-            ChatComposerAction(
-              id: 'ipfs-image',
-              icon: Icons.cloud_upload_outlined,
-              label: context.l10n.chat_sendImageIpfs,
-            ),
           if (showImageAction)
             ChatComposerAction(
               id: 'meshcore-image',
@@ -3061,10 +3015,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       onAction: (action) {
         if (!mounted) return;
         switch (action) {
-          case 'gif':
-            showChatGifPicker(context, _textController);
-          case 'ipfs-image':
-            _sendImageViaIpfs();
           case 'meshcore-image':
             _showImageSendPreview();
           case 'meshcore-file':

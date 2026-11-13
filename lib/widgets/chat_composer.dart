@@ -10,7 +10,6 @@ import '../utils/radio_guard.dart';
 import 'byte_count_input.dart';
 import 'connect_sheet.dart';
 import 'gif_message.dart';
-import 'gif_picker.dart';
 import 'mesh_ui.dart';
 import 'message_translation_button.dart';
 import '../theme/theme_icons.dart';
@@ -27,18 +26,6 @@ class ChatComposerAction {
     required this.icon,
     required this.label,
   });
-}
-
-/// Opens the GIF picker and puts the chosen GIF into [controller].
-void showChatGifPicker(BuildContext context, TextEditingController controller) {
-  showMeshSheet<void>(
-    context,
-    builder: (context) => GifPicker(
-      onGifSelected: (gifId) {
-        controller.text = GifHelper.encodeGif(gifId);
-      },
-    ),
-  );
 }
 
 /// Opens the outgoing-translation options sheet.

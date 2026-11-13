@@ -161,6 +161,7 @@ class NetworkMapUploadService extends ChangeNotifier {
     required AppSettingsService settings,
     http.Client? client,
     this.baseUrl = networkMapBaseUrl,
+    this.uploadsAllowed = true,
   }) : _connector = connector,
        _settings = settings,
        _client = client ?? http.Client() {
@@ -170,7 +171,12 @@ class NetworkMapUploadService extends ChangeNotifier {
     _sync();
   }
 
-  bool get enabled => _settings.settings.networkMapUploadEnabled;
+  /// False in builds without internet features: nothing is uploaded, even
+  /// when a restored backup carries the old opt-in.
+  final bool uploadsAllowed;
+
+  bool get enabled =>
+      uploadsAllowed && _settings.settings.networkMapUploadEnabled;
 
   /// True while frames are being collected.
   bool get isActive => _frameSub != null;

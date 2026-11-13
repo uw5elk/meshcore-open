@@ -508,30 +508,30 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                       final showChip =
                           showDragHandle && box.maxWidth >= 90 * textScale;
                       return Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          channelLabel,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (showChip) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          context.l10n.channels_indexChip(channel.index),
-                          style: MeshTheme.mono(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant.withValues(
-                              alpha: 0.7,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              channelLabel,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w500),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (showChip) ...[
+                            const SizedBox(width: 6),
+                            Text(
+                              context.l10n.channels_indexChip(channel.index),
+                              style: MeshTheme.mono(
+                                fontSize: 12,
+                                color: scheme.onSurfaceVariant.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       );
                     },
                   ),
@@ -1963,11 +1963,6 @@ void showEditChannelSheet(
   );
   bool smazEnabled = connector.isChannelSmazEnabled(channel.index);
   bool cyr2latEnabled = connector.isChannelCyr2LatEnabled(channel.index);
-  final initialUrlImagesEnabled = connector.isChannelUrlImagesEnabled(
-    channel.index,
-  );
-  bool urlImagesEnabled = initialUrlImagesEnabled;
-  final loadLinkImages = appSettingsService.settings.loadLinkImages;
   String? selectedCyr2LatProfileId = connector.getChannelCyr2LatProfileId(
     channel.index,
   );
@@ -2084,22 +2079,6 @@ void showEditChannelSheet(
                           ),
                         ),
                       ],
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(sheetContext.l10n.urlImage_enable),
-                        subtitle: loadLinkImages
-                            ? null
-                            : Text(
-                                sheetContext
-                                    .l10n
-                                    .urlImage_disabledInAppSettings,
-                              ),
-                        value: urlImagesEnabled,
-                        onChanged: loadLinkImages
-                            ? (value) =>
-                                  setSheetState(() => urlImagesEnabled = value)
-                            : null,
-                      ),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -2159,12 +2138,6 @@ void showEditChannelSheet(
                                 channel.index,
                                 cyr2latEnabled,
                               );
-                              if (urlImagesEnabled != initialUrlImagesEnabled) {
-                                await connector.setChannelUrlImagesEnabled(
-                                  channel.index,
-                                  urlImagesEnabled,
-                                );
-                              }
                               await connector.setChannelCyr2LatProfileId(
                                 channel.index,
                                 selectedCyr2LatProfileId,
